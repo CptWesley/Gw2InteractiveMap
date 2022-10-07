@@ -38,7 +38,7 @@ const router = createBrowserRouter(
         },
     ],
     {
-        basename: '/autoruntest',
+        basename: '/Gw2InteractiveMap',
     },
 );
 
