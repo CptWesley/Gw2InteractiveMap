@@ -1,0 +1,66 @@
+import { Outlet } from 'react-router-dom';
+import { GlobalStyles } from 'tss-react';
+import { makeStyles, style, theme } from '@/theme';
+import { Helmet } from 'react-helmet';
+import '@/style/lato-fonts.css';
+import { ThemeProvider } from '@mui/material';
+import NavBar from '@/controls/NavBar';
+
+const useStyles = makeStyles()(theme => {
+    return {
+        app: {
+            background: theme.background,
+        },
+        content: {
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+        },
+        toolbar: {
+            fontStyle: 'normal',
+        },
+        toolbarButton: {
+            fontWeight: 'bold',
+            // color: theme.buttonColor,
+            // background: theme.buttonBackground,
+        },
+        toolbarIcon: {
+            '& svg': {
+                height: '100%',
+            },
+            height: '100%',
+        },
+    };
+});
+
+export default function App() {
+    const { classes } = useStyles();
+
+    return (
+        <div className={classes.app}>
+            <GlobalStyles
+                styles={{
+                    body: {
+                        background: style.background,
+                        fontFamily: style.bodyFontFamily,
+                        fontSize: style.bodyFontSize,
+                        color: style.color,
+                        margin: 0,
+                        height: '100vh',
+                    },
+                }}
+            />
+            <Helmet>
+                <title>CptWesley's Guild Wars 2 Interactive Map</title>
+                <meta name='viewport' content='initial-scale=1, width=device-width' />
+            </Helmet>
+            <ThemeProvider theme={theme}>
+                <NavBar />
+                <div className={classes.content}>
+                    <Outlet />
+                </div>
+            </ThemeProvider>
+        </div>
+    );
+}

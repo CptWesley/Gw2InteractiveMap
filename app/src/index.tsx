@@ -1,15 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
-import ErrorPage from './ErrorPage';
+import App from '@/views/App';
+import reportWebVitals from '@/reportWebVitals';
+import ErrorPage from '@/views/ErrorPage';
 import {
     createBrowserRouter,
     RouterProvider,
 } from 'react-router-dom';
-import HelloWorld from './HelloWorld';
-import Tile from './Tile';
+import HelloWorld from '@/views/HelloWorld';
+import Tile from '@/views/Tile';
 
 const root = ReactDOM.createRoot(
     document.getElementById('root') as HTMLElement
