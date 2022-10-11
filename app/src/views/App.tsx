@@ -1,7 +1,7 @@
 import { Outlet } from 'react-router-dom';
 import { GlobalStyles } from 'tss-react';
 import { makeStyles, style, theme } from '@/theme';
-import { Helmet } from 'react-helmet';
+import { Helmet, HelmetProvider } from 'react-helmet-async';
 import '@/style/lato-fonts.css';
 import { ThemeProvider } from '@mui/material';
 import NavBar from '@/controls/NavBar';
@@ -40,7 +40,7 @@ export default function App() {
     const { classes } = useStyles();
 
     return (
-        <div className={classes.app}>
+        <HelmetProvider>
             <GlobalStyles
                 styles={{
                     '* ': {
@@ -60,12 +60,14 @@ export default function App() {
                 <title>CptWesley's Guild Wars 2 Interactive Map</title>
                 <meta name='viewport' content='initial-scale=1, width=device-width' />
             </Helmet>
-            <ThemeProvider theme={theme}>
-                <NavBar />
-                <div className={classes.content}>
-                    <Outlet />
-                </div>
-            </ThemeProvider>
-        </div>
+            <div className={classes.app}>
+                <ThemeProvider theme={theme}>
+                    <NavBar />
+                    <div className={classes.content}>
+                        <Outlet />
+                    </div>
+                </ThemeProvider>
+            </div>
+        </HelmetProvider>
     );
 }
