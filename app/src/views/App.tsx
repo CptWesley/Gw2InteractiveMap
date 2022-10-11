@@ -10,12 +10,14 @@ const useStyles = makeStyles()(theme => {
     return {
         app: {
             background: theme.background,
+            height: '100vh',
+            display: 'flex',
+            flexFlow: 'column',
         },
         content: {
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
+            flex: 1,
+            minHeight: 0,
+            // height: '100%',
         },
         toolbar: {
             fontStyle: 'normal',
@@ -41,6 +43,9 @@ export default function App() {
         <div className={classes.app}>
             <GlobalStyles
                 styles={{
+                    '* ': {
+                        boxSizing: 'border-box',
+                    },
                     body: {
                         background: style.background,
                         fontFamily: style.bodyFontFamily,

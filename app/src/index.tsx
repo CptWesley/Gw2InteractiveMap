@@ -9,6 +9,7 @@ import {
 } from 'react-router-dom';
 import HelloWorld from '@/views/HelloWorld';
 import Tile from '@/views/Tile';
+import WorldMap from './views/WorldMap';
 
 const root = ReactDOM.createRoot(
     document.getElementById('root') as HTMLElement
@@ -28,6 +29,10 @@ const router = createBrowserRouter(
                 {
                     path: 'hello',
                     element: <HelloWorld msg='Hello World' />,
+                },
+                {
+                    path: 'map',
+                    element: <WorldMap />,
                 },
                 {
                     path: 'tile/:c/:f/:z/:x/:y',

@@ -6,8 +6,9 @@ import { Link } from 'react-router-dom';
 const useStyles = makeStyles()(() => {
     return {
         toolbar: {
+            flex: 1,
             fontStyle: 'normal',
-            height: '56px',
+            maxHeight: '56px',
             width: '100%',
             background: theme.palette.primary.main,
             boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.2)',
@@ -20,6 +21,7 @@ const useStyles = makeStyles()(() => {
                 textAlign: 'center',
                 fontWeight: 'bold',
             },
+            zIndex: 600,
         },
     };
 });
@@ -33,6 +35,7 @@ export default function NavBar() {
             <Button component={Link} to='./' color='inherit'>Home</Button>
             <Button component={Link} to='./hello' color='inherit'>Hello</Button>
             <Button component={Link} to='./tile/1/1/5/0/0' color='inherit'>Tile</Button>
+            <Button component={Link} to='./map' color='inherit'>Map</Button>
         </div>
     );
 }

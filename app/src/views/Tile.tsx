@@ -1,6 +1,7 @@
 import { useParams } from 'react-router-dom';
 import { getTileSource } from '@/logic/tileService';
 import { useEffect, useRef } from 'react';
+import { downloadImage } from '@/logic/imageCache';
 
 export default function Tile() {
     const params = useParams();
@@ -15,6 +16,19 @@ export default function Tile() {
 
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
+    const result = (
+        <div>
+            <p>{zoom}:{x},{y}</p>
+            <p>
+                <img src={source.url} alt='Logo' />
+            </p>
+            <p>{source.url}</p>
+            <p>{source.x},{source.y}</p>
+            <p>{source.width}x{source.height}</p>
+            <canvas width={256} height={256} ref={canvasRef}/>
+        </div>
+    );
+
     useEffect(() => {
         if (!canvasRef.current) {
             return;
@@ -27,23 +41,10 @@ export default function Tile() {
         }
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        const img = new Image;
-        img.src = source.url;
-        img.onload = () => {
-            ctx.drawImage(img, source.x, source.y, source.width, source.height, 0, 0, canvas.width, canvas.height);
-        };
+        downloadImage(source.url).then(bmp => {
+            ctx.drawImage(bmp, source.x, source.y, source.width, source.height, 0, 0, canvas.width, canvas.height);
+        });
     }, []);
 
-    return (
-        <div>
-            <p>{zoom}:{x},{y}</p>
-            <p>
-                <img src={source.url} alt='Logo' />
-            </p>
-            <p>{source.url}</p>
-            <p>{source.x},{source.y}</p>
-            <p>{source.width}x{source.height}</p>
-            <canvas width={256} height={256} ref={canvasRef}/>
-        </div>
-    );
+    return result;
 }
