@@ -15,8 +15,7 @@ declare type Vector2 = {
 
 declare type DrawingContext = {
     graphics: CanvasRenderingContext2D,
-    width: number,
-    height: number,
+    size: Vector2,
     zoom: number,
     position: Vector2,
     continent: number,
@@ -27,12 +26,10 @@ declare type MapInfo = {
     continent: number,
     floor: number,
     name: string,
-    width: number,
-    height: number,
+    size: Vector2,
     minZoom: number,
     maxZoom: number,
-    tileWidth: number,
-    tileHeight: number,
+    tileSize: Vector2,
 };
 
 declare type RawColumnInfo = number[];

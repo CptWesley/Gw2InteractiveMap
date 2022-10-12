@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { DrawingContext } from '@/react-app-env';
 import { drawMap } from '@/logic/worldMapRendering';
 import { makeStyles } from '@/theme';
+import { vector2 } from '@/logic/vector2';
 
 const useStyles = makeStyles()(() => {
     return {
@@ -46,12 +47,13 @@ export default function WorldMap() {
         canvas.width = canvas.clientWidth;
         canvas.height = canvas.clientHeight;
 
+        const position = vector2(81920 / 2, 114688 / 2);
+
         const drawingContext:DrawingContext = {
             graphics: ctx,
-            width: canvas.width,
-            height: canvas.height,
+            size: vector2(canvas.width, canvas.height),
             zoom: 2,
-            position: { x: 40960, y: 57344 },
+            position,
             continent: 1,
             floor: 1,
         };

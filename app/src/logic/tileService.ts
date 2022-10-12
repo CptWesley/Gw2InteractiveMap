@@ -1,6 +1,7 @@
 import { MapInfo, TileSource } from '@/react-app-env';
 import { MD5, enc } from 'crypto-js';
 import { knownTiles, tileIsKnown } from './knownTiles';
+import { vector2 } from './vector2';
 
 const lookupCache = new Map<string, any>();
 
@@ -108,12 +109,10 @@ export function getMapInfo(continent: number, floor: number): MapInfo {
     return {
         continent,
         floor,
-        width: raw.Width,
-        height: raw.Height,
+        size: vector2(raw.Width, raw.Height),
         name: raw.Name,
         minZoom: raw.MinZoom,
         maxZoom: raw.MaxZoom,
-        tileWidth: raw.TileWidth,
-        tileHeight: raw.TileHeight,
+        tileSize: vector2(raw.TileWidth, raw.TileHeight),
     };
 }
