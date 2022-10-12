@@ -1,6 +1,8 @@
-import { TileSource } from '@/react-app-env';
+import { MapInfo, TileSource } from '@/react-app-env';
 import { MD5, enc } from 'crypto-js';
-import knownTiles, { tileIsKnown } from './knownTiles';
+import { knownTiles, tileIsKnown } from './knownTiles';
+
+const lookupCache = new Map<string, any>();
 
 export function getTileUrl(continent: number, floor: number, zoom: number, x: number, y: number) {
     const fileName = `World_map_tile_C${continent}_F${floor}_Z${zoom}_X${x}_Y${y}.jpg`;
@@ -10,17 +12,16 @@ export function getTileUrl(continent: number, floor: number, zoom: number, x: nu
     return url;
 }
 
-function buildMap() {
+function buildMap(continent: number, floor: number) {
+    const raw = knownTiles[continent][floor];
     const result:any = {};
-    const continent = knownTiles.Id;
-    const floor = knownTiles.Floor;
 
-    for (let zoom = knownTiles.MinZoom; zoom <= knownTiles.MaxZoom; zoom++) {
+    for (let zoom = raw.MinZoom; zoom <= raw.MaxZoom; zoom++) {
         const zoomResult:any = {};
         result[zoom] = zoomResult;
-        const divisor = 256 * Math.pow(2, knownTiles.MaxZoom - zoom);
-        const width = knownTiles.Width / divisor;
-        const height = knownTiles.Height / divisor;
+        const divisor = 256 * Math.pow(2, raw.MaxZoom - zoom);
+        const width = raw.Width / divisor;
+        const height = raw.Height / divisor;
 
         for (let x = 0; x < width; x++) {
             const xResult:any = {};
@@ -67,8 +68,33 @@ function buildMap() {
     return result;
 }
 
-const lookup = buildMap();
+function getLookup(continent: number, floor: number): any {
+    const cacheKey = `${continent}-${floor}`;
+    const cacheResult = lookupCache.get(cacheKey);
+    if (cacheResult) {
+        return cacheResult;
+    }
 
-export function getTileSource(continent: number, floor: number, zoom: number, x: number, y: number): TileSource {
+    const result = buildMap(continent, floor);
+    lookupCache.set(cacheKey, result);
+    return result;
+}
+
+export function getTileSource(continent: number, floor: number, zoom: number, x: number, y: number): TileSource|undefined {
+    const lookup = getLookup(continent, floor);
     return lookup[zoom][x][y];
+}
+
+export function getMapInfo(continent: number, floor: number): MapInfo {
+    const rawAll:any = knownTiles;
+    const raw:any = rawAll[continent][floor];
+    return {
+        continent,
+        floor,
+        width: raw.Width,
+        height: raw.Height,
+        name: raw.Name,
+        minZoom: raw.MinZoom,
+        maxZoom: raw.MaxZoom,
+    };
 }

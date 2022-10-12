@@ -6,12 +6,12 @@ declare type TileSource = {
     y: number,
     width: number,
     height: number,
-}
+};
 
 declare type Vector2 = {
     x: number,
     y: number,
-}
+};
 
 declare type DrawingContext = {
     graphics: CanvasRenderingContext2D,
@@ -19,4 +19,43 @@ declare type DrawingContext = {
     height: number,
     zoom: number,
     position: Vector2,
-}
+    continent: number,
+    floor: number,
+};
+
+declare type MapInfo = {
+    continent: number,
+    floor: number,
+    name: string,
+    width: number,
+    height: number,
+    minZoom: number,
+    maxZoom: number,
+};
+
+declare type RawColumnInfo = number[];
+
+declare type RawZoomInfo = {
+    [key: number]: RawColumnInfo,
+};
+
+declare type RawTilesInfo = {
+    [key: number]: RawZoomInfo,
+};
+
+declare type RawFloorInfo = {
+    Name: string,
+    MinZoom: number,
+    MaxZoom: number,
+    Width: number,
+    Height: number,
+    Tiles: RawTilesInfo,
+};
+
+declare type RawContinentInfo = {
+    [key: number]: RawFloorInfo,
+};
+
+declare type RawWorldDatabaseInfo = {
+    [key: number]: RawContinentInfo,
+};

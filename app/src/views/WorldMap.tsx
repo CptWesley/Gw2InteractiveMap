@@ -52,6 +52,8 @@ export default function WorldMap() {
             height: canvas.height,
             zoom: 2,
             position: { x: 0, y: 0 },
+            continent: 1,
+            floor: 1,
         };
 
         drawMap(drawingContext);

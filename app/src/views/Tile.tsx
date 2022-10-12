@@ -12,7 +12,7 @@ export default function Tile() {
     const x = +(params.x ?? 0);
     const y = +(params.y ?? 0);
 
-    const source = getTileSource(continent, floor, zoom, x, y);
+    const source = getTileSource(continent, floor, zoom, x, y)!;
 
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -41,6 +41,17 @@ export default function Tile() {
         }
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const source2 = getTileSource(continent, floor, zoom, x + 1, y)!;
+        const source3 = getTileSource(continent, floor, zoom, x + 1, y + 1)!;
+
+        downloadImage(source2.url);
+        downloadImage(source3.url);
+        downloadImage(source3.url);
+        downloadImage(source3.url);
+        downloadImage(source.url);
+        downloadImage(source2.url);
+
         downloadImage(source.url).then(bmp => {
             ctx.drawImage(bmp, source.x, source.y, source.width, source.height, 0, 0, canvas.width, canvas.height);
         });
