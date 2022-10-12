@@ -10,6 +10,8 @@ export const knownTiles: RawWorldDatabaseInfo =
       MaxZoom: 8,
       Width: 81920,
       Height: 114688,
+      TileWidth: 256,
+      TileHeight: 256,
       Tiles: {
         8: {
           79: [

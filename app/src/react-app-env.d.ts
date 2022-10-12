@@ -31,6 +31,8 @@ declare type MapInfo = {
     height: number,
     minZoom: number,
     maxZoom: number,
+    tileWidth: number,
+    tileHeight: number,
 };
 
 declare type RawColumnInfo = number[];
@@ -49,6 +51,8 @@ declare type RawFloorInfo = {
     MaxZoom: number,
     Width: number,
     Height: number,
+    TileWidth: number,
+    TileHeight: number,
     Tiles: RawTilesInfo,
 };
 

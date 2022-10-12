@@ -52,7 +52,7 @@ export default function Tile() {
         downloadImage(source.url);
         downloadImage(source2.url);
 
-        downloadImage(source.url).then(bmp => {
+        downloadImage(source.url).promise.then(bmp => {
             ctx.drawImage(bmp, source.x, source.y, source.width, source.height, 0, 0, canvas.width, canvas.height);
         });
     }, []);

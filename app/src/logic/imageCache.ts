@@ -1,33 +1,25 @@
-import { Mutex } from 'async-mutex';
 import { sortBy } from 'lodash';
+import { track, TrackedPromise } from '@/logic/TrackedPromise';
 
-const mutex = new Mutex();
 const cacheMaxSize = 1200;
 const cacheKeepSize = 1000;
-const cache = new Map<string, Promise<HTMLImageElement>>();
+const cache = new Map<string, TrackedPromise<HTMLImageElement>>();
 const cacheLastUsed = new Map<string, number>();
 let requestNumber = 0;
 
-export async function downloadImage(url: string): Promise<HTMLImageElement> {
-    await mutex.acquire();
+export function downloadImage(url: string): TrackedPromise<HTMLImageElement> {
+    cacheLastUsed.set(url, requestNumber);
+    requestNumber++;
 
-    try {
-        trimCache();
-        cacheLastUsed.set(url, requestNumber);
-        requestNumber++;
-
-        const cacheResult = cache.get(url);
-        if (cacheResult) {
-            return cacheResult;
-        }
-
-        const downloadResult = innerDownloadImage(url);
-        cache.set(url, downloadResult);
-        trimCache();
-        return downloadResult;
-    } finally {
-        mutex.release();
+    const cacheResult = cache.get(url);
+    if (cacheResult) {
+        return cacheResult;
     }
+
+    const downloadResult = track(innerDownloadImage(url));
+    cache.set(url, downloadResult);
+    trimCache();
+    return downloadResult;
 }
 
 async function innerDownloadImage(url: string): Promise<HTMLImageElement> {

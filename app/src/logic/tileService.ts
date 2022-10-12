@@ -29,14 +29,12 @@ function buildMap(continent: number, floor: number) {
             for (let y = 0; y < height; y++) {
                 if (tileIsKnown(continent, floor, zoom, x, y)) {
                     const url = getTileUrl(continent, floor, zoom, x, y);
-                    const tileX = x;
-                    const tileY = y;
                     const tileWidth = 256;
                     const tileHeight = 256;
                     const source:TileSource = {
                         url,
-                        x: tileX,
-                        y: tileY,
+                        x: 0,
+                        y: 0,
                         width: tileWidth,
                         height: tileHeight,
                     };
@@ -82,7 +80,26 @@ function getLookup(continent: number, floor: number): any {
 
 export function getTileSource(continent: number, floor: number, zoom: number, x: number, y: number): TileSource|undefined {
     const lookup = getLookup(continent, floor);
-    return lookup[zoom][x][y];
+    if (!lookup) {
+        return undefined;
+    }
+
+    const lookupZoom = lookup[zoom];
+    if (!lookupZoom) {
+        return undefined;
+    }
+
+    const lookupX = lookupZoom[x];
+    if (!lookupX) {
+        return undefined;
+    }
+
+    const lookupY = lookupX[y];
+    if (!lookupY) {
+        return undefined;
+    }
+
+    return lookupY;
 }
 
 export function getMapInfo(continent: number, floor: number): MapInfo {
@@ -96,5 +113,7 @@ export function getMapInfo(continent: number, floor: number): MapInfo {
         name: raw.Name,
         minZoom: raw.MinZoom,
         maxZoom: raw.MaxZoom,
+        tileWidth: raw.TileWidth,
+        tileHeight: raw.TileHeight,
     };
 }
