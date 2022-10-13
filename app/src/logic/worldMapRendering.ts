@@ -11,6 +11,7 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
     const drawCount = oldDrawCount === undefined ? 0 : oldDrawCount + 1;
     drawCounts.set(ctx.graphics, drawCount);
 
+    ctx.graphics.save();
     ctx.graphics.clearRect(0, 0, ctx.size.x, ctx.size.y);
     ctx.graphics.fillStyle = theme.palette.primary.dark;
     ctx.graphics.fillRect(0, 0, ctx.size.x, ctx.size.y);
@@ -46,22 +47,19 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
                 if (!source) { continue; }
                 const imgPromise = downloadImage(source.url);
 
-                if (imgPromise.resolved) {
-                    const img = imgPromise.result;
-                    ctx.graphics.drawImage(img, source.x, source.y, source.width, source.height, dx - halfBuffer, dy - halfBuffer, dw + buffer, dh + buffer);
-                } else if (!imgPromise.rejected) {
-                    imgPromise.promise.then((img) => {
-                        if (drawCounts.get(ctx.graphics) === drawCount) {
-                            ctx.graphics.drawImage(img, source.x, source.y, source.width, source.height, dx - halfBuffer, dy - halfBuffer, dw + buffer, dh + buffer);
-                        }
-                    });
-                }
+                imgPromise.promise.then((img) => {
+                    if (drawCounts.get(ctx.graphics) === drawCount) {
+                        ctx.graphics.drawImage(img, source.x, source.y, source.width, source.height, dx - halfBuffer, dy - halfBuffer, dw + buffer, dh + buffer);
+                    }
+                });
             }
         }
     }
 
     drawMap(1); // prevents visible seams
     drawMap(0); // prevents weird transitions
+
+    ctx.graphics.restore();
 
     return {
         tileScale,
