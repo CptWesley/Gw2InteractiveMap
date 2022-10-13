@@ -1,8 +1,8 @@
 import { sortBy } from 'lodash';
 import { track, TrackedPromise } from '@/logic/TrackedPromise';
 
-const cacheMaxSize = 1200;
-const cacheKeepSize = 1000;
+const cacheMaxSize = 5000;
+const cacheKeepSize = 4000;
 const cache = new Map<string, TrackedPromise<HTMLImageElement>>();
 const cacheLastUsed = new Map<string, number>();
 let requestNumber = 0;

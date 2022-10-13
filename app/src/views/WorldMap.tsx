@@ -44,6 +44,7 @@ export default function WorldMap() {
                 onPointerDown={handlePointerDown}
                 onPointerUp={handlePointerUp}
                 onPointerMove={handlePointerMove}
+                onWheel={handleWheel}
             />
         </div>
     );
@@ -115,6 +116,16 @@ export default function WorldMap() {
             scrollingMap.current = undefined;
             query.replace();
         }
+    }
+
+    function handleWheel(e: React.WheelEvent<HTMLCanvasElement>) {
+        const oldZoom = query.get('zoom');
+        const zoomDelta = e.deltaY / 1000;
+        const newZoomUncorrected = oldZoom - zoomDelta;
+        const newZoom = Math.max(0, parseFloat(newZoomUncorrected.toPrecision(3)));
+        query.set('zoom', newZoom);
+        query.replace();
+        redraw();
     }
 
     useEffect(redraw, [canvasRef]);

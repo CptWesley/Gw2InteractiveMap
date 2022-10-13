@@ -17,8 +17,9 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
 
     const mapInfo = getMapInfo(ctx.continent, ctx.floor);
     const tileScale = getTileScale(ctx.zoom, mapInfo.maxZoom);
-    const worldTileSize = scale(mapInfo.tileSize, tileScale, tileScale);
-    const tileZoom = Math.ceil(ctx.zoom);
+    const tileZoom = Math.max(mapInfo.minZoom, Math.min(mapInfo.maxZoom, Math.ceil(ctx.zoom)));
+    const renderScale = 2 ** (ctx.zoom - tileZoom);
+    const worldTileSize = scale(mapInfo.tileSize, tileScale * renderScale, tileScale * renderScale);
     const canvasWorldSize = scale(ctx.size, tileScale, tileScale);
     const tileDimensions = getDimensions(canvasWorldSize, worldTileSize);
     const centerTileCoords = scale(ctx.position, 1 / worldTileSize.x, 1 / worldTileSize.y);
@@ -34,12 +35,12 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
         const halfBuffer = buffer / 2;
         for (let ix = ixMin; ix < ixMax; ix++) {
             const tileX = Math.floor(centerTileCoords.x) + ix;
-            const dw = mapInfo.tileSize.x;
+            const dw = mapInfo.tileSize.x * renderScale;
             const dx = dw * (tileX + offset.x);
 
             for (let iy = iyMin; iy < iyMax; iy++) {
                 const tileY = Math.floor(centerTileCoords.y) + iy;
-                const dh = mapInfo.tileSize.y;
+                const dh = mapInfo.tileSize.y * renderScale;
                 const dy = dh * (tileY + offset.y);
                 const source = getTileSource(ctx.continent, ctx.floor, tileZoom, tileX, tileY);
                 if (!source) { continue; }
@@ -61,6 +62,9 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
 
     drawMap(1); // prevents visible seams
     drawMap(0); // prevents weird transitions
+
+    ctx.graphics.strokeStyle = 'red';
+    ctx.graphics.strokeRect(ctx.size.x / 2 - 5, ctx.size.y / 2 - 5, 10, 10);
 
     return {
         tileScale,
