@@ -69,11 +69,9 @@ export default function WorldMap() {
         drawMap(drawingContext);
     }
 
-    useEffect(() => {
-        query.push();
-    }, []);
     useEffect(redraw, [canvasRef]);
     useEffect(() => {
+        query.push();
         window.addEventListener('resize', redraw);
         return () => window.removeEventListener('resize', redraw);
     }, []);
