@@ -3,6 +3,15 @@ import { DrawingContext } from '@/react-app-env';
 import { drawMap } from '@/logic/worldMapRendering';
 import { makeStyles } from '@/theme';
 import { vector2 } from '@/logic/vector2';
+import { useQuery } from '@/logic/queryUtils';
+
+const defaultQueryParams = {
+    continent: 1,
+    floor: 1,
+    zoom: 2,
+    x: 81920 / 2,
+    y: 114688 / 2,
+};
 
 const useStyles = makeStyles()(() => {
     return {
@@ -45,20 +54,24 @@ export default function WorldMap() {
         canvas.width = canvas.clientWidth;
         canvas.height = canvas.clientHeight;
 
-        const position = vector2(81920 / 2, 114688 / 2);
-
         const drawingContext:DrawingContext = {
             graphics: ctx,
             size: vector2(canvas.width, canvas.height),
-            zoom: 2,
-            position,
-            continent: 1,
-            floor: 1,
+            zoom: query.get('zoom'),
+            position: {
+                x: query.get('x'),
+                y: query.get('y'),
+            },
+            continent: query.get('continent'),
+            floor: query.get('floor'),
         };
 
         drawMap(drawingContext);
     }
 
+    useEffect(() => {
+        query.push();
+    }, []);
     useEffect(redraw, [canvasRef]);
     useEffect(() => {
         window.addEventListener('resize', redraw);
