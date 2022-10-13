@@ -1,10 +1,9 @@
 import { useEffect, useRef } from 'react';
-import { DrawingContext, Vector2 } from '@/react-app-env';
-import { drawMap, getTileScale } from '@/logic/worldMapRendering';
+import { DrawingContext, LastDrawInfo, Vector2 } from '@/react-app-env';
+import { drawMap } from '@/logic/worldMapRendering';
 import { makeStyles } from '@/theme';
 import { vector2 } from '@/logic/vector2';
 import { useQuery } from '@/logic/queryUtils';
-import { getMapInfo } from '@/logic/tileService';
 
 const defaultQueryParams = {
     continent: 1,
@@ -34,6 +33,7 @@ export default function WorldMap() {
     const query = useQuery(defaultQueryParams);
 
     const canvasRef = useRef<HTMLCanvasElement>(null);
+    const lastDrawInfoRef = useRef<LastDrawInfo>();
     const scrollingMap = useRef<{ pointerId: number, position: Vector2, threshold: boolean }>();
 
     const result = (
@@ -74,7 +74,7 @@ export default function WorldMap() {
             floor: query.get('floor'),
         };
 
-        drawMap(drawingContext);
+        lastDrawInfoRef.current = drawMap(drawingContext);
     }
 
     function handlePointerDown(e: React.PointerEvent<HTMLCanvasElement>) {
@@ -95,11 +95,14 @@ export default function WorldMap() {
                 if (!scrollingMap.current.threshold) {
                     scrollingMap.current.threshold = true;
                 }
-                const mapInfo = getMapInfo(query.get('continent'), query.get('floor'));
-                const tileScale = getTileScale(query.get('zoom'), mapInfo.maxZoom);
-                query.update('x', x => x - dX * tileScale);
-                query.update('y', y => y - dY * tileScale);
-                redraw();
+
+                if (lastDrawInfoRef.current) {
+                    const tileScale = lastDrawInfoRef.current.tileScale;
+                    query.update('x', x => x - dX * tileScale);
+                    query.update('y', y => y - dY * tileScale);
+                    redraw();
+                }
+
                 scrollingMap.current.position.x = e.pageX;
                 scrollingMap.current.position.y = e.pageY;
             }

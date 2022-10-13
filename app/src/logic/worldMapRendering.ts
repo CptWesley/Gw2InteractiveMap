@@ -1,4 +1,4 @@
-import { DrawingContext, Vector2 } from '@/react-app-env';
+import { DrawingContext, LastDrawInfo, Vector2 } from '@/react-app-env';
 import { downloadImage } from '@/logic/imageCache';
 import { getMapInfo, getTileSource } from '@/logic/tileService';
 import { getTranslation, scale, vector2 } from '@/logic/vector2';
@@ -6,7 +6,7 @@ import { theme } from '@/theme';
 
 const drawCounts = new Map<CanvasRenderingContext2D, number>();
 
-export function drawMap(ctx: DrawingContext) {
+export function drawMap(ctx: DrawingContext): LastDrawInfo {
     const oldDrawCount = drawCounts.get(ctx.graphics);
     const drawCount = oldDrawCount === undefined ? 0 : oldDrawCount + 1;
     drawCounts.set(ctx.graphics, drawCount);
@@ -61,6 +61,10 @@ export function drawMap(ctx: DrawingContext) {
 
     drawMap(1); // prevents visible seams
     drawMap(0); // prevents weird transitions
+
+    return {
+        tileScale,
+    };
 }
 
 export function getTileScale(zoom: number, maxZoom: number): number {

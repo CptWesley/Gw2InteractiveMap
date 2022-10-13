@@ -60,3 +60,7 @@ declare type RawContinentInfo = {
 declare type RawWorldDatabaseInfo = {
     [key: number]: RawContinentInfo,
 };
+
+declare type LastDrawInfo = {
+    tileScale: number,
+};
