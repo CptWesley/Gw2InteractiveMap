@@ -72,27 +72,3 @@ function getDimensions(canvasWorldSize: Vector2, tileSize: Vector2): Vector2 {
     const y = Math.ceil(canvasWorldSize.y / tileSize.y / 2) * 2 + 1;
     return vector2(x, y);
 }
-
-/*
-function canvasToWorld(pos: Vector2, power: number): Vector2 {
-    return scale(pos, power, power);
-}
-*/
-/*
-function worldToCanvas(pos: Vector2, power: number): Vector2 {
-    const inv = 1 / power;
-    return scale(pos, inv, inv);
-}
-
-function getDimensions(canvasSize: Vector2, tileSize: Vector2): Vector2 {
-    const x = Math.ceil(canvasSize.x / tileSize.x / 2) * 2 + 3;
-    const y = Math.ceil(canvasSize.y / tileSize.y / 2) * 2 + 3;
-
-    return vector2(x, y);
-}
-
-function getMinimapTilePosition(centerWorldPos: Vector2, worldPos: Vector2, canvasSize: Vector2, zoom: number, tileScale: number): Vector2 {
-    // Gets the number of tiles that should be rendered in X/Y
-    const dimensions = getDimensions(canvasSize.x * zoom / tileScale, canvasSize.y * zoom / tileScale);
-}
-*/

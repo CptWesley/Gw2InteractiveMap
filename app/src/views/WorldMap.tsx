@@ -15,15 +15,13 @@ const useStyles = makeStyles()(() => {
         worldMap: {
             flex: 1,
             minHeight: 0,
-            // height: '100%',
-            // flex: 1,
-            // overflow: 'auto',
         },
     };
 });
 
 export default function WorldMap() {
     const { classes } = useStyles();
+    const query = useQuery(defaultQueryParams);
 
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
