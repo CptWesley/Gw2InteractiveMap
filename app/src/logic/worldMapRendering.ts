@@ -29,56 +29,38 @@ export function drawMap(ctx: DrawingContext) {
     const ixMax = Math.ceil(tileDimensions.x / 2);
     const iyMin = -Math.floor(tileDimensions.y / 2);
     const iyMax = Math.ceil(tileDimensions.y / 2);
-    for (let ix = ixMin; ix < ixMax; ix++) {
-        const tileX = Math.floor(centerTileCoords.x) + ix;
-        const dw = mapInfo.tileSize.x;
-        const dx = dw * (tileX + offset.x);
 
-        for (let iy = iyMin; iy < iyMax; iy++) {
-            const tileY = Math.floor(centerTileCoords.y) + iy;
-            const dh = mapInfo.tileSize.y;
-            const dy = dh * (tileY + offset.y);
-            const source = getTileSource(ctx.continent, ctx.floor, tileZoom, tileX, tileY);
-            if (!source) { continue; }
-            const imgPromise = downloadImage(source.url);
+    function drawMap(buffer: number): void {
+        const halfBuffer = buffer / 2;
+        for (let ix = ixMin; ix < ixMax; ix++) {
+            const tileX = Math.floor(centerTileCoords.x) + ix;
+            const dw = mapInfo.tileSize.x;
+            const dx = dw * (tileX + offset.x);
 
-            if (imgPromise.resolved) {
-                const img = imgPromise.result;
-                ctx.graphics.drawImage(img, source.x, source.y, source.width, source.height, dx - 0.5, dy - 0.5, dw + 1, dh + 1);
-            } else if (!imgPromise.rejected) {
-                imgPromise.promise.then((img) => {
-                    if (drawCounts.get(ctx.graphics) === drawCount) {
-                        ctx.graphics.drawImage(img, source.x, source.y, source.width, source.height, dx, dy, dw, dh);
-                    }
-                });
+            for (let iy = iyMin; iy < iyMax; iy++) {
+                const tileY = Math.floor(centerTileCoords.y) + iy;
+                const dh = mapInfo.tileSize.y;
+                const dy = dh * (tileY + offset.y);
+                const source = getTileSource(ctx.continent, ctx.floor, tileZoom, tileX, tileY);
+                if (!source) { continue; }
+                const imgPromise = downloadImage(source.url);
+
+                if (imgPromise.resolved) {
+                    const img = imgPromise.result;
+                    ctx.graphics.drawImage(img, source.x, source.y, source.width, source.height, dx - halfBuffer, dy - halfBuffer, dw + buffer, dh + buffer);
+                } else if (!imgPromise.rejected) {
+                    imgPromise.promise.then((img) => {
+                        if (drawCounts.get(ctx.graphics) === drawCount) {
+                            ctx.graphics.drawImage(img, source.x, source.y, source.width, source.height, dx - halfBuffer, dy - halfBuffer, dw + buffer, dh + buffer);
+                        }
+                    });
+                }
             }
         }
     }
-    for (let ix = ixMin; ix < ixMax; ix++) {
-        const tileX = Math.floor(centerTileCoords.x) + ix;
-        const dw = mapInfo.tileSize.x;
-        const dx = dw * (tileX + offset.x);
 
-        for (let iy = iyMin; iy < iyMax; iy++) {
-            const tileY = Math.floor(centerTileCoords.y) + iy;
-            const dh = mapInfo.tileSize.y;
-            const dy = dh * (tileY + offset.y);
-            const source = getTileSource(ctx.continent, ctx.floor, tileZoom, tileX, tileY);
-            if (!source) { continue; }
-            const imgPromise = downloadImage(source.url);
-
-            if (imgPromise.resolved) {
-                const img = imgPromise.result;
-                ctx.graphics.drawImage(img, source.x, source.y, source.width, source.height, dx, dy, dw, dh);
-            } else if (!imgPromise.rejected) {
-                imgPromise.promise.then((img) => {
-                    if (drawCounts.get(ctx.graphics) === drawCount) {
-                        ctx.graphics.drawImage(img, source.x, source.y, source.width, source.height, dx, dy, dw, dh);
-                    }
-                });
-            }
-        }
-    }
+    drawMap(1); // prevents visible seams
+    drawMap(0); // prevents weird transitions
 }
 
 function getTileScale(zoom: number, maxZoom: number): number {
