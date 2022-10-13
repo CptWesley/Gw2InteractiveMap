@@ -3,7 +3,10 @@ import { useSearchParams } from 'react-router-dom';
 export class QueryParams<TStorage extends {}> {
     private defaultParams: TStorage;
     private searchParams: URLSearchParams;
-    private setSearchParams: (searchParams: string) => void;
+    private setSearchParams: (searchParams: string, options?: {
+        replace?: boolean;
+        state?: any;
+    }) => void;
 
     constructor(defaultParams: TStorage, searchParams: URLSearchParams, setSearchParams: (searchParams: string) => void) {
         this.defaultParams = defaultParams;
@@ -31,8 +34,18 @@ export class QueryParams<TStorage extends {}> {
         this.searchParams.set(key.toString(), JSON.stringify(value));
     }
 
+    update<TKey extends keyof TStorage>(key: TKey, updater: (value: TStorage[TKey]) => TStorage[TKey]): void {
+        const oldValue = this.get(key);
+        const newValue = updater(oldValue);
+        this.set(key, newValue);
+    }
+
     push(): void {
         this.setSearchParams(this.searchParams.toString());
+    }
+
+    replace(): void {
+        this.setSearchParams(this.searchParams.toString(), { replace: true });
     }
 }
 

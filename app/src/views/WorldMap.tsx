@@ -1,9 +1,10 @@
 import { useEffect, useRef } from 'react';
-import { DrawingContext } from '@/react-app-env';
-import { drawMap } from '@/logic/worldMapRendering';
+import { DrawingContext, Vector2 } from '@/react-app-env';
+import { drawMap, getTileScale } from '@/logic/worldMapRendering';
 import { makeStyles } from '@/theme';
 import { vector2 } from '@/logic/vector2';
 import { useQuery } from '@/logic/queryUtils';
+import { getMapInfo } from '@/logic/tileService';
 
 const defaultQueryParams = {
     continent: 1,
@@ -33,10 +34,17 @@ export default function WorldMap() {
     const query = useQuery(defaultQueryParams);
 
     const canvasRef = useRef<HTMLCanvasElement>(null);
+    const scrollingMap = useRef<{ pointerId: number, position: Vector2, threshold: boolean }>();
 
     const result = (
         <div className={classes.container}>
-            <canvas className={classes.worldMap} ref={canvasRef}/>
+            <canvas
+                className={classes.worldMap}
+                ref={canvasRef}
+                onPointerDown={handlePointerDown}
+                onPointerUp={handlePointerUp}
+                onPointerMove={handlePointerMove}
+            />
         </div>
     );
 
@@ -69,9 +77,46 @@ export default function WorldMap() {
         drawMap(drawingContext);
     }
 
+    function handlePointerDown(e: React.PointerEvent<HTMLCanvasElement>) {
+        scrollingMap.current = {
+            pointerId: e.pointerId,
+            position: { x: e.pageX, y: e.pageY },
+            threshold: false,
+        };
+        e.currentTarget.setPointerCapture(e.pointerId);
+    }
+
+    function handlePointerMove(e: React.PointerEvent<HTMLCanvasElement>) {
+        if (scrollingMap.current && scrollingMap.current.pointerId === e.pointerId) {
+            const dX = e.pageX - scrollingMap.current.position.x;
+            const dY = e.pageY - scrollingMap.current.position.y;
+            const dragAllowed = scrollingMap.current.threshold || Math.abs(dX) > 3 || Math.abs(dY) > 3;
+            if (dragAllowed) {
+                if (!scrollingMap.current.threshold) {
+                    scrollingMap.current.threshold = true;
+                }
+                const mapInfo = getMapInfo(query.get('continent'), query.get('floor'));
+                const tileScale = getTileScale(query.get('zoom'), mapInfo.maxZoom);
+                query.update('x', x => x - dX * tileScale);
+                query.update('y', y => y - dY * tileScale);
+                redraw();
+                scrollingMap.current.position.x = e.pageX;
+                scrollingMap.current.position.y = e.pageY;
+            }
+        }
+    }
+
+    function handlePointerUp(e: React.PointerEvent<HTMLCanvasElement>) {
+        if (scrollingMap.current && scrollingMap.current.pointerId === e.pointerId) {
+            e.currentTarget.releasePointerCapture(e.pointerId);
+            scrollingMap.current = undefined;
+            query.replace();
+        }
+    }
+
     useEffect(redraw, [canvasRef]);
     useEffect(() => {
-        query.push();
+        query.replace();
         window.addEventListener('resize', redraw);
         return () => window.removeEventListener('resize', redraw);
     }, []);

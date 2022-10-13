@@ -63,7 +63,7 @@ export function drawMap(ctx: DrawingContext) {
     drawMap(0); // prevents weird transitions
 }
 
-function getTileScale(zoom: number, maxZoom: number): number {
+export function getTileScale(zoom: number, maxZoom: number): number {
     return 2 ** (maxZoom - zoom);
 }
 
