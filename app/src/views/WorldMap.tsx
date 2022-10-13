@@ -30,7 +30,7 @@ const useStyles = makeStyles()(() => {
 
 export default function WorldMap() {
     const { classes } = useStyles();
-    const query = useQuery(defaultQueryParams);
+    const query = useRef(useQuery(defaultQueryParams));
 
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const lastDrawInfoRef = useRef<LastDrawInfo>();
@@ -66,13 +66,13 @@ export default function WorldMap() {
         const drawingContext:DrawingContext = {
             graphics: ctx,
             size: vector2(canvas.width, canvas.height),
-            zoom: query.get('zoom'),
+            zoom: query.current.get('zoom'),
             position: {
-                x: query.get('x'),
-                y: query.get('y'),
+                x: query.current.get('x'),
+                y: query.current.get('y'),
             },
-            continent: query.get('continent'),
-            floor: query.get('floor'),
+            continent: query.current.get('continent'),
+            floor: query.current.get('floor'),
         };
 
         lastDrawInfoRef.current = drawMap(drawingContext);
@@ -99,8 +99,8 @@ export default function WorldMap() {
 
                 if (lastDrawInfoRef.current) {
                     const tileScale = lastDrawInfoRef.current.tileScale;
-                    query.update('x', x => x - dX * tileScale);
-                    query.update('y', y => y - dY * tileScale);
+                    query.current.update('x', x => x - dX * tileScale);
+                    query.current.update('y', y => y - dY * tileScale);
                     redraw();
                 }
 
@@ -114,23 +114,23 @@ export default function WorldMap() {
         if (scrollingMap.current && scrollingMap.current.pointerId === e.pointerId) {
             e.currentTarget.releasePointerCapture(e.pointerId);
             scrollingMap.current = undefined;
-            query.replace();
+            query.current.replace();
         }
     }
 
     function handleWheel(e: React.WheelEvent<HTMLCanvasElement>) {
-        const oldZoom = query.get('zoom');
+        const oldZoom = query.current.get('zoom');
         const zoomDelta = e.deltaY / 1000;
         const newZoomUncorrected = oldZoom - zoomDelta;
         const newZoom = Math.max(0, parseFloat(newZoomUncorrected.toPrecision(3)));
-        query.set('zoom', newZoom);
-        query.replace();
+        query.current.set('zoom', newZoom);
+        query.current.replace();
         redraw();
     }
 
-    useEffect(redraw, [canvasRef]);
     useEffect(() => {
-        query.replace();
+        redraw();
+        query.current.replace();
         window.addEventListener('resize', redraw);
         return () => window.removeEventListener('resize', redraw);
     }, []);
