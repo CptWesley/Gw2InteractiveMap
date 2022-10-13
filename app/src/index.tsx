@@ -9,7 +9,7 @@ import {
 } from 'react-router-dom';
 import HelloWorld from '@/views/HelloWorld';
 import Tile from '@/views/Tile';
-import WorldMap from './views/WorldMap';
+import WorldMap from '@/views/WorldMap';
 
 const root = ReactDOM.createRoot(
     document.getElementById('root') as HTMLElement
