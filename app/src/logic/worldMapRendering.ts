@@ -1,7 +1,7 @@
 import { DrawingContext, LastDrawInfo, Vector2 } from '@/react-app-env';
 import { downloadImage } from '@/logic/imageCache';
-import { getMapInfo, getTileSource } from '@/logic/tileService';
-import { getTranslation, scale, vector2 } from '@/logic/vector2';
+import { getTileSource } from '@/logic/tileService';
+import { getTranslation, v2scale, vector2 } from '@/logic/vector2';
 import { theme } from '@/theme';
 
 const drawCounts = new Map<CanvasRenderingContext2D, number>();
@@ -15,14 +15,14 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
     ctx.graphics.fillStyle = theme.palette.primary.dark;
     ctx.graphics.fillRect(0, 0, ctx.size.x, ctx.size.y);
 
-    const mapInfo = getMapInfo(ctx.continent, ctx.floor);
+    const mapInfo = ctx.mapInfo;
     const tileScale = getTileScale(ctx.zoom, mapInfo.maxZoom);
     const tileZoom = Math.max(mapInfo.minZoom, Math.min(mapInfo.maxZoom, Math.ceil(ctx.zoom)));
-    const renderScale = 2 ** (ctx.zoom - tileZoom);
-    const worldTileSize = scale(mapInfo.tileSize, tileScale * renderScale, tileScale * renderScale);
-    const canvasWorldSize = scale(ctx.size, tileScale, tileScale);
+    const renderScale = getRenderScale(ctx.zoom, mapInfo.minZoom, mapInfo.maxZoom);
+    const worldTileSize = v2scale(mapInfo.tileSize, tileScale * renderScale, tileScale * renderScale);
+    const canvasWorldSize = v2scale(ctx.size, tileScale, tileScale);
     const tileDimensions = getDimensions(canvasWorldSize, worldTileSize);
-    const centerTileCoords = scale(ctx.position, 1 / worldTileSize.x, 1 / worldTileSize.y);
+    const centerTileCoords = v2scale(ctx.position, 1 / worldTileSize.x, 1 / worldTileSize.y);
     const centerCanvasTileCoords = vector2(canvasWorldSize.x / 2 / worldTileSize.x, canvasWorldSize.y / 2 / worldTileSize.y);
     const offset = getTranslation(centerTileCoords, centerCanvasTileCoords);
 
@@ -63,16 +63,26 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
     drawMap(1); // prevents visible seams
     drawMap(0); // prevents weird transitions
 
-    ctx.graphics.strokeStyle = 'red';
-    ctx.graphics.strokeRect(ctx.size.x / 2 - 5, ctx.size.y / 2 - 5, 10, 10);
-
     return {
         tileScale,
+        worldTileSize,
+        renderScale,
+        minZoom: mapInfo.minZoom,
+        maxZoom: mapInfo.maxZoom,
     };
 }
 
 export function getTileScale(zoom: number, maxZoom: number): number {
     return 2 ** (maxZoom - zoom);
+}
+
+export function getRenderScale(zoom: number, minZoom: number, maxZoom: number): number {
+    const tileZoom = Math.max(minZoom, Math.min(maxZoom, Math.ceil(zoom)));
+    return 2 ** (zoom - tileZoom);
+}
+
+export function getPixelWorldSize(zoom: number, minZoom: number, maxZoom: number): number {
+    return getTileScale(zoom, maxZoom) * getRenderScale(zoom, minZoom, maxZoom);
 }
 
 function getDimensions(canvasWorldSize: Vector2, tileSize: Vector2): Vector2 {

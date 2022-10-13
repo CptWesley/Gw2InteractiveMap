@@ -20,6 +20,7 @@ declare type DrawingContext = {
     position: Vector2,
     continent: number,
     floor: number,
+    mapInfo: MapInfo,
 };
 
 declare type MapInfo = {
@@ -63,4 +64,8 @@ declare type RawWorldDatabaseInfo = {
 
 declare type LastDrawInfo = {
     tileScale: number,
+    worldTileSize: Vector2,
+    renderScale: number,
+    minZoom: number,
+    maxZoom: number,
 };

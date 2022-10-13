@@ -1,9 +1,10 @@
 import { useEffect, useRef } from 'react';
-import { DrawingContext, LastDrawInfo, Vector2 } from '@/react-app-env';
-import { drawMap } from '@/logic/worldMapRendering';
+import { DrawingContext, LastDrawInfo, MapInfo, Vector2 } from '@/react-app-env';
+import { drawMap, getTileScale } from '@/logic/worldMapRendering';
 import { makeStyles } from '@/theme';
-import { vector2 } from '@/logic/vector2';
+import { getTranslation, v2add, v2scale, vector2 } from '@/logic/vector2';
 import { useQuery } from '@/logic/queryUtils';
+import { getMapInfo } from '@/logic/tileService';
 
 const defaultQueryParams = {
     continent: 1,
@@ -30,7 +31,7 @@ const useStyles = makeStyles()(() => {
 
 export default function WorldMap() {
     const { classes } = useStyles();
-    const query = useRef(useQuery(defaultQueryParams));
+    const queryRef = useRef(useQuery(defaultQueryParams));
 
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const lastDrawInfoRef = useRef<LastDrawInfo>();
@@ -49,6 +50,10 @@ export default function WorldMap() {
         </div>
     );
 
+    function getCurrentMapInfo(): MapInfo {
+        return getMapInfo(queryRef.current.get('continent'), queryRef.current.get('floor'));
+    }
+
     function redraw() {
         if (!canvasRef.current) {
             return;
@@ -66,13 +71,14 @@ export default function WorldMap() {
         const drawingContext:DrawingContext = {
             graphics: ctx,
             size: vector2(canvas.width, canvas.height),
-            zoom: query.current.get('zoom'),
+            zoom: queryRef.current.get('zoom'),
             position: {
-                x: query.current.get('x'),
-                y: query.current.get('y'),
+                x: queryRef.current.get('x'),
+                y: queryRef.current.get('y'),
             },
-            continent: query.current.get('continent'),
-            floor: query.current.get('floor'),
+            continent: queryRef.current.get('continent'),
+            floor: queryRef.current.get('floor'),
+            mapInfo: getCurrentMapInfo(),
         };
 
         lastDrawInfoRef.current = drawMap(drawingContext);
@@ -99,8 +105,8 @@ export default function WorldMap() {
 
                 if (lastDrawInfoRef.current) {
                     const tileScale = lastDrawInfoRef.current.tileScale;
-                    query.current.update('x', x => x - dX * tileScale);
-                    query.current.update('y', y => y - dY * tileScale);
+                    queryRef.current.update('x', x => x - dX * tileScale);
+                    queryRef.current.update('y', y => y - dY * tileScale);
                     redraw();
                 }
 
@@ -114,23 +120,50 @@ export default function WorldMap() {
         if (scrollingMap.current && scrollingMap.current.pointerId === e.pointerId) {
             e.currentTarget.releasePointerCapture(e.pointerId);
             scrollingMap.current = undefined;
-            query.current.replace();
+            queryRef.current.replace();
         }
     }
 
+    function canvasToWorld(vector: Vector2, mapInfo: MapInfo, zoom: number): Vector2 {
+        if (!canvasRef.current) {
+            throw new Error('Canvas is not yet initialised.');
+        }
+
+        const tileScale = getTileScale(zoom, mapInfo.maxZoom);
+        const centerFloatCanvasPos = vector2(canvasRef.current.width / 2, canvasRef.current.height / 2);
+        const centerFloatWorldPos = v2scale(centerFloatCanvasPos, tileScale, tileScale);
+        const centerWorldPos = vector2(queryRef.current.get('x'), queryRef.current.get('y'));
+        const centerWorldOffset = getTranslation(centerFloatWorldPos, centerWorldPos);
+        const floatWorldPos = v2scale(vector, tileScale, tileScale);
+        const worldPos = v2add(floatWorldPos, centerWorldOffset);
+        return worldPos;
+    }
+
     function handleWheel(e: React.WheelEvent<HTMLCanvasElement>) {
-        const oldZoom = query.current.get('zoom');
+        const oldZoom = queryRef.current.get('zoom');
         const zoomDelta = e.deltaY / 300;
         const newZoomUncorrected = oldZoom - zoomDelta;
         const newZoom = !newZoomUncorrected ? 0 : Math.max(0, parseFloat(newZoomUncorrected.toPrecision(3)));
-        query.current.set('zoom', newZoom);
-        query.current.replace();
+        queryRef.current.set('zoom', newZoom);
+
+        const mapInfo = getCurrentMapInfo();
+        if (canvasRef.current) {
+            const mouseCanvasPos = vector2(e.clientX - canvasRef.current.offsetLeft, e.clientY - canvasRef.current.offsetTop);
+            const oldMouseWorldPos = canvasToWorld(mouseCanvasPos, mapInfo, oldZoom);
+            const newMouseWorldPos = canvasToWorld(mouseCanvasPos, mapInfo, newZoom);
+            const offset = getTranslation(newMouseWorldPos, oldMouseWorldPos);
+            queryRef.current.update('x', x => x + offset.x);
+            queryRef.current.update('y', y => y + offset.y);
+        }
+
+        queryRef.current.replace();
+
         redraw();
     }
 
     useEffect(() => {
         redraw();
-        query.current.replace();
+        queryRef.current.replace();
         window.addEventListener('resize', redraw);
         return () => window.removeEventListener('resize', redraw);
     }, []);
