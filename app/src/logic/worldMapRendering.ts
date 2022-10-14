@@ -1,6 +1,6 @@
-import { DrawingContext, LastDrawInfo, Vector2 } from '@/react-app-env';
-import { downloadImage } from '@/logic/imageCache';
-import { getTileSource } from '@/logic/tileService';
+import { DrawingContext, LastDrawInfo, TileSource, Vector2 } from '@/react-app-env';
+import { downloadImage, imageIsCached } from '@/logic/imageCache';
+import { getTileSource, getTileSourceFromParent, getTileSourcesFromChildren } from '@/logic/tileService';
 import { getTranslation, v2scale, vector2 } from '@/logic/vector2';
 import { theme } from '@/theme';
 
@@ -46,7 +46,6 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
                 const source = getTileSource(ctx.continent, ctx.floor, tileZoom, tileX, tileY);
                 if (!source) { continue; }
                 const imgPromise = downloadImage(source.url);
-
                 imgPromise.promise.then((img) => {
                     if (drawCounts.get(ctx.graphics) === drawCount) {
                         ctx.graphics.drawImage(img, source.x, source.y, source.width, source.height, dx - halfBuffer, dy - halfBuffer, dw + buffer, dh + buffer);
@@ -56,8 +55,51 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
         }
     }
 
+    function tryCache(source: TileSource|undefined): void {
+        if (source && !imageIsCached(source.url)) {
+            downloadImage(source.url);
+        }
+    }
+
+    function cacheSurroundingFloors(): void {
+        for (let ix = ixMin; ix < ixMax; ix++) {
+            const tileX = Math.floor(centerTileCoords.x) + ix;
+
+            for (let iy = iyMin; iy < iyMax; iy++) {
+                const tileY = Math.floor(centerTileCoords.y) + iy;
+                const parentSource = getTileSourceFromParent(ctx.continent, ctx.floor, tileZoom, tileX, tileY);
+                tryCache(parentSource);
+                getTileSourcesFromChildren(ctx.continent, ctx.floor, tileZoom, tileX, tileY)?.forEach(source => {
+                    tryCache(source);
+                });
+            }
+        }
+    }
+
+    function cacheSurroundingTiles(range: number): void {
+        const xLow = ixMin - 1;
+        const xHigh = ixMax;
+        const yLow = iyMin - 1;
+        const yHigh = iyMax;
+        for (let r = 0; r < range; r++) {
+            for (let iy = iyMin; iy < iyMax; iy++) {
+                const tileY = Math.floor(centerTileCoords.y) + iy;
+                tryCache(getTileSource(ctx.continent, ctx.floor, tileZoom, xLow - r, tileY));
+                tryCache(getTileSource(ctx.continent, ctx.floor, tileZoom, xHigh + r, tileY));
+            }
+            for (let ix = ixMin; ix < ixMax; ix++) {
+                const tileX = Math.floor(centerTileCoords.x) + ix;
+                tryCache(getTileSource(ctx.continent, ctx.floor, tileZoom, tileX, yLow - r));
+                tryCache(getTileSource(ctx.continent, ctx.floor, tileZoom, tileX, yHigh + r));
+            }
+        }
+    }
+
     drawMap(1); // prevents visible seams
     drawMap(0); // prevents weird transitions
+
+    cacheSurroundingFloors();
+    cacheSurroundingTiles(1);
 
     ctx.graphics.restore();
 

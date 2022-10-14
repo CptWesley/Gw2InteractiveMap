@@ -22,6 +22,10 @@ export function downloadImage(url: string): TrackedPromise<HTMLImageElement> {
     return downloadResult;
 }
 
+export function imageIsCached(url: string): boolean {
+    return cacheLastUsed.has(url);
+}
+
 async function innerDownloadImage(url: string): Promise<HTMLImageElement> {
     return new Promise<HTMLImageElement>((resolve, reject) => {
         const img = new Image;

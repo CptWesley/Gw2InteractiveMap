@@ -6,6 +6,8 @@ declare type TileSource = {
     y: number,
     width: number,
     height: number,
+    offsetX: number,
+    offsetY: number,
 };
 
 declare type Vector2 = {

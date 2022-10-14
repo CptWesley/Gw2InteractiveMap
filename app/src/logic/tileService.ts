@@ -33,6 +33,8 @@ function buildMap(continent: number, floor: number) {
                         y: 0,
                         width: tileWidth,
                         height: tileHeight,
+                        offsetX: 0,
+                        offsetY: 0,
                     };
                     xResult[y] = source;
                 } else {
@@ -52,6 +54,8 @@ function buildMap(continent: number, floor: number) {
                         y: newY,
                         width: newWidth,
                         height: newHeight,
+                        offsetX: 0,
+                        offsetY: 0,
                     };
                     xResult[y] = source;
                 }
@@ -110,4 +114,73 @@ export function getMapInfo(continent: number, floor: number): MapInfo {
         maxZoom: raw.MaxZoom,
         tileSize: vector2(raw.TileWidth, raw.TileHeight),
     };
+}
+
+export function getTileSourceFromParent(continent: number, floor: number, zoom: number, x: number, y: number): TileSource|undefined {
+    const parentZoom = zoom - 1;
+    const parentX = Math.floor(x / 2);
+    const parentY = Math.floor(y / 2);
+    const offsetX = x % 2;
+    const offsetY = y % 2;
+    const parent = getTileSource(continent, floor, parentZoom, parentX, parentY);
+    if (!parent) {
+        return undefined;
+    }
+
+    const newWidth = parent.width / 2;
+    const newHeight = parent.height / 2;
+    const newX = parent.x + offsetX * newWidth;
+    const newY = parent.y + offsetY * newHeight;
+    const source:TileSource = {
+        url: parent.url,
+        x: newX,
+        y: newY,
+        width: newWidth,
+        height: newHeight,
+        offsetX: 0,
+        offsetY: 0,
+    };
+
+    return source;
+}
+
+export function getTileSourcesFromChildren(continent: number, floor: number, zoom: number, x: number, y: number): TileSource[]|undefined {
+    const childrenZoom = zoom + 1;
+    const childrenX = x * 2;
+    const childrenY = y * 2;
+    const x0y0 = getTileSource(continent, floor, childrenZoom, childrenX, childrenY);
+    const x1y0 = getTileSource(continent, floor, childrenZoom, childrenX + 1, childrenY);
+    const x0y1 = getTileSource(continent, floor, childrenZoom, childrenX, childrenY + 1);
+    const x1y1 = getTileSource(continent, floor, childrenZoom, childrenX + 1, childrenY + 1);
+    const result: TileSource[] = [];
+
+    if (x0y0) {
+        pushTileWithOffset(result, x0y0, 0, 0);
+    }
+
+    if (x1y0) {
+        pushTileWithOffset(result, x1y0, x1y0.width, 0);
+    }
+
+    if (x0y1) {
+        pushTileWithOffset(result, x0y1, 0, x0y1.height);
+    }
+
+    if (x1y1) {
+        pushTileWithOffset(result, x1y1, x1y1.width, x1y1.height);
+    }
+
+    return result;
+}
+
+function pushTileWithOffset(array: TileSource[], source: TileSource, xOffset: number, yOffset: number): void {
+    array.push({
+        url: source.url,
+        x: source.x,
+        y: source.y,
+        width: source.width,
+        height: source.height,
+        offsetX: xOffset,
+        offsetY: yOffset,
+    });
 }
