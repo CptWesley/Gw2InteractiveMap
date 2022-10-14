@@ -84,6 +84,14 @@ export default function WorldMap() {
         lastDrawInfoRef.current = drawMap(drawingContext);
     }
 
+    function getCenterWorldPosition(): Vector2 {
+        return vector2(queryRef.current.get('x'), queryRef.current.get('y'));
+    }
+
+    function getCanvasSize(): Vector2  {
+        return vector2(canvasRef.current?.width ?? -1, canvasRef.current?.height ?? -1);
+    }
+
     function handlePointerDown(e: React.PointerEvent<HTMLCanvasElement>): void {
         scrollingMap.current = {
             pointerId: e.pointerId,
@@ -135,8 +143,8 @@ export default function WorldMap() {
 
         if (canvasRef.current) {
             const mouseCanvasPos = vector2(e.clientX - canvasRef.current.offsetLeft, e.clientY - canvasRef.current.offsetTop);
-            const centerWorldPos = vector2(queryRef.current.get('x'), queryRef.current.get('y'));
-            const canvasSize = vector2(canvasRef.current.width, canvasRef.current.height);
+            const centerWorldPos = getCenterWorldPosition();
+            const canvasSize = getCanvasSize();
             const oldMouseWorldPos = canvasToWorld(mouseCanvasPos, centerWorldPos, canvasSize, mapInfo, oldZoom);
             const newMouseWorldPos = canvasToWorld(mouseCanvasPos, centerWorldPos, canvasSize, mapInfo, newZoom);
             const offset = getTranslation(newMouseWorldPos, oldMouseWorldPos);
