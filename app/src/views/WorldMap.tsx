@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { DrawingContext, LastDrawInfo, MapInfo, Vector2 } from '@/react-app-env';
-import { drawMap, getTileScale } from '@/logic/worldMapRendering';
+import { canvasToWorld, drawMap } from '@/logic/worldMapRendering';
 import { makeStyles } from '@/theme';
-import { getTranslation, v2add, v2scale, vector2 } from '@/logic/vector2';
+import { getTranslation, vector2 } from '@/logic/vector2';
 import { useQuery } from '@/logic/queryUtils';
 import { getMapInfo } from '@/logic/tileService';
 
@@ -125,21 +125,6 @@ export default function WorldMap() {
         }
     }
 
-    function canvasToWorld(vector: Vector2, mapInfo: MapInfo, zoom: number): Vector2 {
-        if (!canvasRef.current) {
-            throw new Error('Canvas is not yet initialised.');
-        }
-
-        const tileScale = getTileScale(zoom, mapInfo.maxZoom);
-        const centerFloatCanvasPos = vector2(canvasRef.current.width / 2, canvasRef.current.height / 2);
-        const centerFloatWorldPos = v2scale(centerFloatCanvasPos, tileScale, tileScale);
-        const centerWorldPos = vector2(queryRef.current.get('x'), queryRef.current.get('y'));
-        const centerWorldOffset = getTranslation(centerFloatWorldPos, centerWorldPos);
-        const floatWorldPos = v2scale(vector, tileScale, tileScale);
-        const worldPos = v2add(floatWorldPos, centerWorldOffset);
-        return worldPos;
-    }
-
     function handleWheel(e: React.WheelEvent<HTMLCanvasElement>): void {
         const mapInfo = getCurrentMapInfo();
         const oldZoom = queryRef.current.get('zoom');
@@ -150,8 +135,10 @@ export default function WorldMap() {
 
         if (canvasRef.current) {
             const mouseCanvasPos = vector2(e.clientX - canvasRef.current.offsetLeft, e.clientY - canvasRef.current.offsetTop);
-            const oldMouseWorldPos = canvasToWorld(mouseCanvasPos, mapInfo, oldZoom);
-            const newMouseWorldPos = canvasToWorld(mouseCanvasPos, mapInfo, newZoom);
+            const centerWorldPos = vector2(queryRef.current.get('x'), queryRef.current.get('y'));
+            const canvasSize = vector2(canvasRef.current.width, canvasRef.current.height);
+            const oldMouseWorldPos = canvasToWorld(mouseCanvasPos, centerWorldPos, canvasSize, mapInfo, oldZoom);
+            const newMouseWorldPos = canvasToWorld(mouseCanvasPos, centerWorldPos, canvasSize, mapInfo, newZoom);
             const offset = getTranslation(newMouseWorldPos, oldMouseWorldPos);
             queryRef.current.update('x', x => Math.max(0, Math.min(mapInfo.size.x, x + offset.x)));
             queryRef.current.update('y', y => Math.max(0, Math.min(mapInfo.size.y, y + offset.y)));
