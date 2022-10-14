@@ -1,16 +1,11 @@
 import { MapInfo, TileSource } from '@/react-app-env';
-import { MD5, enc } from 'crypto-js';
 import { knownTiles, tileIsKnown } from './knownTiles';
 import { vector2 } from './vector2';
 
 const lookupCache = new Map<string, any>();
 
 export function getTileUrl(continent: number, floor: number, zoom: number, x: number, y: number) {
-    const fileName = `World_map_tile_C${continent}_F${floor}_Z${zoom}_X${x}_Y${y}.jpg`;
-    const fileNameHash = MD5(fileName);
-    const hex = fileNameHash.toString(enc.Hex);
-    const url = `https://wiki.guildwars2.com/images/${hex.slice(0, 1)}/${hex.slice(0, 2)}/${fileName}`;
-    return url;
+    return `https://cdn.jsdelivr.net/gh/CptWesley/Gw2InteractiveMapTiles@v2/tiles/C${continent}_F${floor}_Z${zoom}_X${x}_Y${y}.webp`;
 }
 
 function buildMap(continent: number, floor: number) {
