@@ -140,3 +140,14 @@ export function canvasToWorld(vector: Vector2, centerWorldPos: Vector2, canvasSi
     const worldPos = v2add(floatWorldPos, centerWorldOffset);
     return worldPos;
 }
+
+export function worldToCanvas(vector: Vector2, centerWorldPos: Vector2, canvasSize: Vector2, mapInfo: MapInfo, zoom: number): Vector2 {
+    const tileScale = getTileScale(zoom, mapInfo.maxZoom);
+    const tileScaleInv = 1 / tileScale;
+    const centerFloatCanvasPos = vector2(canvasSize.x / 2, canvasSize.y / 2);
+    const centerCanvasPos = v2scale(centerWorldPos, tileScaleInv, tileScaleInv);
+    const centerCanvasOffset = getTranslation(centerCanvasPos, centerFloatCanvasPos);
+    const worldPos = v2scale(vector, tileScaleInv, tileScaleInv);
+    const canvasPos = v2add(worldPos, centerCanvasOffset);
+    return canvasPos;
+}
