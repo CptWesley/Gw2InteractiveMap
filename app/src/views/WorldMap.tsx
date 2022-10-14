@@ -54,7 +54,7 @@ export default function WorldMap() {
         return getMapInfo(queryRef.current.get('continent'), queryRef.current.get('floor'));
     }
 
-    function redraw() {
+    function redraw(): void {
         if (!canvasRef.current) {
             return;
         }
@@ -84,7 +84,7 @@ export default function WorldMap() {
         lastDrawInfoRef.current = drawMap(drawingContext);
     }
 
-    function handlePointerDown(e: React.PointerEvent<HTMLCanvasElement>) {
+    function handlePointerDown(e: React.PointerEvent<HTMLCanvasElement>): void {
         scrollingMap.current = {
             pointerId: e.pointerId,
             position: { x: e.pageX, y: e.pageY },
@@ -93,8 +93,9 @@ export default function WorldMap() {
         e.currentTarget.setPointerCapture(e.pointerId);
     }
 
-    function handlePointerMove(e: React.PointerEvent<HTMLCanvasElement>) {
+    function handlePointerMove(e: React.PointerEvent<HTMLCanvasElement>): void {
         if (scrollingMap.current && scrollingMap.current.pointerId === e.pointerId) {
+            const mapInfo = getCurrentMapInfo();
             const dX = e.pageX - scrollingMap.current.position.x;
             const dY = e.pageY - scrollingMap.current.position.y;
             const dragAllowed = scrollingMap.current.threshold || Math.abs(dX) > 3 || Math.abs(dY) > 3;
@@ -105,8 +106,8 @@ export default function WorldMap() {
 
                 if (lastDrawInfoRef.current) {
                     const tileScale = lastDrawInfoRef.current.tileScale;
-                    queryRef.current.update('x', x => x - dX * tileScale);
-                    queryRef.current.update('y', y => y - dY * tileScale);
+                    queryRef.current.update('x', x => Math.max(0, Math.min(mapInfo.size.x, x - dX * tileScale)));
+                    queryRef.current.update('y', y => Math.max(0, Math.min(mapInfo.size.y, y - dY * tileScale)));
                     redraw();
                 }
 
@@ -116,7 +117,7 @@ export default function WorldMap() {
         }
     }
 
-    function handlePointerUp(e: React.PointerEvent<HTMLCanvasElement>) {
+    function handlePointerUp(e: React.PointerEvent<HTMLCanvasElement>): void {
         if (scrollingMap.current && scrollingMap.current.pointerId === e.pointerId) {
             e.currentTarget.releasePointerCapture(e.pointerId);
             scrollingMap.current = undefined;
@@ -139,21 +140,21 @@ export default function WorldMap() {
         return worldPos;
     }
 
-    function handleWheel(e: React.WheelEvent<HTMLCanvasElement>) {
+    function handleWheel(e: React.WheelEvent<HTMLCanvasElement>): void {
+        const mapInfo = getCurrentMapInfo();
         const oldZoom = queryRef.current.get('zoom');
         const zoomDelta = e.deltaY / 300;
         const newZoomUncorrected = oldZoom - zoomDelta;
-        const newZoom = !newZoomUncorrected ? 0 : Math.max(0, parseFloat(newZoomUncorrected.toPrecision(3)));
+        const newZoom = !newZoomUncorrected ? 0 : Math.max(0, Math.min(mapInfo.maxZoom + 2, parseFloat(newZoomUncorrected.toPrecision(3))));
         queryRef.current.set('zoom', newZoom);
 
-        const mapInfo = getCurrentMapInfo();
         if (canvasRef.current) {
             const mouseCanvasPos = vector2(e.clientX - canvasRef.current.offsetLeft, e.clientY - canvasRef.current.offsetTop);
             const oldMouseWorldPos = canvasToWorld(mouseCanvasPos, mapInfo, oldZoom);
             const newMouseWorldPos = canvasToWorld(mouseCanvasPos, mapInfo, newZoom);
             const offset = getTranslation(newMouseWorldPos, oldMouseWorldPos);
-            queryRef.current.update('x', x => x + offset.x);
-            queryRef.current.update('y', y => y + offset.y);
+            queryRef.current.update('x', x => Math.max(0, Math.min(mapInfo.size.x, x + offset.x)));
+            queryRef.current.update('y', y => Math.max(0, Math.min(mapInfo.size.y, y + offset.y)));
         }
 
         queryRef.current.replace();
@@ -161,8 +162,17 @@ export default function WorldMap() {
         redraw();
     }
 
+    function clampPositioning(): void {
+        const mapInfo = getCurrentMapInfo();
+        const query = queryRef.current;
+        query.update('x', x => Math.max(0, Math.min(mapInfo.size.x, x)));
+        query.update('y', y => Math.max(0, Math.min(mapInfo.size.y, y)));
+        query.update('zoom', z => Math.max(0, Math.min(mapInfo.maxZoom + 2, z)));
+    }
+
     useEffect(() => {
         redraw();
+        clampPositioning();
         queryRef.current.replace();
         window.addEventListener('resize', redraw);
         return () => window.removeEventListener('resize', redraw);
