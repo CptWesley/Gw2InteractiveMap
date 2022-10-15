@@ -11,11 +11,6 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
     const drawCount = oldDrawCount === undefined ? 0 : oldDrawCount + 1;
     drawCounts.set(ctx.graphics, drawCount);
 
-    ctx.graphics.save();
-    ctx.graphics.clearRect(0, 0, ctx.size.x, ctx.size.y);
-    ctx.graphics.fillStyle = theme.palette.primary.dark;
-    ctx.graphics.fillRect(0, 0, ctx.size.x, ctx.size.y);
-
     const mapInfo = ctx.mapInfo;
     const tileScale = getTileScale(ctx.zoom, mapInfo.maxZoom);
     const tileZoom = Math.max(mapInfo.minZoom, Math.min(mapInfo.maxZoom, Math.ceil(ctx.zoom)));
@@ -32,7 +27,7 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
     const iyMin = -Math.floor(tileDimensions.y / 2);
     const iyMax = Math.ceil(tileDimensions.y / 2);
 
-    function drawMap(buffer: number): void {
+    function drawTiles(buffer: number): void {
         const halfBuffer = buffer / 2;
         for (let ix = ixMin; ix < ixMax; ix++) {
             const tileX = Math.floor(centerTileCoords.x) + ix;
@@ -46,7 +41,7 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
                 const source = getTileSource(ctx.continent, ctx.floor, tileZoom, tileX, tileY);
                 if (!source) { continue; }
                 const imgPromise = downloadImage(source.url);
-                imgPromise.promise.then((img) => {
+                imgPromise.then((img) => {
                     if (drawCounts.get(ctx.graphics) === drawCount) {
                         ctx.graphics.drawImage(img, source.x, source.y, source.width, source.height, dx - halfBuffer, dy - halfBuffer, dw + buffer, dh + buffer);
                     }
@@ -95,11 +90,29 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
         }
     }
 
-    drawMap(1); // prevents visible seams
-    drawMap(0); // prevents weird transitions
+    ctx.graphics.save();
+    ctx.graphics.clearRect(0, 0, ctx.size.x, ctx.size.y);
+    ctx.graphics.fillStyle = theme.palette.primary.dark;
+    ctx.graphics.fillRect(0, 0, ctx.size.x, ctx.size.y);
+
+    drawTiles(1); // prevents visible seams
+    drawTiles(0); // prevents weird transitions
 
     cacheSurroundingFloors();
     cacheSurroundingTiles(1);
+
+    const start = vector2(50432, 24448);
+    const end = vector2(56576, 37760);
+    const startCanvas = worldToCanvas(start, ctx.position, ctx.size, ctx.mapInfo, ctx.zoom);
+    const endCanvas = worldToCanvas(end, ctx.position, ctx.size, ctx.mapInfo, ctx.zoom);
+    console.log('startCanvas:');
+    console.log(startCanvas);
+    console.log('endCanvas:');
+    console.log(endCanvas);
+
+    ctx.graphics.strokeStyle = 'red';
+    ctx.graphics.strokeRect(ctx.size.x / 2 - 5, ctx.size.y / 2 - 5, 10, 10);
+    ctx.graphics.strokeRect(startCanvas.x, startCanvas.y, endCanvas.x - startCanvas.x, endCanvas.y - startCanvas.y);
 
     ctx.graphics.restore();
 

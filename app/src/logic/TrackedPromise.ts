@@ -3,6 +3,7 @@ export class TrackedPromise<T> {
     private _resolved: boolean = false;
     private _rejected: boolean = false;
     private _result: T|undefined = undefined;
+    private _error: any = undefined;
 
     constructor(promise: Promise<T>) {
         this._promise = promise;
@@ -11,7 +12,8 @@ export class TrackedPromise<T> {
                 this._result = result;
                 this._resolved = true;
             },
-            () => {
+            (error) => {
+                this._error = error;
                 this._rejected = true;
             },
         );
@@ -43,6 +45,32 @@ export class TrackedPromise<T> {
         }
 
         return this._result!;
+    }
+
+    public get error(): any {
+        if (this._resolved) {
+            throw new Error('Promise was resolved.');
+        }
+
+        if (!this._rejected) {
+            throw new Error('Promise is still pending.');
+        }
+
+        return this._error;
+    }
+
+    public then(onResolved?: (result: T) => void, onRejected?: (error: any) => void): void {
+        if (this._resolved && onResolved) {
+            onResolved(this._result!);
+        }
+
+        if (this._rejected && onRejected) {
+            onRejected(this._error);
+        }
+
+        if (!this._resolved && !this._rejected) {
+            this._promise.then(onResolved, onRejected);
+        }
     }
 }
 
