@@ -11,6 +11,17 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
     const drawCount = oldDrawCount === undefined ? 0 : oldDrawCount + 1;
     drawCounts.set(ctx.graphics, drawCount);
 
+    function createInMemoryCanvas(): CanvasRenderingContext2D {
+        const canvas = document.createElement('canvas');
+        canvas.width = ctx.size.x;
+        canvas.height = ctx.size.y;
+        const renderContext = canvas.getContext('2d');
+        return renderContext!;
+    }
+
+    const tileGraphics = createInMemoryCanvas();
+    const overlayGraphics = createInMemoryCanvas();
+
     const mapInfo = ctx.mapInfo;
     const tileScale = getTileScale(ctx.zoom, mapInfo.maxZoom);
     const tileZoom = Math.max(mapInfo.minZoom, Math.min(mapInfo.maxZoom, Math.ceil(ctx.zoom)));
@@ -27,93 +38,110 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
     const iyMin = -Math.floor(tileDimensions.y / 2);
     const iyMax = Math.ceil(tileDimensions.y / 2);
 
-    function drawTiles(buffer: number): void {
-        const halfBuffer = buffer / 2;
-        for (let ix = ixMin; ix < ixMax; ix++) {
-            const tileX = Math.floor(centerTileCoords.x) + ix;
-            const dw = mapInfo.tileSize.x * renderScale;
-            const dx = dw * (tileX + offset.x);
-
-            for (let iy = iyMin; iy < iyMax; iy++) {
-                const tileY = Math.floor(centerTileCoords.y) + iy;
-                const dh = mapInfo.tileSize.y * renderScale;
-                const dy = dh * (tileY + offset.y);
-                const source = getTileSource(ctx.continent, ctx.floor, tileZoom, tileX, tileY);
-                if (!source) { continue; }
-                const imgPromise = downloadImage(source.url);
-                imgPromise.then((img) => {
-                    if (drawCounts.get(ctx.graphics) === drawCount) {
-                        ctx.graphics.drawImage(img, source.x, source.y, source.width, source.height, dx - halfBuffer, dy - halfBuffer, dw + buffer, dh + buffer);
-                    }
-                });
-            }
-        }
+    function combineCanvas(): void {
+        ctx.graphics.drawImage(tileGraphics.canvas, 0, 0);
+        ctx.graphics.drawImage(overlayGraphics.canvas, 0, 0);
     }
 
-    function tryCache(source: TileSource|undefined): void {
-        if (source && !imageIsCached(source.url)) {
-            downloadImage(source.url);
-        }
-    }
-
-    function cacheSurroundingFloors(): void {
-        for (let ix = ixMin; ix < ixMax; ix++) {
-            const tileX = Math.floor(centerTileCoords.x) + ix;
-
-            for (let iy = iyMin; iy < iyMax; iy++) {
-                const tileY = Math.floor(centerTileCoords.y) + iy;
-                const parentSource = getTileSourceFromParent(ctx.continent, ctx.floor, tileZoom, tileX, tileY);
-                tryCache(parentSource);
-                getTileSourcesFromChildren(ctx.continent, ctx.floor, tileZoom, tileX, tileY)?.forEach(source => {
-                    tryCache(source);
-                });
-            }
-        }
-    }
-
-    function cacheSurroundingTiles(range: number): void {
-        const xLow = ixMin - 1;
-        const xHigh = ixMax;
-        const yLow = iyMin - 1;
-        const yHigh = iyMax;
-        for (let r = 0; r < range; r++) {
-            for (let iy = iyMin; iy < iyMax; iy++) {
-                const tileY = Math.floor(centerTileCoords.y) + iy;
-                tryCache(getTileSource(ctx.continent, ctx.floor, tileZoom, xLow - r, tileY));
-                tryCache(getTileSource(ctx.continent, ctx.floor, tileZoom, xHigh + r, tileY));
-            }
+    function drawAllTiles(): void {
+        function drawTiles(buffer: number): void {
+            const halfBuffer = buffer / 2;
             for (let ix = ixMin; ix < ixMax; ix++) {
                 const tileX = Math.floor(centerTileCoords.x) + ix;
-                tryCache(getTileSource(ctx.continent, ctx.floor, tileZoom, tileX, yLow - r));
-                tryCache(getTileSource(ctx.continent, ctx.floor, tileZoom, tileX, yHigh + r));
+                const dw = mapInfo.tileSize.x * renderScale;
+                const dx = dw * (tileX + offset.x);
+
+                for (let iy = iyMin; iy < iyMax; iy++) {
+                    const tileY = Math.floor(centerTileCoords.y) + iy;
+                    const dh = mapInfo.tileSize.y * renderScale;
+                    const dy = dh * (tileY + offset.y);
+                    const source = getTileSource(ctx.continent, ctx.floor, tileZoom, tileX, tileY);
+                    if (!source) { continue; }
+                    const imgPromise = downloadImage(source.url);
+                    if (imgPromise.resolved) {
+                        tileGraphics.drawImage(imgPromise.result, source.x, source.y, source.width, source.height, dx - halfBuffer, dy - halfBuffer, dw + buffer, dh + buffer);
+                    } else if (!imgPromise.rejected) {
+                        imgPromise.promise.then((img) => {
+                            if (drawCounts.get(ctx.graphics) === drawCount) {
+                                tileGraphics.drawImage(img, source.x, source.y, source.width, source.height, dx - halfBuffer, dy - halfBuffer, dw + buffer, dh + buffer);
+                                combineCanvas();
+                            }
+                        });
+                    }
+                }
             }
         }
+
+        function tryCache(source: TileSource|undefined): void {
+            if (source && !imageIsCached(source.url)) {
+                downloadImage(source.url);
+            }
+        }
+
+        function cacheSurroundingFloors(): void {
+            for (let ix = ixMin; ix < ixMax; ix++) {
+                const tileX = Math.floor(centerTileCoords.x) + ix;
+
+                for (let iy = iyMin; iy < iyMax; iy++) {
+                    const tileY = Math.floor(centerTileCoords.y) + iy;
+                    const parentSource = getTileSourceFromParent(ctx.continent, ctx.floor, tileZoom, tileX, tileY);
+                    tryCache(parentSource);
+                    getTileSourcesFromChildren(ctx.continent, ctx.floor, tileZoom, tileX, tileY)?.forEach(source => {
+                        tryCache(source);
+                    });
+                }
+            }
+        }
+
+        function cacheSurroundingTiles(range: number): void {
+            const xLow = ixMin - 1;
+            const xHigh = ixMax;
+            const yLow = iyMin - 1;
+            const yHigh = iyMax;
+            for (let r = 0; r < range; r++) {
+                for (let iy = iyMin; iy < iyMax; iy++) {
+                    const tileY = Math.floor(centerTileCoords.y) + iy;
+                    tryCache(getTileSource(ctx.continent, ctx.floor, tileZoom, xLow - r, tileY));
+                    tryCache(getTileSource(ctx.continent, ctx.floor, tileZoom, xHigh + r, tileY));
+                }
+                for (let ix = ixMin; ix < ixMax; ix++) {
+                    const tileX = Math.floor(centerTileCoords.x) + ix;
+                    tryCache(getTileSource(ctx.continent, ctx.floor, tileZoom, tileX, yLow - r));
+                    tryCache(getTileSource(ctx.continent, ctx.floor, tileZoom, tileX, yHigh + r));
+                }
+            }
+        }
+
+        tileGraphics.clearRect(0, 0, ctx.size.x, ctx.size.y);
+        tileGraphics.fillStyle = theme.palette.primary.dark;
+        tileGraphics.fillRect(0, 0, ctx.size.x, ctx.size.y);
+
+        drawTiles(1); // prevents visible seams
+        drawTiles(0); // prevents weird transitions
+
+        cacheSurroundingFloors();
+        cacheSurroundingTiles(1);
+    }
+
+    function drawOverlay(): void {
+        const start = vector2(50432, 24448);
+        const end = vector2(56576, 37760);
+        const startCanvas = worldToCanvas(start, ctx.position, ctx.size, ctx.mapInfo, ctx.zoom);
+        const endCanvas = worldToCanvas(end, ctx.position, ctx.size, ctx.mapInfo, ctx.zoom);
+        console.log('startCanvas:');
+        console.log(startCanvas);
+        console.log('endCanvas:');
+        console.log(endCanvas);
+
+        overlayGraphics.strokeStyle = 'red';
+        overlayGraphics.strokeRect(ctx.size.x / 2 - 5, ctx.size.y / 2 - 5, 10, 10);
+        overlayGraphics.strokeRect(startCanvas.x, startCanvas.y, endCanvas.x - startCanvas.x, endCanvas.y - startCanvas.y);
     }
 
     ctx.graphics.save();
-    ctx.graphics.clearRect(0, 0, ctx.size.x, ctx.size.y);
-    ctx.graphics.fillStyle = theme.palette.primary.dark;
-    ctx.graphics.fillRect(0, 0, ctx.size.x, ctx.size.y);
-
-    drawTiles(1); // prevents visible seams
-    drawTiles(0); // prevents weird transitions
-
-    cacheSurroundingFloors();
-    cacheSurroundingTiles(1);
-
-    const start = vector2(50432, 24448);
-    const end = vector2(56576, 37760);
-    const startCanvas = worldToCanvas(start, ctx.position, ctx.size, ctx.mapInfo, ctx.zoom);
-    const endCanvas = worldToCanvas(end, ctx.position, ctx.size, ctx.mapInfo, ctx.zoom);
-    console.log('startCanvas:');
-    console.log(startCanvas);
-    console.log('endCanvas:');
-    console.log(endCanvas);
-
-    ctx.graphics.strokeStyle = 'red';
-    ctx.graphics.strokeRect(ctx.size.x / 2 - 5, ctx.size.y / 2 - 5, 10, 10);
-    ctx.graphics.strokeRect(startCanvas.x, startCanvas.y, endCanvas.x - startCanvas.x, endCanvas.y - startCanvas.y);
-
+    drawAllTiles();
+    drawOverlay();
+    combineCanvas();
     ctx.graphics.restore();
 
     return {
