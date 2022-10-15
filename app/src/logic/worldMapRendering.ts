@@ -73,12 +73,6 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
             }
         }
 
-        function tryCache(source: TileSource|undefined): void {
-            if (source && !imageIsCached(source.url)) {
-                downloadImage(source.url);
-            }
-        }
-
         function cacheSurroundingFloors(): void {
             for (let ix = ixMin; ix < ixMax; ix++) {
                 const tileX = Math.floor(centerTileCoords.x) + ix;
@@ -152,4 +146,10 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
         minZoom: mapInfo.minZoom,
         maxZoom: mapInfo.maxZoom,
     };
+}
+
+function tryCache(source: TileSource|undefined): void {
+    if (source && !imageIsCached(source.url)) {
+        downloadImage(source.url);
+    }
 }
