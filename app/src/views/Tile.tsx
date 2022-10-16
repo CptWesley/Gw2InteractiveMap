@@ -1,5 +1,5 @@
 import { useParams } from 'react-router-dom';
-import { getTileSource } from '@/logic/tileService';
+import { getTileSource } from '@/logic/tileData/tileService';
 import { useEffect, useRef } from 'react';
 import { downloadImage } from '@/logic/imageCache';
 

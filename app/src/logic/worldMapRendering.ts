@@ -1,13 +1,13 @@
 import { DrawingContext, LastDrawInfo, TileSource, Vector2 } from '@/react-app-env';
 import { downloadImage, imageIsCached } from '@/logic/imageCache';
-import { getTileSource, getTileSourceFromParent, getTileSourcesFromChildren } from '@/logic/tileService';
-import { getTranslation, v2scale, vector2 } from '@/logic/vector2';
+import { getTileSource, getTileSourceFromParent, getTileSourcesFromChildren } from '@/logic/tileData/tileService';
+import { getTranslation, v2scale, vector2 } from '@/logic/utility/vector2';
 import { theme } from '@/theme';
 import { getTileScale, getRenderScale, getDimensions, worldToCanvas as worldToCanvasInternal } from '@/logic/worldMapUtils';
 import { icons } from '@/logic/mapIcons';
 import { TrackedPromise } from '@/logic/TrackedPromise';
 import worldData from '@/logic/mapData/worldData';
-import { forEachValue } from '@/logic/util';
+import { forEachValue } from '@/logic/utility/util';
 
 const drawCounts = new Map<CanvasRenderingContext2D, number>();
 

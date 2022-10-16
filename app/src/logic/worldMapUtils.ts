@@ -1,5 +1,5 @@
 import { Vector2, MapInfo } from '@/react-app-env';
-import { getTranslation, v2add, v2scale, vector2 } from '@/logic/vector2';
+import { getTranslation, v2add, v2scale, vector2 } from '@/logic/utility/vector2';
 
 export function canvasToWorld(vector: Vector2, centerWorldPos: Vector2, canvasSize: Vector2, mapInfo: MapInfo, zoom: number): Vector2 {
     const tileScale = getTileScale(zoom, mapInfo.maxZoom);

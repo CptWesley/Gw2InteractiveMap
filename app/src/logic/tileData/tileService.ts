@@ -1,6 +1,6 @@
 import { MapInfo, TileSource } from '@/react-app-env';
 import { knownTiles, tileIsKnown } from './knownTiles';
-import { vector2 } from './vector2';
+import { vector2 } from '../utility/vector2';
 
 const lookupCache = new Map<string, any>();
 
