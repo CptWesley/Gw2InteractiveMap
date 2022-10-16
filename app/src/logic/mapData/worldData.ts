@@ -74,7 +74,7 @@ declare type Adventure = {
 declare type MasteryPoint = {
     coord: WorldDataCoords,
     id: number,
-    region: 'Tyria'|'Maguuma'|'Desert'|'Tundra',
+    region: 'Tyria'|'Maguuma'|'Desert'|'Tundra'|'Unknown',
 };
 
 declare type Sector = {
