@@ -1,6 +1,7 @@
 import { makeStyles, theme } from '@/theme';
-import { ChevronLeft, Inbox, Mail } from '@mui/icons-material';
-import { Divider, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Slider, Tooltip } from '@mui/material';
+import { ChevronLeft } from '@mui/icons-material';
+import { Divider, Drawer, List, ListItem, ListItemButton, ListItemIcon, Tooltip, Typography } from '@mui/material';
+import SettingsSlider from './SettingsSlider';
 
 const useStyles = makeStyles()(() => {
     return {
@@ -14,6 +15,7 @@ interface IProps {
     container: Element|null
     open: boolean
     onCloseButtonPressed: () => void
+    onSettingsChanged: () => void
 }
 
 export default function SettingsDrawer(props: IProps) {
@@ -48,43 +50,17 @@ export default function SettingsDrawer(props: IProps) {
                             <ListItemIcon>
                                 <ChevronLeft />
                             </ListItemIcon>
-                            <ListItemText primary='Close' />
+                            <Typography align='center' style={{ width: '100%' }}>Close</Typography>
                         </ListItemButton>
                     </Tooltip>
                 </ListItem>
             </List>
             <Divider />
             <List>
-                {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
-                    <ListItem key={text} disablePadding>
-                        <ListItemButton>
-                            <ListItemIcon>
-                                {index % 2 === 0 ? <Inbox /> : <Mail />}
-                            </ListItemIcon>
-                            <ListItemText primary={text + ' -- ' + index} />
-                        </ListItemButton>
-                    </ListItem>
-                ))}
+                <ListItem><Typography align='center' style={{ width: '100%' }}>Icons</Typography></ListItem>
+                <SettingsSlider text='Size' setting='iconSize' min={12} max={64} onSettingChanged={props.onSettingsChanged}/>
             </List>
             <Divider />
-            <List>
-                {['All mail', 'Trash', 'Spam'].map((text, index) => (
-                    <ListItem key={text} disablePadding>
-                        <ListItemButton>
-                            <ListItemIcon>
-                                {index % 2 === 0 ? <Inbox /> : <Mail />}
-                            </ListItemIcon>
-                            <ListItemText primary={text + ' -- ' + index} />
-                        </ListItemButton>
-                    </ListItem>
-                ))}
-            </List>
-            <Divider />
-            <List>
-                <ListItem>
-                    <Slider value={30} max={100} min={0} step={1} />
-                </ListItem>
-            </List>
         </Drawer>
     );
 }

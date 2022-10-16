@@ -124,12 +124,10 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
     }
 
     function drawOverlay(): void {
-        const iconSize = 32;
-
         function drawIcon(imgPromise: TrackedPromise<HTMLImageElement>, worldPos: Vector2, w?: number, h?: number): void {
             const canvasPos = worldToCanvas(worldPos);
-            const width = w ?? iconSize;
-            const height = h ?? (w ?? iconSize);
+            const width = w ?? ctx.settings.iconSize;
+            const height = h ?? (w ?? ctx.settings.iconSize);
             const halfWidth = width / 2;
             const halfHeight = height / 2;
             const minX = canvasPos.x - halfWidth;

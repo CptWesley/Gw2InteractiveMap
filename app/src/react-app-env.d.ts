@@ -1,4 +1,5 @@
 import 'react-scripts';
+import { Settings } from '@/logic/settingsStorage';
 
 declare type TileSource = {
     url: string,
@@ -16,6 +17,7 @@ declare type Vector2 = {
 };
 
 declare type DrawingContext = {
+    settings: Settings
     graphics: CanvasRenderingContext2D,
     size: Vector2,
     zoom: number,

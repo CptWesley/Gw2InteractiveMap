@@ -10,6 +10,7 @@ import { Fab, Tooltip } from '@mui/material';
 import { ChevronRight } from '@mui/icons-material';
 import React from 'react';
 import SettingsDrawer from '@/Components/SettingsDrawer';
+import { getSettings } from '@/logic/settingsStorage';
 
 const defaultQueryParams = {
     continent: 1,
@@ -52,6 +53,8 @@ export default function WorldMap() {
     const lastDrawInfoRef = useRef<LastDrawInfo>();
     const scrollingMap = useRef<{ pointerId: number, position: Vector2, threshold: boolean }>();
 
+    const settings = useRef(getSettings());
+
     const [settingsOpenState, setSettingsOpenState] = React.useState(false);
 
     const result = (
@@ -82,12 +85,18 @@ export default function WorldMap() {
                 container={containerRef.current}
                 open={settingsOpenState}
                 onCloseButtonPressed={() => setSettingsOpenState(false)}
+                onSettingsChanged={handleSettingsChanged}
             />
         </div>
     );
 
     function getCurrentMapInfo(): MapInfo {
         return getMapInfo(queryRef.current.get('continent'), queryRef.current.get('floor'));
+    }
+
+    function handleSettingsChanged(): void {
+        settings.current = getSettings();
+        redraw();
     }
 
     function redraw(): void {
@@ -105,6 +114,7 @@ export default function WorldMap() {
         canvas.height = canvas.clientHeight;
 
         const drawingContext:DrawingContext = {
+            settings: settings.current,
             graphics: ctx,
             size: vector2(canvas.width, canvas.height),
             zoom: queryRef.current.get('zoom'),
