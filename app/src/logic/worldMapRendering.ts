@@ -1,9 +1,13 @@
-import { DrawingContext, LastDrawInfo, TileSource } from '@/react-app-env';
+import { DrawingContext, LastDrawInfo, TileSource, Vector2 } from '@/react-app-env';
 import { downloadImage, imageIsCached } from '@/logic/imageCache';
 import { getTileSource, getTileSourceFromParent, getTileSourcesFromChildren } from '@/logic/tileService';
 import { getTranslation, v2scale, vector2 } from '@/logic/vector2';
 import { theme } from '@/theme';
-import { getTileScale, getRenderScale, getDimensions, worldToCanvas } from '@/logic/worldMapUtils';
+import { getTileScale, getRenderScale, getDimensions, worldToCanvas as worldToCanvasInternal } from '@/logic/worldMapUtils';
+import { icons } from '@/logic/mapIcons';
+import { TrackedPromise } from '@/logic/TrackedPromise';
+import worldData from '@/logic/mapData/worldData';
+import { forEachValue } from '@/logic/util';
 
 const drawCounts = new Map<CanvasRenderingContext2D, number>();
 
@@ -18,6 +22,10 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
         canvas.height = ctx.size.y;
         const renderContext = canvas.getContext('2d');
         return renderContext!;
+    }
+
+    function worldToCanvas(worldPos: Vector2): Vector2 {
+        return worldToCanvasInternal(worldPos, ctx.position, ctx.size, ctx.mapInfo, ctx.zoom);
     }
 
     const tileGraphics = createInMemoryCanvas();
@@ -58,17 +66,14 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
                     const dy = dh * (tileY + offset.y);
                     const source = getTileSource(ctx.continent, ctx.floor, tileZoom, tileX, tileY);
                     if (!source) { continue; }
-                    const imgPromise = downloadImage(source.url);
-                    if (imgPromise.resolved) {
-                        tileGraphics.drawImage(imgPromise.result, source.x, source.y, source.width, source.height, dx - halfBuffer, dy - halfBuffer, dw + buffer, dh + buffer);
-                    } else if (!imgPromise.rejected) {
-                        imgPromise.promise.then((img) => {
-                            if (drawCounts.get(ctx.graphics) === drawCount) {
-                                tileGraphics.drawImage(img, source.x, source.y, source.width, source.height, dx - halfBuffer, dy - halfBuffer, dw + buffer, dh + buffer);
-                                combineCanvas();
-                            }
-                        });
-                    }
+                    downloadImage(source.url).now(img => {
+                        tileGraphics.drawImage(img, source.x, source.y, source.width, source.height, dx - halfBuffer, dy - halfBuffer, dw + buffer, dh + buffer);
+                    }).then(img => {
+                        if (drawCounts.get(ctx.graphics) === drawCount) {
+                            tileGraphics.drawImage(img, source.x, source.y, source.width, source.height, dx - halfBuffer, dy - halfBuffer, dw + buffer, dh + buffer);
+                            combineCanvas();
+                        }
+                    });
                 }
             }
         }
@@ -119,18 +124,74 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
     }
 
     function drawOverlay(): void {
-        const start = vector2(50432, 24448);
-        const end = vector2(56576, 37760);
-        const startCanvas = worldToCanvas(start, ctx.position, ctx.size, ctx.mapInfo, ctx.zoom);
-        const endCanvas = worldToCanvas(end, ctx.position, ctx.size, ctx.mapInfo, ctx.zoom);
-        console.log('startCanvas:');
-        console.log(startCanvas);
-        console.log('endCanvas:');
-        console.log(endCanvas);
+        const iconSize = 32;
 
-        overlayGraphics.strokeStyle = 'red';
-        overlayGraphics.strokeRect(ctx.size.x / 2 - 5, ctx.size.y / 2 - 5, 10, 10);
-        overlayGraphics.strokeRect(startCanvas.x, startCanvas.y, endCanvas.x - startCanvas.x, endCanvas.y - startCanvas.y);
+        function drawIcon(imgPromise: TrackedPromise<HTMLImageElement>, worldPos: Vector2, w?: number, h?: number): void {
+            const canvasPos = worldToCanvas(worldPos);
+            const width = w ?? iconSize;
+            const height = h ?? (w ?? iconSize);
+            const halfWidth = width / 2;
+            const halfHeight = height / 2;
+            const minX = canvasPos.x - halfWidth;
+            const maxX = canvasPos.x + halfWidth;
+            const minY = canvasPos.y - halfHeight;
+            const maxY = canvasPos.y + halfHeight;
+
+            if (maxX > 0 && minX <= ctx.size.x && maxY > 0 && minY <= ctx.size.y) {
+                imgPromise.now(img => {
+                    overlayGraphics.drawImage(img, minX, minY, width, height);
+                }).then(img => {
+                    if (drawCounts.get(ctx.graphics) === drawCount) {
+                        overlayGraphics.drawImage(img, minX, minY, width, height);
+                        combineCanvas();
+                    }
+                });
+            }
+        }
+
+        function drawIcons(): void {
+            forEachValue(worldData[1][1].regions, region => {
+                forEachValue(region.maps, map => {
+                    forEachValue(map.points_of_interest, poi => {
+                        if (poi.type === 'waypoint') {
+                            drawIcon(icons.waypoint.incomplete, vector2(poi.coord[0], poi.coord[1]));
+                        } else if (poi.type === 'landmark') {
+                            drawIcon(icons.poi.incomplete, vector2(poi.coord[0], poi.coord[1]));
+                        } else if (poi.type === 'vista') {
+                            drawIcon(icons.vista.incomplete, vector2(poi.coord[0], poi.coord[1]));
+                        }
+                    });
+
+                    forEachValue(map.tasks, task => {
+                        drawIcon(icons.heart.incomplete, vector2(task.coord[0], task.coord[1]));
+                    });
+
+                    map.skill_challenges.forEach(challenge => {
+                        if (challenge.id) {
+                            const icon = challenge.id.charAt(0) === '0' ? icons.hero_challenge : icons.hero_challenge_expansion;
+                            drawIcon(icon.incomplete, vector2(challenge.coord[0], challenge.coord[1]));
+                        } else {
+                            drawIcon(icons.hero_challenge_expansion.incomplete, vector2(challenge.coord[0], challenge.coord[1]));
+                        }
+                    });
+
+                    forEachValue(map.adventures, adventure => {
+                        drawIcon(icons.adventure.incomplete, vector2(adventure.coord[0], adventure.coord[1]));
+                    });
+
+                    forEachValue(map.mastery_points, mp => {
+                        const icon =
+                            mp.region === 'Tyria' ? icons.mastery_tyria :
+                                mp.region === 'Maguuma' ? icons.mastery_hot :
+                                    mp.region === 'Desert' ? icons.mastery_pof :
+                                        mp.region === 'Tundra' ? icons.mastery_is : icons.mastery_eod;
+                        drawIcon(icon.incomplete, vector2(mp.coord[0], mp.coord[1]));
+                    });
+                });
+            });
+        }
+
+        drawIcons();
     }
 
     ctx.graphics.save();

@@ -71,3 +71,7 @@ declare type LastDrawInfo = {
     minZoom: number,
     maxZoom: number,
 };
+
+declare type ObjectMap<TKey, TValue> = {
+    [key: TKey]: TValue,
+};

@@ -59,7 +59,11 @@ export class TrackedPromise<T> {
         return this._error;
     }
 
-    public then(onResolved?: (result: T) => void, onRejected?: (error: any) => void): void {
+    public nowOrThen(onResolved?: (result: T) => void, onRejected?: (error: any) => void): TrackedPromise<T> {
+        return this.now(onResolved, onRejected).then(onResolved, onRejected);
+    }
+
+    public now(onResolved?: (result: T) => void, onRejected?: (error: any) => void): TrackedPromise<T> {
         if (this._resolved && onResolved) {
             onResolved(this._result!);
         }
@@ -68,9 +72,15 @@ export class TrackedPromise<T> {
             onRejected(this._error);
         }
 
+        return this;
+    }
+
+    public then(onResolved?: (result: T) => void, onRejected?: (error: any) => void): TrackedPromise<T> {
         if (!this._resolved && !this._rejected) {
             this._promise.then(onResolved, onRejected);
         }
+
+        return this;
     }
 }
 
