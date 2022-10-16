@@ -61,7 +61,7 @@ declare type Task = {
 
 declare type SkillChallenge = {
     coord: WorldDataCoords,
-    id: string,
+    id?: string,
 };
 
 declare type Adventure = {
