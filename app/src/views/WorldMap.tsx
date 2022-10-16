@@ -1,11 +1,15 @@
 import { useEffect, useRef } from 'react';
 import { DrawingContext, LastDrawInfo, MapInfo, Vector2 } from '@/react-app-env';
 import { drawMap } from '@/logic/worldMapRendering';
-import { makeStyles } from '@/theme';
+import { makeStyles, theme } from '@/theme';
 import { getTranslation, vector2 } from '@/logic/utility/vector2';
 import { useQuery } from '@/logic/utility/queryUtils';
 import { getMapInfo } from '@/logic/tileData/tileService';
 import { canvasToWorld } from '@/logic/worldMapUtils';
+import { Fab, Tooltip } from '@mui/material';
+import { ChevronRight } from '@mui/icons-material';
+import React from 'react';
+import SettingsDrawer from '@/Components/SettingsDrawer';
 
 const defaultQueryParams = {
     continent: 1,
@@ -22,10 +26,19 @@ const useStyles = makeStyles()(() => {
             height: '100%',
             display: 'flex',
             flexFlow: 'column',
+            position: 'relative',
         },
         worldMap: {
             flex: 1,
             minHeight: 0,
+        },
+        settingsDrawer: {
+            minHeight: 0,
+        },
+        settingsOpenButton: {
+            position: 'absolute',
+            left: '8px',
+            top: '12px',
         },
     };
 });
@@ -35,18 +48,40 @@ export default function WorldMap() {
     const queryRef = useRef(useQuery(defaultQueryParams));
 
     const canvasRef = useRef<HTMLCanvasElement>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
     const lastDrawInfoRef = useRef<LastDrawInfo>();
     const scrollingMap = useRef<{ pointerId: number, position: Vector2, threshold: boolean }>();
 
+    const [settingsOpenState, setSettingsOpenState] = React.useState(false);
+
     const result = (
-        <div className={classes.container}>
+        <div
+            ref={containerRef}
+            className={classes.container}>
             <canvas
-                className={classes.worldMap}
                 ref={canvasRef}
+                className={classes.worldMap}
                 onPointerDown={handlePointerDown}
                 onPointerUp={handlePointerUp}
                 onPointerMove={handlePointerMove}
                 onWheel={handleWheel}
+            />
+            <Tooltip title='Open Settings'>
+                <Fab
+                    className={classes.settingsOpenButton}
+                    hidden={settingsOpenState}
+                    size='small'
+                    style={{
+                        backgroundColor: theme.palette.primary.light,
+                    }}
+                    onClick={() => setSettingsOpenState(true)}>
+                    <ChevronRight />
+                </Fab>
+            </Tooltip>
+            <SettingsDrawer
+                container={containerRef.current}
+                open={settingsOpenState}
+                onCloseButtonPressed={() => setSettingsOpenState(false)}
             />
         </div>
     );

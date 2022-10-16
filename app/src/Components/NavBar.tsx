@@ -21,7 +21,7 @@ const useStyles = makeStyles()(() => {
                 textAlign: 'center',
                 fontWeight: 'bold',
             },
-            zIndex: 600,
+            zIndex: 3600,
         },
     };
 });

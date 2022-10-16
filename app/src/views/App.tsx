@@ -4,7 +4,7 @@ import { makeStyles, style, theme } from '@/theme';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import '@/style/lato-fonts.css';
 import { ThemeProvider } from '@mui/material';
-import NavBar from '@/controls/NavBar';
+import NavBar from '@/Components/NavBar';
 
 const useStyles = makeStyles()(theme => {
     return {
