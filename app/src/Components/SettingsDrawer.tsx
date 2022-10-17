@@ -74,6 +74,7 @@ export default function SettingsDrawer(props: IProps) {
                     <List component='div' disablePadding>
                         <SettingsCheckbox text='Show' tooltip='Shows/hides the icons on the map.' setting='showIcons' onSettingChanged={props.onSettingsChanged}/>
                         <SettingsSlider text='Size' tooltip='Sets the size of the icons on the map.' setting='iconSize' min={12} max={64} onSettingChanged={props.onSettingsChanged}/>
+                        <SettingsSlider text='Hide zoom level' tooltip='Sets the zoom distance where the icons are hidden.' setting='showIconDistance' min={0} max={10} step={0.25} onSettingChanged={props.onSettingsChanged}/>
                     </List>
                 </Collapse>
             </List>

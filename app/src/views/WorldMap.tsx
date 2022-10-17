@@ -179,7 +179,7 @@ export default function WorldMap() {
     function handleWheel(e: React.WheelEvent<HTMLCanvasElement>): void {
         const mapInfo = getCurrentMapInfo();
         const oldZoom = queryRef.current.get('zoom');
-        const zoomDelta = e.deltaY / 300;
+        const zoomDelta = e.deltaY / 400;
         const newZoomUncorrected = oldZoom - zoomDelta;
         const newZoom = !newZoomUncorrected ? 0 : Math.max(0, Math.min(mapInfo.maxZoom + 2, parseFloat(newZoomUncorrected.toPrecision(3))));
         queryRef.current.set('zoom', newZoom);

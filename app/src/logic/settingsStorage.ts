@@ -2,6 +2,7 @@ const settingsKeyName = 'settings';
 
 export const defaultSettings = {
     showIcons: true,
+    showIconDistance: 5.5,
     iconSize: 24,
 };
 

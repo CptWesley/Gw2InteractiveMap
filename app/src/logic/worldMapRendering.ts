@@ -148,7 +148,7 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
         }
 
         function drawIcons(): void {
-            if (!ctx.settings.showIcons) {
+            if (!ctx.settings.showIcons || ctx.settings.showIconDistance > ctx.zoom) {
                 return;
             }
 
