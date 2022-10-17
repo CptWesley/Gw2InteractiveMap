@@ -61,13 +61,15 @@ export default function SettingsDrawer(props: IProps) {
             </List>
             <Divider />
             <List>
-                <ListItemButton onClick={() => setIconsOpen(!iconsOpen)}>
-                    <ListItemIcon>
-                        <ImageOutlined />
-                    </ListItemIcon>
-                    <ListItemText primary='Icons' />
-                    {iconsOpen ? <ExpandLess /> : <ExpandMore />}
-                </ListItemButton>
+                <Tooltip title='Show/Hide icon settings.'>
+                    <ListItemButton onClick={() => setIconsOpen(!iconsOpen)}>
+                        <ListItemIcon>
+                            <ImageOutlined />
+                        </ListItemIcon>
+                        <ListItemText primary='Icons' />
+                        {iconsOpen ? <ExpandLess /> : <ExpandMore />}
+                    </ListItemButton>
+                </Tooltip>
                 <Collapse in={iconsOpen} timeout='auto'>
                     <List component='div' disablePadding>
                         <SettingsCheckbox text='Show' tooltip='Shows/hides the icons on the map.' setting='showIcons' onSettingChanged={props.onSettingsChanged}/>
