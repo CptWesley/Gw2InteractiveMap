@@ -1,5 +1,5 @@
 import { defaultSettings, getSetting, setSetting, Settings } from '@/logic/settingsStorage';
-import { ListItem, ListItemText, Slider } from '@mui/material';
+import { ListItem, ListItemText, Slider, Tooltip } from '@mui/material';
 import React from 'react';
 
 interface IProps {
@@ -9,6 +9,7 @@ interface IProps {
     step?: number
     onSettingChanged: () => void
     text?: string
+    tooltip?: string
 }
 
 export default function SettingsSlider(props: IProps) {
@@ -34,28 +35,36 @@ export default function SettingsSlider(props: IProps) {
     }
 
     return (
-        <ListItem disablePadding style={{
-            width: '70%',
-            minWidth: '20vw',
-        }}>
-            <ListItemText
-                primary={`${props.text}:`}
-                style={{
-                    width: '30%',
-                    paddingLeft: '8px',
-                    position: 'relative',
-                    top: '-10px',
-                }}/>
-            <Slider
-                aria-label='Custom marks'
-                value={value}
-                min={min}
-                max={max}
-                step={props.step ?? 1}
-                valueLabelDisplay='auto'
-                getAriaValueText={valuetext}
-                marks={marks}
-                onChange={handleChange} />
-        </ListItem>
+        <Tooltip title={props.tooltip}>
+            <ListItem disablePadding style={{
+                width: '100%',
+                minWidth: '20vw',
+            }}>
+                <ListItemText
+                    primary={`${props.text}:`}
+                    style={{
+                        width: '40%',
+                        marginLeft: '16px',
+                        position: 'relative',
+                        top: '-10px',
+                        float: 'left',
+                    }}/>
+                <Slider
+                    aria-label='Custom marks'
+                    value={value}
+                    min={min}
+                    max={max}
+                    step={props.step ?? 1}
+                    valueLabelDisplay='auto'
+                    getAriaValueText={valuetext}
+                    marks={marks}
+                    style={{
+                        width: '60%',
+                        marginRight: '24px',
+                        float: 'right',
+                    }}
+                    onChange={handleChange} />
+            </ListItem>
+        </Tooltip>
     );
 }

@@ -2,7 +2,7 @@ const settingsKeyName = 'settings';
 
 export const defaultSettings = {
     showIcons: true,
-    iconSize: 32,
+    iconSize: 24,
 };
 
 export declare type Settings = typeof defaultSettings;
@@ -12,15 +12,17 @@ export function getSettings(): Settings {
     if (!retrievedJson) {
         return defaultSettings;
     }
+
     const retrieved = JSON.parse(retrievedJson);
     if (!retrieved) {
         return defaultSettings;
     }
     Object.entries(defaultSettings).forEach(([key, value]) => {
-        if (!retrieved[key]) {
+        if (!(key in retrieved)) {
             retrieved[key] = value;
         }
     });
+
     return retrieved as Settings;
 }
 
@@ -34,9 +36,13 @@ export function updateSettings(action: (settings: Settings) => void, onSettingsC
     action(settings);
     const newJson = JSON.stringify(settings);
 
+    if (oldJson === newJson) {
+        return;
+    }
+
     localStorage.setItem(settingsKeyName, JSON.stringify(settings));
 
-    if (onSettingsChanged && oldJson !== newJson) {
+    if (onSettingsChanged) {
         onSettingsChanged();
     }
 }

@@ -1,6 +1,8 @@
 import { makeStyles, theme } from '@/theme';
-import { ChevronLeft } from '@mui/icons-material';
-import { Divider, Drawer, List, ListItem, ListItemButton, ListItemIcon, Tooltip, Typography } from '@mui/material';
+import { ChevronLeft, ExpandLess, ExpandMore, ImageOutlined } from '@mui/icons-material';
+import { Collapse, Divider, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Tooltip, Typography } from '@mui/material';
+import React from 'react';
+import SettingsCheckbox from './SettingsCheckbox';
 import SettingsSlider from './SettingsSlider';
 
 const useStyles = makeStyles()(() => {
@@ -20,6 +22,8 @@ interface IProps {
 
 export default function SettingsDrawer(props: IProps) {
     const { classes } = useStyles();
+
+    const [iconsOpen, setIconsOpen] = React.useState<boolean>(true);
 
     return (
         <Drawer
@@ -45,20 +49,31 @@ export default function SettingsDrawer(props: IProps) {
         >
             <List>
                 <ListItem key='close' disablePadding>
-                    <Tooltip title='Close Settings'>
+                    <Tooltip title='Close Settings' >
                         <ListItemButton onClick={props.onCloseButtonPressed}>
                             <ListItemIcon>
                                 <ChevronLeft />
                             </ListItemIcon>
-                            <Typography align='center' style={{ width: '100%' }}>Close</Typography>
+                            <Typography>Close</Typography>
                         </ListItemButton>
                     </Tooltip>
                 </ListItem>
             </List>
             <Divider />
             <List>
-                <ListItem><Typography align='center' style={{ width: '100%' }}>Icons</Typography></ListItem>
-                <SettingsSlider text='Size' setting='iconSize' min={12} max={64} onSettingChanged={props.onSettingsChanged}/>
+                <ListItemButton onClick={() => setIconsOpen(!iconsOpen)}>
+                    <ListItemIcon>
+                        <ImageOutlined />
+                    </ListItemIcon>
+                    <ListItemText primary='Icons' />
+                    {iconsOpen ? <ExpandLess /> : <ExpandMore />}
+                </ListItemButton>
+                <Collapse in={iconsOpen} timeout='auto'>
+                    <List component='div' disablePadding>
+                        <SettingsCheckbox text='Show' tooltip='Shows/hides the icons on the map.' setting='showIcons' onSettingChanged={props.onSettingsChanged}/>
+                        <SettingsSlider text='Size' tooltip='Sets the size of the icons on the map.' setting='iconSize' min={12} max={64} onSettingChanged={props.onSettingsChanged}/>
+                    </List>
+                </Collapse>
             </List>
             <Divider />
         </Drawer>

@@ -148,6 +148,10 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
         }
 
         function drawIcons(): void {
+            if (!ctx.settings.showIcons) {
+                return;
+            }
+
             forEachValue(worldData[ctx.mapInfo.id].regions, region => {
                 forEachValue(region.maps, map => {
                     forEachValue(map.points_of_interest, poi => {
