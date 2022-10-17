@@ -16,22 +16,36 @@ export class QueryParams<TStorage extends {}> {
         Object.entries(defaultParams).forEach(([key, value]) => {
             const curValue = this.searchParams.get(key.toString());
             if (!curValue) {
-                this.searchParams.set(key.toString(), JSON.stringify(value));
+                if (typeof value === 'string') {
+                    this.searchParams.set(key.toString(), encodeURIComponent(value));
+                } else {
+                    this.searchParams.set(key.toString(), encodeURIComponent(JSON.stringify(value)));
+                }
             }
         });
     }
 
     get<TKey extends keyof TStorage>(key: TKey): TStorage[TKey] {
-        const value = this.searchParams.get(key.toString())!;
-        if (value) {
-            return JSON.parse(value);
+        const valueEncoded = this.searchParams.get(key.toString());
+        if (!valueEncoded) {
+            return this.defaultParams[key];
         }
 
-        return this.defaultParams[key];
+        const value = decodeURIComponent(valueEncoded);
+
+        try {
+            return JSON.parse(value);
+        } catch {
+            return value as TStorage[TKey];
+        }
     }
 
     set<TKey extends keyof TStorage>(key: TKey, value: TStorage[TKey]): void {
-        this.searchParams.set(key.toString(), JSON.stringify(value));
+        if (typeof value === 'string') {
+            this.searchParams.set(key.toString(), encodeURIComponent(value));
+        } else {
+            this.searchParams.set(key.toString(), encodeURIComponent(JSON.stringify(value)));
+        }
     }
 
     update<TKey extends keyof TStorage>(key: TKey, updater: (value: TStorage[TKey]) => TStorage[TKey]): void {

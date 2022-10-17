@@ -34,7 +34,6 @@ export default function NavBar() {
             <SvgIcon component={Logo} />
             <Button component={Link} to='./' color='inherit'>Home</Button>
             <Button component={Link} to='./hello' color='inherit'>Hello</Button>
-            <Button component={Link} to='./tile/1/1/5/0/0' color='inherit'>Tile</Button>
             <Button component={Link} to='./map' color='inherit'>Map</Button>
         </div>
     );

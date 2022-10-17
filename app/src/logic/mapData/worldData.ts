@@ -1,17 +1,12 @@
-import c1f1data from '@/logic/mapData/c1f1data';
 import { ObjectMap } from '@/react-app-env';
 
 declare type WorldDataCoords = number[];
 
 declare type WorldData = {
-    [key: number]: Continent,
+    [key: string]: MapData,
 };
 
-declare type Continent = {
-    [key: number]: Floor,
-};
-
-declare type Floor = {
+declare type MapData = {
     texture_dims: WorldDataCoords,
     clamped_view: WorldDataCoords[],
     regions: ObjectMap<number, Region>,
@@ -87,9 +82,7 @@ declare type Sector = {
 };
 
 const worldData: WorldData = {
-    1: {
-        1: c1f1data,
-    },
+    'tyria': require('./tyriaData.js') as MapData,
 };
 
 export default worldData;

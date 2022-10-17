@@ -14,7 +14,9 @@
     ],
     "ignorePatterns": [
         "node_modules/",
-        "dist/"
+        "dist/",
+        "src/logic/mapData/*.js",
+        "src/logic/tileData/*.js"
     ],
     "rules": {
         "@typescript-eslint/array-type": [

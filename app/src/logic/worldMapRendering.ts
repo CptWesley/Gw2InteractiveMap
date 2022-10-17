@@ -64,7 +64,7 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
                     const tileY = Math.floor(centerTileCoords.y) + iy;
                     const dh = mapInfo.tileSize.y * renderScale;
                     const dy = dh * (tileY + offset.y);
-                    const source = getTileSource(ctx.continent, ctx.floor, tileZoom, tileX, tileY);
+                    const source = getTileSource(ctx.mapInfo.id, tileZoom, tileX, tileY);
                     if (!source) { continue; }
                     downloadImage(source.url).now(img => {
                         tileGraphics.drawImage(img, source.x, source.y, source.width, source.height, dx - halfBuffer, dy - halfBuffer, dw + buffer, dh + buffer);
@@ -84,9 +84,9 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
 
                 for (let iy = iyMin; iy < iyMax; iy++) {
                     const tileY = Math.floor(centerTileCoords.y) + iy;
-                    const parentSource = getTileSourceFromParent(ctx.continent, ctx.floor, tileZoom, tileX, tileY);
+                    const parentSource = getTileSourceFromParent(ctx.mapInfo.id, tileZoom, tileX, tileY);
                     tryCache(parentSource);
-                    getTileSourcesFromChildren(ctx.continent, ctx.floor, tileZoom, tileX, tileY)?.forEach(source => {
+                    getTileSourcesFromChildren(ctx.mapInfo.id, tileZoom, tileX, tileY)?.forEach(source => {
                         tryCache(source);
                     });
                 }
@@ -101,13 +101,13 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
             for (let r = 0; r < range; r++) {
                 for (let iy = iyMin; iy < iyMax; iy++) {
                     const tileY = Math.floor(centerTileCoords.y) + iy;
-                    tryCache(getTileSource(ctx.continent, ctx.floor, tileZoom, xLow - r, tileY));
-                    tryCache(getTileSource(ctx.continent, ctx.floor, tileZoom, xHigh + r, tileY));
+                    tryCache(getTileSource(ctx.mapInfo.id, tileZoom, xLow - r, tileY));
+                    tryCache(getTileSource(ctx.mapInfo.id, tileZoom, xHigh + r, tileY));
                 }
                 for (let ix = ixMin; ix < ixMax; ix++) {
                     const tileX = Math.floor(centerTileCoords.x) + ix;
-                    tryCache(getTileSource(ctx.continent, ctx.floor, tileZoom, tileX, yLow - r));
-                    tryCache(getTileSource(ctx.continent, ctx.floor, tileZoom, tileX, yHigh + r));
+                    tryCache(getTileSource(ctx.mapInfo.id, tileZoom, tileX, yLow - r));
+                    tryCache(getTileSource(ctx.mapInfo.id, tileZoom, tileX, yHigh + r));
                 }
             }
         }
@@ -148,7 +148,7 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
         }
 
         function drawIcons(): void {
-            forEachValue(worldData[1][1].regions, region => {
+            forEachValue(worldData[ctx.mapInfo.id].regions, region => {
                 forEachValue(region.maps, map => {
                     forEachValue(map.points_of_interest, poi => {
                         if (poi.type === 'waypoint') {

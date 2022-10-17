@@ -8,7 +8,6 @@ import {
     RouterProvider,
 } from 'react-router-dom';
 import HelloWorld from '@/views/HelloWorld';
-import Tile from '@/views/Tile';
 import WorldMap from '@/views/WorldMap';
 
 const root = ReactDOM.createRoot(
@@ -33,10 +32,6 @@ const router = createBrowserRouter(
                 {
                     path: 'map',
                     element: <WorldMap />,
-                },
-                {
-                    path: 'tile/:c/:f/:z/:x/:y',
-                    element: <Tile />,
                 },
             ],
         },

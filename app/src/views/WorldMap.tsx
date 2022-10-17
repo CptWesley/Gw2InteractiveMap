@@ -13,8 +13,7 @@ import SettingsDrawer from '@/Components/SettingsDrawer';
 import { getSettings } from '@/logic/settingsStorage';
 
 const defaultQueryParams = {
-    continent: 1,
-    floor: 1,
+    map: 'tyria',
     zoom: 2,
     x: 81920 / 2,
     y: 114688 / 2,
@@ -91,7 +90,7 @@ export default function WorldMap() {
     );
 
     function getCurrentMapInfo(): MapInfo {
-        return getMapInfo(queryRef.current.get('continent'), queryRef.current.get('floor'));
+        return getMapInfo(queryRef.current.get('map'));
     }
 
     function handleSettingsChanged(): void {
@@ -122,8 +121,6 @@ export default function WorldMap() {
                 x: queryRef.current.get('x'),
                 y: queryRef.current.get('y'),
             },
-            continent: queryRef.current.get('continent'),
-            floor: queryRef.current.get('floor'),
             mapInfo: getCurrentMapInfo(),
         };
 

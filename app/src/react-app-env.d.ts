@@ -22,12 +22,11 @@ declare type DrawingContext = {
     size: Vector2,
     zoom: number,
     position: Vector2,
-    continent: number,
-    floor: number,
     mapInfo: MapInfo,
 };
 
 declare type MapInfo = {
+    id: string,
     continent: number,
     floor: number,
     name: string,
@@ -47,7 +46,9 @@ declare type RawTilesInfo = {
     [key: number]: RawZoomInfo,
 };
 
-declare type RawFloorInfo = {
+declare type RawMapInfo = {
+    Continent: number,
+    Floor: number,
     Name: string,
     MinZoom: number,
     MaxZoom: number,
@@ -58,12 +59,8 @@ declare type RawFloorInfo = {
     Tiles: RawTilesInfo,
 };
 
-declare type RawContinentInfo = {
-    [key: number]: RawFloorInfo,
-};
-
 declare type RawWorldDatabaseInfo = {
-    [key: number]: RawContinentInfo,
+    [key: string]: RawMapInfo,
 };
 
 declare type LastDrawInfo = {

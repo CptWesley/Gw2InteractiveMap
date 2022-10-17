@@ -1,6 +1,6 @@
 import { MapInfo, TileSource } from '@/react-app-env';
-import { knownTiles, tileIsKnown } from './knownTiles';
-import { vector2 } from '../utility/vector2';
+import { knownTiles, tileIsKnown } from '@/logic/tileData/knownTiles';
+import { vector2 } from '@/logic/utility/vector2';
 
 const lookupCache = new Map<string, any>();
 
@@ -8,8 +8,8 @@ export function getTileUrl(continent: number, floor: number, zoom: number, x: nu
     return `https://cdn.jsdelivr.net/gh/CptWesley/Gw2InteractiveMapTiles@v2/tiles/C${continent}_F${floor}_Z${zoom}_X${x}_Y${y}.webp`;
 }
 
-function buildMap(continent: number, floor: number) {
-    const raw = knownTiles[continent][floor];
+function buildMap(map: string) {
+    const raw = knownTiles[map];
     const result:any = {};
 
     for (let zoom = raw.MinZoom; zoom <= raw.MaxZoom; zoom++) {
@@ -23,8 +23,8 @@ function buildMap(continent: number, floor: number) {
             const xResult:any = {};
             zoomResult[x] = xResult;
             for (let y = 0; y < height; y++) {
-                if (tileIsKnown(continent, floor, zoom, x, y)) {
-                    const url = getTileUrl(continent, floor, zoom, x, y);
+                if (tileIsKnown(map, zoom, x, y)) {
+                    const url = getTileUrl(raw.Continent, raw.Floor, zoom, x, y);
                     const tileWidth = 256;
                     const tileHeight = 256;
                     const source:TileSource = {
@@ -66,20 +66,20 @@ function buildMap(continent: number, floor: number) {
     return result;
 }
 
-function getLookup(continent: number, floor: number): any {
-    const cacheKey = `${continent}-${floor}`;
+function getLookup(map: string): any {
+    const cacheKey = map;
     const cacheResult = lookupCache.get(cacheKey);
     if (cacheResult) {
         return cacheResult;
     }
 
-    const result = buildMap(continent, floor);
+    const result = buildMap(map);
     lookupCache.set(cacheKey, result);
     return result;
 }
 
-export function getTileSource(continent: number, floor: number, zoom: number, x: number, y: number): TileSource|undefined {
-    const lookup = getLookup(continent, floor);
+export function getTileSource(map: string, zoom: number, x: number, y: number): TileSource|undefined {
+    const lookup = getLookup(map);
     if (!lookup) {
         return undefined;
     }
@@ -102,12 +102,13 @@ export function getTileSource(continent: number, floor: number, zoom: number, x:
     return lookupY;
 }
 
-export function getMapInfo(continent: number, floor: number): MapInfo {
-    const rawAll:any = knownTiles;
-    const raw:any = rawAll[continent][floor];
+export function getMapInfo(map: string): MapInfo {
+    const rawAll = knownTiles;
+    const raw = rawAll[map];
     return {
-        continent,
-        floor,
+        id: map,
+        continent: raw.Continent,
+        floor: raw.Floor,
         size: vector2(raw.Width, raw.Height),
         name: raw.Name,
         minZoom: raw.MinZoom,
@@ -116,13 +117,13 @@ export function getMapInfo(continent: number, floor: number): MapInfo {
     };
 }
 
-export function getTileSourceFromParent(continent: number, floor: number, zoom: number, x: number, y: number): TileSource|undefined {
+export function getTileSourceFromParent(map: string, zoom: number, x: number, y: number): TileSource|undefined {
     const parentZoom = zoom - 1;
     const parentX = Math.floor(x / 2);
     const parentY = Math.floor(y / 2);
     const offsetX = x % 2;
     const offsetY = y % 2;
-    const parent = getTileSource(continent, floor, parentZoom, parentX, parentY);
+    const parent = getTileSource(map, parentZoom, parentX, parentY);
     if (!parent) {
         return undefined;
     }
@@ -144,14 +145,14 @@ export function getTileSourceFromParent(continent: number, floor: number, zoom: 
     return source;
 }
 
-export function getTileSourcesFromChildren(continent: number, floor: number, zoom: number, x: number, y: number): TileSource[]|undefined {
+export function getTileSourcesFromChildren(map: string, zoom: number, x: number, y: number): TileSource[]|undefined {
     const childrenZoom = zoom + 1;
     const childrenX = x * 2;
     const childrenY = y * 2;
-    const x0y0 = getTileSource(continent, floor, childrenZoom, childrenX, childrenY);
-    const x1y0 = getTileSource(continent, floor, childrenZoom, childrenX + 1, childrenY);
-    const x0y1 = getTileSource(continent, floor, childrenZoom, childrenX, childrenY + 1);
-    const x1y1 = getTileSource(continent, floor, childrenZoom, childrenX + 1, childrenY + 1);
+    const x0y0 = getTileSource(map, childrenZoom, childrenX, childrenY);
+    const x1y0 = getTileSource(map, childrenZoom, childrenX + 1, childrenY);
+    const x0y1 = getTileSource(map, childrenZoom, childrenX, childrenY + 1);
+    const x1y1 = getTileSource(map, childrenZoom, childrenX + 1, childrenY + 1);
     const result: TileSource[] = [];
 
     if (x0y0) {
