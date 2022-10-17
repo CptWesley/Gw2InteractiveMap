@@ -47,6 +47,7 @@
   "scripts": {
     "start": "craco start",
     "build": "craco build",
+    "build-ci": "craco --max-old-space-size=1024 build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "lint": "eslint . --ext ts,tsx",
