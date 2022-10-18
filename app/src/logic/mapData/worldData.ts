@@ -89,22 +89,59 @@ allMapDataRaw.forEach((x: any) => {
 });
 
 const publicMaps: Set<number> = new Set<number>(require('./openWorldMaps.js') as number[]);
-console.log(publicMaps);
 
 function prepareData(data: MapData): MapData {
     const result = data;
+
+    function recomputeContinentRect(map: Map): void {
+        let minX = Number.POSITIVE_INFINITY;
+        let minY = Number.POSITIVE_INFINITY;
+        let maxX = Number.NEGATIVE_INFINITY;
+        let maxY = Number.NEGATIVE_INFINITY;
+
+        forEachValue(map.sectors, sector => {
+            sector.bounds.forEach(bound => {
+                const x = bound[0];
+                const y = bound[1];
+
+                if (x < minX) {
+                    minX = x;
+                }
+
+                if (x > maxX) {
+                    maxX = x;
+                }
+
+                if (y < minY) {
+                    minY = y;
+                }
+
+                if (y > maxY) {
+                    maxY = y;
+                }
+            });
+        });
+
+        map.continent_rect = [
+            [minX, minY],
+            [maxX, maxY],
+        ];
+    }
+
+    function recomputeLabelPosition(map: Map): void {
+        const xMin = map.continent_rect[0][0];
+        const yMin = map.continent_rect[0][1];
+        const xMax = map.continent_rect[1][0];
+        const yMax = map.continent_rect[1][1];
+        map.label_coord = [(xMin + xMax) / 2, (yMin + yMax) / 2];
+    }
 
     forEachValue(result.regions, region => {
         region.maps = filterEntry(region.maps, (id, map) => {
             const isVisible = publicMaps.has(parseInt(id));
             if (isVisible) {
-                const mapData = allMapData[id];
-                map.continent_rect = mapData.continent_rect;
-                const xMin = map.continent_rect[0][0];
-                const yMin = map.continent_rect[0][1];
-                const xMax = map.continent_rect[1][0];
-                const yMax = map.continent_rect[1][1];
-                map.label_coord = [(xMin + xMax) / 2, (yMin + yMax) / 2];
+                recomputeContinentRect(map);
+                recomputeLabelPosition(map);
             }
             return isVisible;
         });
