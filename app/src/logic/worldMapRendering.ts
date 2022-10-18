@@ -178,16 +178,20 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
             }
             overlayGraphics.save();
             overlayGraphics.strokeStyle = 'black';
-            overlayGraphics.fillStyle = 'black';
+            overlayGraphics.lineWidth = 5;
+            overlayGraphics.fillStyle = 'white';
             overlayGraphics.textAlign = 'center';
-            // overlayGraphics.font = '20px Lato, sans-serif';
+            const fontSize = Math.max(1, ctx.zoom * 5);
+            const quarterFontSize = fontSize / 4;
+            overlayGraphics.font = `${fontSize}px Lato, sans-serif`;
 
             forEachValue(worldData[ctx.mapInfo.id].regions, region => {
                 forEachValue(region.maps, map => {
                     const worldPos = map.label_coord;
                     if (!worldPos) { return; }
                     const canvasPos = worldToCanvas(vector2(worldPos[0], worldPos[1]));
-                    overlayGraphics.strokeText(map.name, canvasPos.x, canvasPos.y);
+                    overlayGraphics.strokeText(map.name, canvasPos.x, canvasPos.y + quarterFontSize);
+                    overlayGraphics.fillText(map.name, canvasPos.x, canvasPos.y + quarterFontSize);
                 });
             });
 
