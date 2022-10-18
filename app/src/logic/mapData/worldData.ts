@@ -1,4 +1,5 @@
 import { ObjectMap } from '@/react-app-env';
+import { filterEntry, forEachValue } from '@/logic/utility/util';
 
 declare type WorldDataCoords = number[];
 
@@ -9,14 +10,14 @@ declare type WorldData = {
 declare type MapData = {
     texture_dims: WorldDataCoords,
     clamped_view: WorldDataCoords[],
-    regions: ObjectMap<number, Region>,
+    regions: ObjectMap<string, Region>,
 };
 
 declare type Region = {
     name: string,
     label_coord: WorldDataCoords,
     continent_rect: WorldDataCoords[],
-    maps: ObjectMap<number, Map>,
+    maps: ObjectMap<string, Map>,
 };
 
 declare type Map = {
@@ -81,8 +82,39 @@ declare type Sector = {
     id: number,
 };
 
+const allMapDataRaw: any = require('./allMapData.js');
+const allMapData: any = {};
+allMapDataRaw.forEach((x: any) => {
+    allMapData[x.id] = x;
+});
+
+const publicMaps: Set<number> = new Set<number>(require('./openWorldMaps.js') as number[]);
+console.log(publicMaps);
+
+function prepareData(data: MapData): MapData {
+    const result = data;
+
+    forEachValue(result.regions, region => {
+        region.maps = filterEntry(region.maps, (id, map) => {
+            const isVisible = publicMaps.has(parseInt(id));
+            if (isVisible) {
+                const mapData = allMapData[id];
+                map.continent_rect = mapData.continent_rect;
+                const xMin = map.continent_rect[0][0];
+                const yMin = map.continent_rect[0][1];
+                const xMax = map.continent_rect[1][0];
+                const yMax = map.continent_rect[1][1];
+                map.label_coord = [(xMin + xMax) / 2, (yMin + yMax) / 2];
+            }
+            return isVisible;
+        });
+    });
+
+    return result;
+}
+
 const worldData: WorldData = {
-    'tyria': require('./tyriaData.js') as MapData,
+    'tyria': prepareData(require('./tyriaContinentData.js') as MapData),
 };
 
 export default worldData;
