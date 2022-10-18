@@ -3,32 +3,40 @@ import { ListItem, ListItemText, Slider, Tooltip } from '@mui/material';
 import React from 'react';
 
 interface IProps {
-    setting: keyof Settings
+    setting: keyof Settings|(keyof Settings)[]
     min?: number
     max?: number
     step?: number
     onSettingChanged: () => void
     text?: string
     tooltip?: string
+    disabled?: boolean|keyof Settings
 }
 
 export default function SettingsSlider(props: IProps) {
-    const [value, setValue] = React.useState<number>(getSetting(props.setting) as number);
+    const settings = Array.isArray(props.setting) ? props.setting : [props.setting];
+    const [value, setValue] = React.useState<number[]>(() => settings.map(s => getSetting(s) as number));
 
     const handleChange = (event: Event, newValue: number | number[]) => {
-        setSetting(props.setting, newValue as number, props.onSettingChanged);
-        setValue(newValue as number);
+        const newValues = newValue as number[];
+        for (let i = 0; i < settings.length; i++) {
+            const setting = settings[i];
+            const value = newValues[i];
+            setSetting(setting, value, props.onSettingChanged);
+        }
+        setValue(newValues);
     };
 
+    const disabled = typeof props.disabled === 'string' ? getSetting(props.disabled) as boolean : props.disabled ?? false;
     const min = props.min ?? 0;
     const max = props.max ?? 0;
 
-    const marks = [
-        {
-            value: defaultSettings[props.setting] as number,
-            label: `${defaultSettings[props.setting]} (Default)`,
-        },
-    ];
+    const marks = settings.map(s => {
+        return {
+            value: defaultSettings[s] as number,
+            label: `${defaultSettings[s]} (Default)`,
+        };
+    });
 
     function valuetext(value: number) {
         return `${value}`;
@@ -43,8 +51,9 @@ export default function SettingsSlider(props: IProps) {
                 <ListItemText
                     primary={`${props.text}:`}
                     style={{
-                        width: '40%',
+                        width: '45%',
                         marginLeft: '16px',
+                        marginRight: '16px',
                         position: 'relative',
                         top: '-10px',
                         float: 'left',
@@ -59,10 +68,11 @@ export default function SettingsSlider(props: IProps) {
                     getAriaValueText={valuetext}
                     marks={marks}
                     style={{
-                        width: '60%',
-                        marginRight: '24px',
+                        width: '55%',
+                        marginRight: '40px',
                         float: 'right',
                     }}
+                    disabled={disabled}
                     onChange={handleChange} />
             </ListItem>
         </Tooltip>

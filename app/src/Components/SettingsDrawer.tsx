@@ -2,7 +2,6 @@ import { makeStyles, theme } from '@/theme';
 import { ChevronLeft, ExpandLess, ExpandMore, ImageOutlined } from '@mui/icons-material';
 import { Collapse, Divider, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Tooltip, Typography } from '@mui/material';
 import React from 'react';
-import SettingsCheckbox from './SettingsCheckbox';
 import SettingsSlider from './SettingsSlider';
 
 const useStyles = makeStyles()(() => {
@@ -23,7 +22,8 @@ interface IProps {
 export default function SettingsDrawer(props: IProps) {
     const { classes } = useStyles();
 
-    const [iconsOpen, setIconsOpen] = React.useState<boolean>(true);
+    const [iconsOpen, setIconsOpen] = React.useState<boolean>(false);
+    const [bordersOpen, setBordersOpen] = React.useState<boolean>(false);
 
     return (
         <Drawer
@@ -72,9 +72,26 @@ export default function SettingsDrawer(props: IProps) {
                 </Tooltip>
                 <Collapse in={iconsOpen} timeout='auto'>
                     <List component='div' disablePadding>
-                        <SettingsCheckbox text='Show' tooltip='Shows/hides the icons on the map.' setting='showIcons' onSettingChanged={props.onSettingsChanged}/>
+                        <SettingsSlider text='Show zoom' tooltip='Sets the zoom distance where the icons are shown.' setting={['showIconDistanceMin', 'showIconDistanceMax']} min={0} max={10} step={0.25} onSettingChanged={props.onSettingsChanged}/>
                         <SettingsSlider text='Size' tooltip='Sets the size of the icons on the map.' setting='iconSize' min={12} max={64} onSettingChanged={props.onSettingsChanged}/>
-                        <SettingsSlider text='Hide zoom level' tooltip='Sets the zoom distance where the icons are hidden.' setting='showIconDistance' min={0} max={10} step={0.25} onSettingChanged={props.onSettingsChanged}/>
+                    </List>
+                </Collapse>
+            </List>
+            <Divider />
+            <List>
+                <Tooltip title='Show/Hide border settings.'>
+                    <ListItemButton onClick={() => setBordersOpen(!bordersOpen)}>
+                        <ListItemIcon>
+                            <ImageOutlined />
+                        </ListItemIcon>
+                        <ListItemText primary='Borders' />
+                        {bordersOpen ? <ExpandLess /> : <ExpandMore />}
+                    </ListItemButton>
+                </Tooltip>
+                <Collapse in={bordersOpen} timeout='auto'>
+                    <List component='div' disablePadding>
+                        <SettingsSlider text='Map Border zoom' tooltip='Sets the zoom distance where the map borders are shown.' setting={['showMapBorderDistanceMin', 'showMapBorderDistanceMax']} min={0} max={10} step={0.25} onSettingChanged={props.onSettingsChanged}/>
+                        <SettingsSlider text='Map Text zoom' tooltip='Sets the zoom distance where the map texts are shown.' setting={['showMapTextDistanceMin', 'showMapTextDistanceMax']} min={0} max={10} step={0.25} onSettingChanged={props.onSettingsChanged}/>
                     </List>
                 </Collapse>
             </List>

@@ -147,10 +147,59 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
             }
         }
 
-        function drawIcons(): void {
-            if (!ctx.settings.showIcons || ctx.settings.showIconDistance > ctx.zoom) {
+        function drawMapBorders(): void {
+            if (ctx.zoom < ctx.settings.showMapBorderDistanceMin || ctx.zoom >= ctx.settings.showMapBorderDistanceMax) {
                 return;
             }
+            overlayGraphics.save();
+            overlayGraphics.strokeStyle = 'white';
+
+            forEachValue(worldData[ctx.mapInfo.id].regions, region => {
+                forEachValue(region.maps, map => {
+                    const rect = map.continent_rect;
+                    const startWorld = vector2(rect[0][0], rect[0][1]);
+                    const endWorld = vector2(rect[1][0], rect[1][1]);
+                    const startCanvas = worldToCanvas(startWorld);
+                    const endCanvas = worldToCanvas(endWorld);
+
+                    if (endCanvas.x > 0 && endCanvas.y > 0 && startCanvas.x <= ctx.size.x && startCanvas.y <= ctx.size.y) {
+                        const size = getTranslation(startCanvas, endCanvas);
+                        overlayGraphics.strokeRect(startCanvas.x, startCanvas.y, size.x, size.y);
+                    }
+                });
+            });
+
+            overlayGraphics.restore();
+        }
+
+        function drawMapText(): void {
+            if (ctx.zoom < ctx.settings.showMapTextDistanceMin || ctx.zoom >= ctx.settings.showMapTextDistanceMax) {
+                return;
+            }
+            overlayGraphics.save();
+            overlayGraphics.strokeStyle = 'black';
+            overlayGraphics.fillStyle = 'black';
+            overlayGraphics.textAlign = 'center';
+            // overlayGraphics.font = '20px Lato, sans-serif';
+
+            forEachValue(worldData[ctx.mapInfo.id].regions, region => {
+                forEachValue(region.maps, map => {
+                    const worldPos = map.label_coord;
+                    if (!worldPos) { return; }
+                    const canvasPos = worldToCanvas(vector2(worldPos[0], worldPos[1]));
+                    overlayGraphics.strokeText(map.name, canvasPos.x, canvasPos.y);
+                });
+            });
+
+            overlayGraphics.restore();
+        }
+
+        function drawIcons(): void {
+            if (ctx.zoom < ctx.settings.showIconDistanceMin || ctx.zoom >= ctx.settings.showIconDistanceMax) {
+                return;
+            }
+
+            overlayGraphics.save();
 
             forEachValue(worldData[ctx.mapInfo.id].regions, region => {
                 forEachValue(region.maps, map => {
@@ -191,8 +240,13 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
                     });
                 });
             });
+
+            overlayGraphics.restore();
         }
 
+        overlayGraphics.clearRect(0, 0, ctx.size.x, ctx.size.y);
+        drawMapBorders();
+        drawMapText();
         drawIcons();
     }
 

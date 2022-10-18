@@ -1,9 +1,14 @@
 const settingsKeyName = 'settings';
 
 export const defaultSettings = {
-    showIcons: true,
-    showIconDistance: 5.5,
+    showIconDistanceMin: 5.5,
+    showIconDistanceMax: 10,
     iconSize: 24,
+    showMapBorderDistanceMin: 0,
+    showMapBorderDistanceMax: 10,
+    showMapTextDistanceMin: 0,
+    showMapTextDistanceMax: 5.5,
+    dummy: true,
 };
 
 export declare type Settings = typeof defaultSettings;
