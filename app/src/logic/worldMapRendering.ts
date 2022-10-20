@@ -147,12 +147,13 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
             }
         }
 
-        function drawMapBorders(): void {
+        function drawZoneBorders(): void {
             if (ctx.zoom < ctx.settings.showMapBorderDistanceMin || ctx.zoom >= ctx.settings.showMapBorderDistanceMax) {
                 return;
             }
             overlayGraphics.save();
             overlayGraphics.strokeStyle = 'white';
+            overlayGraphics.lineWidth = 3;
 
             forEachValue(worldData[ctx.mapInfo.id].regions, region => {
                 forEachValue(region.maps, map => {
@@ -162,10 +163,49 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
                     const startCanvas = worldToCanvas(startWorld);
                     const endCanvas = worldToCanvas(endWorld);
 
-                    if (endCanvas.x > 0 && endCanvas.y > 0 && startCanvas.x <= ctx.size.x && startCanvas.y <= ctx.size.y) {
-                        const size = getTranslation(startCanvas, endCanvas);
-                        overlayGraphics.strokeRect(startCanvas.x, startCanvas.y, size.x, size.y);
+                    if (endCanvas.x > 0 && endCanvas.y > 0 && startCanvas.x <= ctx.size.x && startCanvas.y <= ctx.size.y && map.bounds.length > 2) {
+                        overlayGraphics.beginPath();
+                        const startWorld = worldToCanvas(map.bounds[0]);
+                        overlayGraphics.moveTo(startWorld.x, startWorld.y);
+                        for (let i = 1; i < map.bounds.length; i++) {
+                            const pointWorld = map.bounds[i];
+                            const canvasPoint = worldToCanvas(pointWorld);
+                            overlayGraphics.lineTo(canvasPoint.x, canvasPoint.y);
+                        }
+                        overlayGraphics.closePath();
+                        overlayGraphics.stroke();
                     }
+                });
+            });
+
+            overlayGraphics.restore();
+        }
+
+        function drawAreaBorders(): void {
+            if (ctx.zoom < ctx.settings.showMapBorderDistanceMin || ctx.zoom >= ctx.settings.showMapBorderDistanceMax) {
+                return;
+            }
+            overlayGraphics.save();
+            overlayGraphics.strokeStyle = 'yellow';
+            overlayGraphics.lineWidth = 1;
+
+            forEachValue(worldData[ctx.mapInfo.id].regions, region => {
+                forEachValue(region.maps, map => {
+                    forEachValue(map.sectors, sector => {
+                        const bounds = sector.bounds;
+                        if (bounds.length > 1) {
+                            overlayGraphics.beginPath();
+                            const startWorld = worldToCanvas(vector2(bounds[0][0], bounds[0][1]));
+                            overlayGraphics.moveTo(startWorld.x, startWorld.y);
+                            for (let i = 1; i < bounds.length; i++) {
+                                const pointWorld = vector2(bounds[i][0], bounds[i][1]);
+                                const canvasPoint = worldToCanvas(pointWorld);
+                                overlayGraphics.lineTo(canvasPoint.x, canvasPoint.y);
+                            }
+                            overlayGraphics.closePath();
+                            overlayGraphics.stroke();
+                        }
+                    });
                 });
             });
 
@@ -249,7 +289,8 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
         }
 
         overlayGraphics.clearRect(0, 0, ctx.size.x, ctx.size.y);
-        drawMapBorders();
+        drawAreaBorders();
+        drawZoneBorders();
         drawMapText();
         drawIcons();
     }

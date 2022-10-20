@@ -1,5 +1,13 @@
 import { ObjectMap } from '@/react-app-env';
 
+export function getValue<TKey, TValue>(obj: ObjectMap<TKey, TValue>, key: TKey): TValue {
+    return (obj as any)[key] as TValue;
+}
+
+export function setValue<TKey, TValue>(obj: ObjectMap<TKey, TValue>, key: TKey, value: TValue): void {
+    (obj as any)[key] = value;
+}
+
 export function forEachEntry<TKey, TValue>(obj: ObjectMap<TKey, TValue>, action: (key: TKey, value: TValue) => void): void {
     Object.entries(obj).forEach((entry) => {
         action(<TKey>entry[0], <TValue>entry[1]);
