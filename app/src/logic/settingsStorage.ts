@@ -12,6 +12,16 @@ export const defaultSettings = {
     showAreaBorderDistanceMax: 10,
     showAreaTextDistanceMin: 5,
     showAreaTextDistanceMax: 6,
+
+    showExpansionBase: true,
+    showExpansionLw2: true,
+    showExpansionHot: true,
+    showExpansionLw3: true,
+    showExpansionPof: true,
+    showExpansionLw4: true,
+    showExpansionLw5: true,
+    showExpansionEod: true,
+
     dummy: true,
 };
 
@@ -66,4 +76,20 @@ export function updateSetting<TKey extends keyof Settings>(key: TKey, updater: (
 
 export function setSetting<TKey extends keyof Settings>(key: TKey, value: Settings[TKey], onSettingsChanged?: () => void): void {
     updateSetting(key, () => value, onSettingsChanged);
+}
+
+export function getEnabledExpansions(): Set<string> {
+    const settings = getSettings();
+    const result = new Set<string>();
+
+    if (settings.showExpansionBase) { result.add('base'); }
+    if (settings.showExpansionLw2) { result.add('lw2'); }
+    if (settings.showExpansionHot) { result.add('hot'); }
+    if (settings.showExpansionLw3) { result.add('lw3'); }
+    if (settings.showExpansionPof) { result.add('pof'); }
+    if (settings.showExpansionLw4) { result.add('lw4'); }
+    if (settings.showExpansionLw5) { result.add('lw5'); }
+    if (settings.showExpansionEod) { result.add('eod'); }
+
+    return result;
 }

@@ -17,7 +17,8 @@ declare type Vector2 = {
 };
 
 declare type DrawingContext = {
-    settings: Settings
+    settings: Settings,
+    expansions: Set<string>,
     graphics: CanvasRenderingContext2D,
     size: Vector2,
     zoom: number,

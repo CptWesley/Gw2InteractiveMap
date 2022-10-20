@@ -1,6 +1,7 @@
 import { makeStyles, theme } from '@/theme';
 import { ChevronLeft } from '@mui/icons-material';
 import { Divider, Drawer, List, ListItem, ListItemButton, ListItemIcon, Tooltip, Typography } from '@mui/material';
+import SettingsCheckbox from './SettingsCheckbox';
 import SettingsSlider from './SettingsSlider';
 import SettingsTab from './SettingsTab';
 
@@ -70,6 +71,14 @@ export default function SettingsDrawer(props: IProps) {
             </SettingsTab>
             <Divider />
             <SettingsTab text='Expansions' tooltip='Show/Hide expansion settings.'>
+                <SettingsCheckbox text='Guild Wars 2' tooltip='Indicates whether or not to show base game content.' setting='showExpansionBase' onSettingChanged={props.onSettingsChanged}/>
+                <SettingsCheckbox text='Living World Season 2' tooltip='Indicates whether or not to show Living World Season 2 content.' setting='showExpansionLw2' onSettingChanged={props.onSettingsChanged}/>
+                <SettingsCheckbox text='Heart of Thorns' tooltip='Indicates whether or not to show Heart of Thorns content.' setting='showExpansionHot' onSettingChanged={props.onSettingsChanged}/>
+                <SettingsCheckbox text='Living World Season 3' tooltip='Indicates whether or not to show Living World Season 3 content.' setting='showExpansionLw3' onSettingChanged={props.onSettingsChanged}/>
+                <SettingsCheckbox text='Path of Fire' tooltip='Indicates whether or not to show Path of Fire content.' setting='showExpansionPof' onSettingChanged={props.onSettingsChanged}/>
+                <SettingsCheckbox text='Living World Season 4' tooltip='Indicates whether or not to show Living World Season 4 content.' setting='showExpansionLw4' onSettingChanged={props.onSettingsChanged}/>
+                <SettingsCheckbox text='Icebrood Saga (LW 5)' tooltip='Indicates whether or not to show Living World Season 5 content.' setting='showExpansionLw5' onSettingChanged={props.onSettingsChanged}/>
+                <SettingsCheckbox text='End of Dragons' tooltip='Indicates whether or not to show End of Dragons content.' setting='showExpansionEod' onSettingChanged={props.onSettingsChanged}/>
             </SettingsTab>
             <Divider />
         </Drawer>
