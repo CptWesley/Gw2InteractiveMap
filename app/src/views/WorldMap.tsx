@@ -1,12 +1,12 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { DrawingContext, LastDrawInfo, MapInfo, Vector2 } from '@/global';
 import { drawMap } from '@/logic/worldMapRendering';
 import { makeStyles, theme } from '@/theme';
 import { getTranslation, vector2 } from '@/logic/utility/vector2';
 import { useQuery } from '@/logic/utility/queryUtils';
 import { getMapInfo } from '@/logic/tileData/tileService';
-import { canvasToWorld } from '@/logic/worldMapUtils';
-import { Fab, Tooltip } from '@mui/material';
+import { canvasToWorld as canvasToWorldInternal, getLocation } from '@/logic/worldMapUtils';
+import { Fab, Tooltip, Typography } from '@mui/material';
 import { ChevronRight } from '@mui/icons-material';
 import React from 'react';
 import SettingsDrawer from '@/Components/SettingsDrawer';
@@ -40,6 +40,13 @@ const useStyles = makeStyles()(() => {
             left: '8px',
             top: '12px',
         },
+        mousePositionText: {
+            position: 'absolute',
+            top: '12px',
+            right: '12px',
+            fontSize: 20,
+            textShadow: '1px 1px rgba(0, 0, 0, 0.8)',
+        },
     };
 });
 
@@ -49,6 +56,7 @@ export default function WorldMap() {
 
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
+    const [mousePositionText, setMousePositionText] = useState<string>('Unknown');
     const lastDrawInfoRef = useRef<LastDrawInfo>();
     const scrollingMap = useRef<{ pointerId: number, position: Vector2, threshold: boolean }>();
 
@@ -84,6 +92,10 @@ export default function WorldMap() {
                 onCloseButtonPressed={() => setSettingsOpenState(false)}
                 onSettingsChanged={handleSettingsChanged}
             />
+            <Typography
+                className={classes.mousePositionText}>
+                {mousePositionText}
+            </Typography>
         </div>
     );
 
@@ -133,6 +145,12 @@ export default function WorldMap() {
         return vector2(canvasRef.current?.width ?? -1, canvasRef.current?.height ?? -1);
     }
 
+    function canvasToWorld(canvasPos: Vector2): Vector2 {
+        const centerWorldPos = getCenterWorldPosition();
+        const canvasSize = getCanvasSize();
+        return canvasToWorldInternal(canvasPos, centerWorldPos, canvasSize, getCurrentMapInfo(), queryRef.current.get('zoom'));
+    }
+
     function handlePointerDown(e: React.PointerEvent<HTMLCanvasElement>): void {
         scrollingMap.current = {
             pointerId: e.pointerId,
@@ -143,6 +161,10 @@ export default function WorldMap() {
     }
 
     function handlePointerMove(e: React.PointerEvent<HTMLCanvasElement>): void {
+        if (!canvasRef.current) {
+            return;
+        }
+
         if (scrollingMap.current && scrollingMap.current.pointerId === e.pointerId) {
             const mapInfo = getCurrentMapInfo();
             const dX = e.pageX - scrollingMap.current.position.x;
@@ -163,7 +185,27 @@ export default function WorldMap() {
                 scrollingMap.current.position.x = e.pageX;
                 scrollingMap.current.position.y = e.pageY;
             }
+        } else {
+            const canvasBoundaries = canvasRef.current.getBoundingClientRect();
+            const mouseCanvasPos = vector2(e.clientX - canvasBoundaries.left, e.clientY - canvasBoundaries.top);
+            const mouseWorldPos = canvasToWorld(mouseCanvasPos);
+            updateLocationText(mouseWorldPos);
         }
+    }
+
+    function updateLocationText(pos: Vector2): void {
+        const location = getLocation(queryRef.current.get('map'), pos);
+        let locationString = location.map.name;
+
+        if (location.zone) {
+            locationString += ` / ${location.zone.name}`;
+
+            if (location.area) {
+                locationString += ` / ${location.area.name}`;
+            }
+        }
+
+        setMousePositionText(`${locationString} [${Math.floor(pos.x)}, ${Math.floor(pos.y)}]`);
     }
 
     function handlePointerUp(e: React.PointerEvent<HTMLCanvasElement>): void {
@@ -183,11 +225,12 @@ export default function WorldMap() {
         queryRef.current.set('zoom', newZoom);
 
         if (canvasRef.current) {
-            const mouseCanvasPos = vector2(e.clientX - canvasRef.current.offsetLeft, e.clientY - canvasRef.current.offsetTop);
+            const canvasBoundaries = canvasRef.current.getBoundingClientRect();
+            const mouseCanvasPos = vector2(e.clientX - canvasBoundaries.left, e.clientY - canvasBoundaries.top);
             const centerWorldPos = getCenterWorldPosition();
             const canvasSize = getCanvasSize();
-            const oldMouseWorldPos = canvasToWorld(mouseCanvasPos, centerWorldPos, canvasSize, mapInfo, oldZoom);
-            const newMouseWorldPos = canvasToWorld(mouseCanvasPos, centerWorldPos, canvasSize, mapInfo, newZoom);
+            const oldMouseWorldPos = canvasToWorldInternal(mouseCanvasPos, centerWorldPos, canvasSize, mapInfo, oldZoom);
+            const newMouseWorldPos = canvasToWorldInternal(mouseCanvasPos, centerWorldPos, canvasSize, mapInfo, newZoom);
             const offset = getTranslation(newMouseWorldPos, oldMouseWorldPos);
             queryRef.current.update('x', x => Math.max(0, Math.min(mapInfo.size.x, x + offset.x)));
             queryRef.current.update('y', y => Math.max(0, Math.min(mapInfo.size.y, y + offset.y)));

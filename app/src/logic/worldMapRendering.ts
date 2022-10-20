@@ -312,7 +312,7 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
                         if (ctx.expansions.has(additionalZoneData.expansion)) {
                             result.push(...perZone1(zoneId, zone, additionalZoneData));
                             forEachValue(zone.sectors, area => {
-                                const areaRect = area.bounds;
+                                const areaRect = area.rect;
                                 const areaStart = worldToCanvas(vector2(areaRect[0][0], areaRect[0][1]));
                                 const areaEnd = worldToCanvas(vector2(areaRect[1][0], areaRect[1][1]));
                                 if (areaEnd.x > 0 && areaEnd.y > 0 && areaStart.x <= ctx.size.x && areaStart.y <= ctx.size.y) {

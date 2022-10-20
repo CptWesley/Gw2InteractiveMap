@@ -83,6 +83,7 @@ declare type WorldData = {
 };
 
 declare type MapData = {
+    name: string, // Custom
     id: string, // Custom
     texture_dims: WorldDataCoords,
     clamped_view: WorldDataCoords[],
@@ -155,8 +156,8 @@ declare type Area = {
     level: number,
     coord: WorldDataCoords,
     bounds: WorldDataCoords[],
-    rect: [WorldDataCoords, WorldDataCoords],
-    label_coord: WorldDataCoords,
+    rect: [WorldDataCoords, WorldDataCoords], // Custom
+    label_coord: WorldDataCoords, // Custom
     chat_link: string,
     id: number,
 };
