@@ -7,7 +7,7 @@ export const defaultSettings = {
     showZoneBorderDistanceMin: 0,
     showZoneBorderDistanceMax: 10,
     showZoneTextDistanceMin: 0,
-    showZoneTextDistanceMax: 6,
+    showZoneTextDistanceMax: 5,
     showAreaBorderDistanceMin: 5,
     showAreaBorderDistanceMax: 10,
     showAreaTextDistanceMin: 5,
