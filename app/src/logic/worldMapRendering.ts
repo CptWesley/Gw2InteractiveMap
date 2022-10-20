@@ -1,4 +1,4 @@
-import { DrawingContext, LastDrawInfo, TileSource, Vector2 } from '@/react-app-env';
+import { DrawingContext, LastDrawInfo, TileSource, Vector2 } from '@/global';
 import { downloadImage, imageIsCached } from '@/logic/imageCache';
 import { getTileSource, getTileSourceFromParent, getTileSourcesFromChildren } from '@/logic/tileData/tileService';
 import { getTranslation, v2scale, vector2 } from '@/logic/utility/vector2';
@@ -7,7 +7,9 @@ import { getTileScale, getRenderScale, getDimensions, worldToCanvas as worldToCa
 import { icons } from '@/logic/mapIcons';
 import { TrackedPromise } from '@/logic/TrackedPromise';
 import worldData from '@/logic/mapData/worldData';
-import { forEachValue } from '@/logic/utility/util';
+import { forEachValue, forEachEntry } from '@/logic/utility/util';
+import { zones } from './mapData/additionalData/additionalData';
+import { expansions } from './mapData/additionalData/expansions';
 
 const drawCounts = new Map<CanvasRenderingContext2D, number>();
 
@@ -152,11 +154,14 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
                 return;
             }
             overlayGraphics.save();
-            overlayGraphics.strokeStyle = 'white';
             overlayGraphics.lineWidth = 3;
 
             forEachValue(worldData[ctx.mapInfo.id].regions, region => {
-                forEachValue(region.maps, map => {
+                forEachEntry(region.maps, (id, map) => {
+                    const numId = parseInt(id);
+                    const expansionId = zones[numId].expansion;
+                    const expansion = expansions[expansionId];
+                    overlayGraphics.strokeStyle = expansion.color;
                     const rect = map.continent_rect;
                     const startWorld = vector2(rect[0][0], rect[0][1]);
                     const endWorld = vector2(rect[1][0], rect[1][1]);
@@ -186,7 +191,7 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
                 return;
             }
             overlayGraphics.save();
-            overlayGraphics.strokeStyle = 'yellow';
+            overlayGraphics.strokeStyle = 'white';
             overlayGraphics.lineWidth = 1;
 
             forEachValue(worldData[ctx.mapInfo.id].regions, region => {

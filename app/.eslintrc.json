@@ -16,6 +16,7 @@
         "node_modules/",
         "dist/",
         "src/logic/mapData/*.js",
+        "src/logic/mapData/additionalData/*.js",
         "src/logic/tileData/*.js"
     ],
     "rules": {

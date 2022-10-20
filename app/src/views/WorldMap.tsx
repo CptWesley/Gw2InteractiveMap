@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { DrawingContext, LastDrawInfo, MapInfo, Vector2 } from '@/react-app-env';
+import { DrawingContext, LastDrawInfo, MapInfo, Vector2 } from '@/global';
 import { drawMap } from '@/logic/worldMapRendering';
 import { makeStyles, theme } from '@/theme';
 import { getTranslation, vector2 } from '@/logic/utility/vector2';

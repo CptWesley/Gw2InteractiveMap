@@ -1,4 +1,4 @@
-import { ObjectMap } from '@/react-app-env';
+import { ObjectMap } from '@/global';
 
 export function getValue<TKey, TValue>(obj: ObjectMap<TKey, TValue>, key: TKey): TValue {
     return (obj as any)[key] as TValue;
@@ -100,4 +100,13 @@ export function filterMapValue<TKeyIn, TValueIn, TValueOut>(obj: ObjectMap<TKeyI
         }
         return { key: k, value: newValue };
     });
+}
+
+export function toObjectMap<TKey, TValue>(list: TValue[], getKey: (element: TValue) => TKey): ObjectMap<TKey, TValue> {
+    const result:any = {};
+    list.forEach(x => {
+        result[getKey(x)] = x;
+    });
+
+    return result;
 }

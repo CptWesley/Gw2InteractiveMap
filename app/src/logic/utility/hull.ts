@@ -1,4 +1,4 @@
-import { Vector2 } from '@/react-app-env';
+import { Vector2 } from '@/global';
 import concaveman from 'concaveman';
 import { vector2 } from './vector2';
 

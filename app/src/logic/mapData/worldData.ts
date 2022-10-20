@@ -1,7 +1,8 @@
-import { ObjectMap, Vector2 } from '@/react-app-env';
+import { ObjectMap, Vector2 } from '@/global';
 import { filterEntry, forEachValue, getValue } from '@/logic/utility/util';
 import hull from '@/logic/utility/hull';
 import { findCenter, nearestPointOnEdge, v2distanceSq, vector2 } from '../utility/vector2';
+import { zones } from './additionalData/additionalData';
 
 declare type WorldDataCoords = [number, number];
 
@@ -91,8 +92,6 @@ const allMapData: any = {};
 allMapDataRaw.forEach((x: any) => {
     allMapData[x.id] = x;
 });
-
-const publicMaps: Set<number> = new Set<number>(require('./openWorldMaps.js') as number[]);
 
 function findNearestEdge(v: Vector2, edges: { a: Vector2, b: Vector2 }[]): { pos: Vector2, distance: number }|undefined {
     let pos: Vector2|undefined = undefined;
@@ -273,7 +272,7 @@ function prepareData(data: MapData): MapData {
 
     forEachValue(result.regions, region => {
         region.maps = filterEntry(region.maps, (id, map) => {
-            const isVisible = publicMaps.has(parseInt(id));
+            const isVisible = zones[parseInt(id)] !== undefined;
             if (isVisible) {
                 recomputeSectors(map);
                 computeBounds(map);

@@ -1,4 +1,4 @@
-import { Vector2 } from '@/react-app-env';
+import { Vector2 } from '@/global';
 
 export function vector2(x: number, y: number): Vector2 {
     return { x, y };

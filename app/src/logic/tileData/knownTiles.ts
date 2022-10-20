@@ -1,4 +1,4 @@
-import { RawMapInfo, RawWorldDatabaseInfo } from '@/react-app-env';
+import { RawMapInfo, RawWorldDatabaseInfo } from '@/global';
 
 /* eslint-disable */
 export const knownTiles: RawWorldDatabaseInfo = {
