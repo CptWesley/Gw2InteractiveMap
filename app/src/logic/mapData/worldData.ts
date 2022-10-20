@@ -1,91 +1,8 @@
-import { ObjectMap, Vector2 } from '@/global';
+import { Area, MapData, Vector2, WorldData, Zone } from '@/global';
 import { filterEntry, forEachValue, getValue } from '@/logic/utility/util';
 import hull from '@/logic/utility/hull';
 import { findCenter, nearestPointOnEdge, v2distanceSq, vector2 } from '../utility/vector2';
 import { zones } from './additionalData/additionalData';
-
-declare type WorldDataCoords = [number, number];
-
-declare type WorldData = {
-    [key: string]: MapData,
-};
-
-declare type MapData = {
-    id: string, // Custom
-    texture_dims: WorldDataCoords,
-    clamped_view: WorldDataCoords[],
-    regions: ObjectMap<string, Region>,
-};
-
-declare type Region = {
-    name: string,
-    label_coord: WorldDataCoords,
-    continent_rect: WorldDataCoords[],
-    maps: ObjectMap<string, Map>,
-};
-
-declare type Map = {
-    name: string,
-    min_level: number,
-    max_level: number,
-    default_floor: number,
-    label_coord: WorldDataCoords,
-    map_rect: WorldDataCoords[],
-    continent_rect: WorldDataCoords[],
-    points_of_interest: ObjectMap<number, PointOfInterest>,
-    tasks: ObjectMap<number, Task>,
-    skill_challenges: SkillChallenge[],
-    adventures: ObjectMap<number, Adventure>,
-    mastery_points: ObjectMap<number, MasteryPoint>,
-    sectors: ObjectMap<string, Sector>,
-    bounds: Vector2[], // Custom
-};
-
-declare type PointOfInterest = {
-    name: string,
-    type: 'landmark'|'waypoint'|'vista'|'unlock',
-    floor: number,
-    coord: WorldDataCoords,
-    id: number,
-    chat_link: string,
-    icon?: string,
-};
-
-declare type Task = {
-    objective: string,
-    level: number,
-    coord: WorldDataCoords,
-    bounds: WorldDataCoords[],
-    id: number,
-    chat_link: string,
-};
-
-declare type SkillChallenge = {
-    coord: WorldDataCoords,
-    id?: string,
-};
-
-declare type Adventure = {
-    coord: WorldDataCoords,
-    id: string,
-    name: string,
-    description: string,
-};
-
-declare type MasteryPoint = {
-    coord: WorldDataCoords,
-    id: number,
-    region: 'Tyria'|'Maguuma'|'Desert'|'Tundra'|'Unknown',
-};
-
-declare type Sector = {
-    name: string,
-    level: number,
-    coord: WorldDataCoords,
-    bounds: WorldDataCoords[],
-    chat_link: string,
-    id: number,
-};
 
 const allMapDataRaw: any = require('./allMapData.js');
 const allMapData: any = {};
@@ -124,7 +41,7 @@ function prepareData(data: MapData): MapData {
     prepared.add(data.id);
     const result = data;
 
-    function recomputeSectors(map: Map): void {
+    function recomputeSectors(map: Zone): void {
         const mergeVectorDistance = 1600;
         const mergeEdgeDistance = 800;
         let totalIndex = 0;
@@ -219,7 +136,7 @@ function prepareData(data: MapData): MapData {
         mergeVectorsWithEdges();
     }
 
-    function computeBounds(map: Map): void {
+    function computeBounds(map: Zone): void {
         const points: Vector2[] = [];
         forEachValue(map.sectors, sector => {
             sector.bounds.forEach(bound => {
@@ -230,7 +147,7 @@ function prepareData(data: MapData): MapData {
         map.bounds = hull(points);
     }
 
-    function recomputeContinentRect(map: Map): void {
+    function recomputeZoneRect(map: Zone): void {
         let minX = Number.POSITIVE_INFINITY;
         let minY = Number.POSITIVE_INFINITY;
         let maxX = Number.NEGATIVE_INFINITY;
@@ -262,7 +179,39 @@ function prepareData(data: MapData): MapData {
         ];
     }
 
-    function recomputeLabelPosition(map: Map): void {
+    function recomputeAreaRect(area: Area): void {
+        let minX = Number.POSITIVE_INFINITY;
+        let minY = Number.POSITIVE_INFINITY;
+        let maxX = Number.NEGATIVE_INFINITY;
+        let maxY = Number.NEGATIVE_INFINITY;
+
+        area.bounds.forEach(bound => {
+            const [ x, y ] = bound;
+
+            if (x < minX) {
+                minX = x;
+            }
+
+            if (x > maxX) {
+                maxX = x;
+            }
+
+            if (y < minY) {
+                minY = y;
+            }
+
+            if (y > maxY) {
+                maxY = y;
+            }
+        });
+
+        area.rect = [
+            [minX, minY],
+            [maxX, maxY],
+        ];
+    }
+
+    function recomputeLabelPosition(map: Zone): void {
         const xMin = map.continent_rect[0][0];
         const yMin = map.continent_rect[0][1];
         const xMax = map.continent_rect[1][0];
@@ -276,8 +225,12 @@ function prepareData(data: MapData): MapData {
             if (isVisible) {
                 recomputeSectors(map);
                 computeBounds(map);
-                recomputeContinentRect(map);
+                recomputeZoneRect(map);
                 recomputeLabelPosition(map);
+
+                forEachValue(map.sectors, area => {
+                    recomputeAreaRect(area);
+                });
             }
             return isVisible;
         });

@@ -75,6 +75,90 @@ declare type ObjectMap<TKey, TValue> = {
     [key: TKey]: TValue,
 };
 
+declare type WorldDataCoords = [number, number];
+
+declare type WorldData = {
+    [key: string]: MapData,
+};
+
+declare type MapData = {
+    id: string, // Custom
+    texture_dims: WorldDataCoords,
+    clamped_view: WorldDataCoords[],
+    regions: ObjectMap<string, Region>,
+};
+
+declare type Region = {
+    name: string,
+    label_coord: WorldDataCoords,
+    continent_rect: WorldDataCoords[],
+    maps: ObjectMap<string, Zone>,
+};
+
+declare type Zone = {
+    name: string,
+    min_level: number,
+    max_level: number,
+    default_floor: number,
+    label_coord: WorldDataCoords,
+    map_rect: WorldDataCoords[],
+    continent_rect: WorldDataCoords[],
+    points_of_interest: ObjectMap<number, PointOfInterest>,
+    tasks: ObjectMap<number, Task>,
+    skill_challenges: SkillChallenge[],
+    adventures: ObjectMap<number, Adventure>,
+    mastery_points: ObjectMap<number, MasteryPoint>,
+    sectors: ObjectMap<string, Area>,
+    bounds: Vector2[], // Custom
+};
+
+declare type PointOfInterest = {
+    name: string,
+    type: 'landmark'|'waypoint'|'vista'|'unlock',
+    floor: number,
+    coord: WorldDataCoords,
+    id: number,
+    chat_link: string,
+    icon?: string,
+};
+
+declare type Task = {
+    objective: string,
+    level: number,
+    coord: WorldDataCoords,
+    bounds: WorldDataCoords[],
+    id: number,
+    chat_link: string,
+};
+
+declare type SkillChallenge = {
+    coord: WorldDataCoords,
+    id?: string,
+};
+
+declare type Adventure = {
+    coord: WorldDataCoords,
+    id: string,
+    name: string,
+    description: string,
+};
+
+declare type MasteryPoint = {
+    coord: WorldDataCoords,
+    id: number,
+    region: 'Tyria'|'Maguuma'|'Desert'|'Tundra'|'Unknown',
+};
+
+declare type Area = {
+    name: string,
+    level: number,
+    coord: WorldDataCoords,
+    bounds: WorldDataCoords[],
+    rect: [WorldDataCoords, WorldDataCoords],
+    chat_link: string,
+    id: number,
+};
+
 declare type Expansion = {
     id: string,
     name: string,
@@ -96,3 +180,10 @@ declare type AdditionalZoneData = {
 declare type AdditionalZoneDataMap = {
     [key: number]: AdditionalZoneData,
 };
+
+interface ISelectableEntity {
+    type: string,
+    position: Vector2,
+    size: Vector2,
+    id: string,
+}
