@@ -59,7 +59,6 @@ export default function SettingsSlider(props: IProps) {
                         float: 'left',
                     }}/>
                 <Slider
-                    aria-label='Custom marks'
                     value={value}
                     min={min}
                     max={max}
