@@ -1,8 +1,8 @@
 import { makeStyles, theme } from '@/theme';
-import { ChevronLeft, ExpandLess, ExpandMore, ImageOutlined } from '@mui/icons-material';
-import { Collapse, Divider, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Tooltip, Typography } from '@mui/material';
-import React from 'react';
+import { ChevronLeft } from '@mui/icons-material';
+import { Divider, Drawer, List, ListItem, ListItemButton, ListItemIcon, Tooltip, Typography } from '@mui/material';
 import SettingsSlider from './SettingsSlider';
+import SettingsTab from './SettingsTab';
 
 const useStyles = makeStyles()(() => {
     return {
@@ -21,9 +21,6 @@ interface IProps {
 
 export default function SettingsDrawer(props: IProps) {
     const { classes } = useStyles();
-
-    const [iconsOpen, setIconsOpen] = React.useState<boolean>(false);
-    const [bordersOpen, setBordersOpen] = React.useState<boolean>(false);
 
     return (
         <Drawer
@@ -60,43 +57,20 @@ export default function SettingsDrawer(props: IProps) {
                 </ListItem>
             </List>
             <Divider />
-            <List>
-                <Tooltip title='Show/Hide icon settings.'>
-                    <ListItemButton onClick={() => setIconsOpen(!iconsOpen)}>
-                        <ListItemIcon>
-                            <ImageOutlined />
-                        </ListItemIcon>
-                        <ListItemText primary='Icons' />
-                        {iconsOpen ? <ExpandLess /> : <ExpandMore />}
-                    </ListItemButton>
-                </Tooltip>
-                <Collapse in={iconsOpen} timeout='auto'>
-                    <List component='div' disablePadding>
-                        <SettingsSlider text='Show zoom' tooltip='Sets the zoom distance where the icons are shown.' setting={['showIconDistanceMin', 'showIconDistanceMax']} min={0} max={10} step={0.25} onSettingChanged={props.onSettingsChanged}/>
-                        <SettingsSlider text='Size' tooltip='Sets the size of the icons on the map.' setting='iconSize' min={12} max={64} onSettingChanged={props.onSettingsChanged}/>
-                    </List>
-                </Collapse>
-            </List>
+            <SettingsTab text='Icons' tooltip='Show/Hide icon settings.'>
+                <SettingsSlider text='Show zoom' tooltip='Sets the zoom distance where the icons are shown.' setting={['showIconDistanceMin', 'showIconDistanceMax']} min={0} max={10} step={0.25} onSettingChanged={props.onSettingsChanged}/>
+                <SettingsSlider text='Size' tooltip='Sets the size of the icons on the map.' setting='iconSize' min={12} max={64} onSettingChanged={props.onSettingsChanged}/>
+            </SettingsTab>
             <Divider />
-            <List>
-                <Tooltip title='Show/Hide border settings.'>
-                    <ListItemButton onClick={() => setBordersOpen(!bordersOpen)}>
-                        <ListItemIcon>
-                            <ImageOutlined />
-                        </ListItemIcon>
-                        <ListItemText primary='Borders' />
-                        {bordersOpen ? <ExpandLess /> : <ExpandMore />}
-                    </ListItemButton>
-                </Tooltip>
-                <Collapse in={bordersOpen} timeout='auto'>
-                    <List component='div' disablePadding>
-                        <SettingsSlider text='Zone Border zoom' tooltip='Sets the zoom distance where the zone borders are shown.' setting={['showZoneBorderDistanceMin', 'showZoneBorderDistanceMax']} min={0} max={10} step={0.25} onSettingChanged={props.onSettingsChanged}/>
-                        <SettingsSlider text='Zone Text zoom' tooltip='Sets the zoom distance where the zone texts are shown.' setting={['showZoneTextDistanceMin', 'showZoneTextDistanceMax']} min={0} max={10} step={0.25} onSettingChanged={props.onSettingsChanged}/>
-                        <SettingsSlider text='Area Border zoom' tooltip='Sets the zoom distance where the area borders are shown.' setting={['showAreaBorderDistanceMin', 'showAreaBorderDistanceMax']} min={0} max={10} step={0.25} onSettingChanged={props.onSettingsChanged}/>
-                        <SettingsSlider text='Area Text zoom' tooltip='Sets the zoom distance where the area texts are shown.' setting={['showAreaTextDistanceMin', 'showAreaTextDistanceMax']} min={0} max={10} step={0.25} onSettingChanged={props.onSettingsChanged}/>
-                    </List>
-                </Collapse>
-            </List>
+            <SettingsTab text='Borders' tooltip='Show/Hide border settings.'>
+                <SettingsSlider text='Zone Border zoom' tooltip='Sets the zoom distance where the zone borders are shown.' setting={['showZoneBorderDistanceMin', 'showZoneBorderDistanceMax']} min={0} max={10} step={0.25} onSettingChanged={props.onSettingsChanged}/>
+                <SettingsSlider text='Zone Text zoom' tooltip='Sets the zoom distance where the zone texts are shown.' setting={['showZoneTextDistanceMin', 'showZoneTextDistanceMax']} min={0} max={10} step={0.25} onSettingChanged={props.onSettingsChanged}/>
+                <SettingsSlider text='Area Border zoom' tooltip='Sets the zoom distance where the area borders are shown.' setting={['showAreaBorderDistanceMin', 'showAreaBorderDistanceMax']} min={0} max={10} step={0.25} onSettingChanged={props.onSettingsChanged}/>
+                <SettingsSlider text='Area Text zoom' tooltip='Sets the zoom distance where the area texts are shown.' setting={['showAreaTextDistanceMin', 'showAreaTextDistanceMax']} min={0} max={10} step={0.25} onSettingChanged={props.onSettingsChanged}/>
+            </SettingsTab>
+            <Divider />
+            <SettingsTab text='Expansions' tooltip='Show/Hide expansion settings.'>
+            </SettingsTab>
             <Divider />
         </Drawer>
     );
