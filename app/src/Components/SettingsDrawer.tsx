@@ -90,8 +90,10 @@ export default function SettingsDrawer(props: IProps) {
                 </Tooltip>
                 <Collapse in={bordersOpen} timeout='auto'>
                     <List component='div' disablePadding>
-                        <SettingsSlider text='Map Border zoom' tooltip='Sets the zoom distance where the map borders are shown.' setting={['showMapBorderDistanceMin', 'showMapBorderDistanceMax']} min={0} max={10} step={0.25} onSettingChanged={props.onSettingsChanged}/>
-                        <SettingsSlider text='Map Text zoom' tooltip='Sets the zoom distance where the map texts are shown.' setting={['showMapTextDistanceMin', 'showMapTextDistanceMax']} min={0} max={10} step={0.25} onSettingChanged={props.onSettingsChanged}/>
+                        <SettingsSlider text='Zone Border zoom' tooltip='Sets the zoom distance where the zone borders are shown.' setting={['showZoneBorderDistanceMin', 'showZoneBorderDistanceMax']} min={0} max={10} step={0.25} onSettingChanged={props.onSettingsChanged}/>
+                        <SettingsSlider text='Zone Text zoom' tooltip='Sets the zoom distance where the zone texts are shown.' setting={['showZoneTextDistanceMin', 'showZoneTextDistanceMax']} min={0} max={10} step={0.25} onSettingChanged={props.onSettingsChanged}/>
+                        <SettingsSlider text='Area Border zoom' tooltip='Sets the zoom distance where the area borders are shown.' setting={['showAreaBorderDistanceMin', 'showAreaBorderDistanceMax']} min={0} max={10} step={0.25} onSettingChanged={props.onSettingsChanged}/>
+                        <SettingsSlider text='Area Text zoom' tooltip='Sets the zoom distance where the area texts are shown.' setting={['showAreaTextDistanceMin', 'showAreaTextDistanceMax']} min={0} max={10} step={0.25} onSettingChanged={props.onSettingsChanged}/>
                     </List>
                 </Collapse>
             </List>

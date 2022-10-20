@@ -179,7 +179,7 @@ function prepareData(data: MapData): MapData {
         ];
     }
 
-    function recomputeAreaRect(area: Area): void {
+    function computeAreaRect(area: Area): void {
         let minX = Number.POSITIVE_INFINITY;
         let minY = Number.POSITIVE_INFINITY;
         let maxX = Number.NEGATIVE_INFINITY;
@@ -211,12 +211,20 @@ function prepareData(data: MapData): MapData {
         ];
     }
 
-    function recomputeLabelPosition(map: Zone): void {
-        const xMin = map.continent_rect[0][0];
-        const yMin = map.continent_rect[0][1];
-        const xMax = map.continent_rect[1][0];
-        const yMax = map.continent_rect[1][1];
-        map.label_coord = [(xMin + xMax) / 2, (yMin + yMax) / 2];
+    function recomputeZoneLabelPosition(zone: Zone): void {
+        const xMin = zone.continent_rect[0][0];
+        const yMin = zone.continent_rect[0][1];
+        const xMax = zone.continent_rect[1][0];
+        const yMax = zone.continent_rect[1][1];
+        zone.label_coord = [(xMin + xMax) / 2, (yMin + yMax) / 2];
+    }
+
+    function computeAreaLabelPosition(area: Area): void {
+        const xMin = area.rect[0][0];
+        const yMin = area.rect[0][1];
+        const xMax = area.rect[1][0];
+        const yMax = area.rect[1][1];
+        area.label_coord = [(xMin + xMax) / 2, (yMin + yMax) / 2];
     }
 
     forEachValue(result.regions, region => {
@@ -226,10 +234,11 @@ function prepareData(data: MapData): MapData {
                 recomputeSectors(map);
                 computeBounds(map);
                 recomputeZoneRect(map);
-                recomputeLabelPosition(map);
+                recomputeZoneLabelPosition(map);
 
                 forEachValue(map.sectors, area => {
-                    recomputeAreaRect(area);
+                    computeAreaRect(area);
+                    computeAreaLabelPosition(area);
                 });
             }
             return isVisible;

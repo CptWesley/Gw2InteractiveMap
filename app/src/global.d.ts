@@ -155,6 +155,7 @@ declare type Area = {
     coord: WorldDataCoords,
     bounds: WorldDataCoords[],
     rect: [WorldDataCoords, WorldDataCoords],
+    label_coord: WorldDataCoords,
     chat_link: string,
     id: number,
 };
