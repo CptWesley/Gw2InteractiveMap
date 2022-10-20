@@ -227,18 +227,25 @@ function prepareData(data: MapData): MapData {
         area.label_coord = [(xMin + xMax) / 2, (yMin + yMax) / 2];
     }
 
+    function recomputeAreaLabelText(zone: Zone, area: Area): void {
+        if (!area.name) {
+            area.name = zone.name;
+        }
+    }
+
     forEachValue(result.regions, region => {
-        region.maps = filterEntry(region.maps, (id, map) => {
+        region.maps = filterEntry(region.maps, (id, zone) => {
             const isVisible = zones[parseInt(id)] !== undefined;
             if (isVisible) {
-                recomputeSectors(map);
-                computeBounds(map);
-                recomputeZoneRect(map);
-                recomputeZoneLabelPosition(map);
+                recomputeSectors(zone);
+                computeBounds(zone);
+                recomputeZoneRect(zone);
+                recomputeZoneLabelPosition(zone);
 
-                forEachValue(map.sectors, area => {
+                forEachValue(zone.sectors, area => {
                     computeAreaRect(area);
                     computeAreaLabelPosition(area);
+                    recomputeAreaLabelText(zone, area);
                 });
             }
             return isVisible;

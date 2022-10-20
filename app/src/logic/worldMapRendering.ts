@@ -297,7 +297,10 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
             return []; // TODO: return something.
         }
 
-        function draw(perZone: (id: string, zone: Zone, additionalZone: AdditionalZoneData) => ISelectableEntity[], perArea: (id: string, area: Area) => ISelectableEntity[]): ISelectableEntity[] {
+        function draw(
+            perZone1: (id: string, zone: Zone, additionalZone: AdditionalZoneData) => ISelectableEntity[],
+            perArea: (id: string, area: Area) => ISelectableEntity[],
+            perZone2: (id: string, zone: Zone, additionalZone: AdditionalZoneData) => ISelectableEntity[]): ISelectableEntity[] {
             const result: ISelectableEntity[] = [];
             forEachEntry(worldData[ctx.mapInfo.id].regions, (areaId, area) => {
                 forEachEntry(area.maps, (zoneId, zone) => {
@@ -306,6 +309,7 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
                     const zoneEnd = worldToCanvas(vector2(zoneRect[1][0], zoneRect[1][1]));
                     if (zoneEnd.x > 0 && zoneEnd.y > 0 && zoneStart.x <= ctx.size.x && zoneStart.y <= ctx.size.y) {
                         const additionalZoneData = zones[parseInt(zoneId)];
+                        result.push(...perZone1(zoneId, zone, additionalZoneData));
                         forEachValue(zone.sectors, area => {
                             const areaRect = area.bounds;
                             const areaStart = worldToCanvas(vector2(areaRect[0][0], areaRect[0][1]));
@@ -314,7 +318,7 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
                                 result.push(...perArea(areaId, area));
                             }
                         });
-                        result.push(...perZone(zoneId, zone, additionalZoneData));
+                        result.push(...perZone2(zoneId, zone, additionalZoneData));
                     }
                 });
             });
@@ -326,11 +330,13 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
         draw((id, zone, additionalZone) => {
             const drawnIcons = drawIcons(zone);
             drawZoneBorders(zone, additionalZone);
-            const drawnText = drawZoneText(zone);
-            return drawnIcons.concat(drawnText);
+            return drawnIcons;
         }, (id, area) => {
             drawAreaBorders(area);
             const drawnText = drawAreaText(area);
+            return drawnText;
+        }, (id, zone) => {
+            const drawnText = drawZoneText(zone);
             return drawnText;
         });
     }
