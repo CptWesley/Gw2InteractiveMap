@@ -1,6 +1,6 @@
+/* eslint-disable */
 // @ts-nocheck
-
-module.exports =
+const value: any =
 [
     {
         id: 15,
@@ -549,3 +549,5 @@ module.exports =
         wikiUrl: 'https://wiki.guildwars2.com/wiki/Thousand_Seas_Pavilion',
     },
 ]
+
+export default value;

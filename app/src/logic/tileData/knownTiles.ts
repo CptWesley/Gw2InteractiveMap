@@ -1,8 +1,9 @@
 import { RawMapInfo, RawWorldDatabaseInfo } from '@/global';
+import tyriaTiles from './tyriaTiles';
 
 /* eslint-disable */
 export const knownTiles: RawWorldDatabaseInfo = {
-  'tyria': require('./tyriaTiles.js') as RawMapInfo,
+  'tyria': tyriaTiles as RawMapInfo,
 };
 /* eslint-enable */
 

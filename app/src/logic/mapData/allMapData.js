@@ -1,6 +1,6 @@
+/* eslint-disable */
 // @ts-nocheck
-
-module.exports =
+const value: any =
 [
     {
       "id": 15,
@@ -32890,3 +32890,5 @@ module.exports =
       ]
     }
   ]
+
+  export default value;

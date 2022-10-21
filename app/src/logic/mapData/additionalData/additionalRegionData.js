@@ -1,6 +1,6 @@
+/* eslint-disable */
 // @ts-nocheck
-
-module.exports =
+const value: any =
 [
     {
         id: 1,
@@ -58,3 +58,5 @@ module.exports =
         wikiUrl: 'https://wiki.guildwars2.com/wiki/Cantha',
     },
 ]
+
+export default value;

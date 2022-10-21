@@ -4,14 +4,13 @@ import { hull } from '@/logic/utility/hull';
 import { findCenter, nearestPointOnEdge, v2distanceSq, vector2 } from '../utility/vector2';
 import { zones } from './additionalData/additionalData';
 import polylabel from 'polylabel';
+import tyriaContinentData from './tyriaContinentData';
+import allMapDataRaw from './allMapData.js';
 
-const allMapDataRaw: any = require('./allMapData.js');
 const allMapData: any = {};
 allMapDataRaw.forEach((x: any) => {
     allMapData[x.id] = x;
 });
-
-const tyriaDataRaw: any = require('./tyriaContinentData.js');
 
 function findNearestEdge(v: Vector2, edges: { a: Vector2, b: Vector2 }[]): { pos: Vector2, distance: number }|undefined {
     let pos: Vector2|undefined = undefined;
@@ -309,7 +308,7 @@ function prepareData(data: MapData): MapData {
 }
 
 const worldData: WorldData = {
-    'tyria': prepareData(tyriaDataRaw as MapData),
+    'tyria': prepareData(tyriaContinentData as MapData),
 };
 
 export default worldData;
