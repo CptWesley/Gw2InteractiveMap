@@ -15,7 +15,7 @@ import { debounce, findLast, throttle } from 'lodash-es';
 
 const defaultQueryParams = {
     map: 'tyria',
-    zoom: 2,
+    zoom: 1,
     x: 81920 / 2,
     y: 114688 / 2,
 };

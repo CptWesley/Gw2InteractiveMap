@@ -17,15 +17,12 @@ const useStyles = makeStyles()(theme => {
         content: {
             flex: 1,
             minHeight: 0,
-            // height: '100%',
         },
         toolbar: {
             fontStyle: 'normal',
         },
         toolbarButton: {
             fontWeight: 'bold',
-            // color: theme.buttonColor,
-            // background: theme.buttonBackground,
         },
         toolbarIcon: {
             '& svg': {

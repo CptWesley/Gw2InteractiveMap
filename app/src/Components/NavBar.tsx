@@ -32,9 +32,8 @@ export default function NavBar() {
     return (
         <div className={classes.toolbar}>
             <SvgIcon component={Logo} />
-            <Button component={Link} to='./' color='inherit'>Home</Button>
-            <Button component={Link} to='./hello' color='inherit'>Hello</Button>
-            <Button component={Link} to='./map' color='inherit'>Map</Button>
+            <Button component={Link} to='./' color='inherit'>Map</Button>
+            <Button component={Link} to='./changelog' color='inherit'>What's New</Button>
         </div>
     );
 }

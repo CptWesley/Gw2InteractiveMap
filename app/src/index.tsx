@@ -23,15 +23,11 @@ const router = createBrowserRouter(
             children: [
                 {
                     path: '',
-                    element: <HelloWorld msg='Hello Index' />,
-                },
-                {
-                    path: 'hello',
-                    element: <HelloWorld msg='Hello World' />,
-                },
-                {
-                    path: 'map',
                     element: <WorldMap />,
+                },
+                {
+                    path: 'changelog',
+                    element: <HelloWorld />,
                 },
             ],
         },
