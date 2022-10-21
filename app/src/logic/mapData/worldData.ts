@@ -11,6 +11,8 @@ allMapDataRaw.forEach((x: any) => {
     allMapData[x.id] = x;
 });
 
+const tyriaDataRaw: any = require('./tyriaContinentData.js');
+
 function findNearestEdge(v: Vector2, edges: { a: Vector2, b: Vector2 }[]): { pos: Vector2, distance: number }|undefined {
     let pos: Vector2|undefined = undefined;
     let distance = Number.POSITIVE_INFINITY;
@@ -307,7 +309,7 @@ function prepareData(data: MapData): MapData {
 }
 
 const worldData: WorldData = {
-    'tyria': prepareData(require('./tyriaContinentData.js') as MapData),
+    'tyria': prepareData(tyriaDataRaw as MapData),
 };
 
 export default worldData;
