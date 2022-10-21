@@ -24,6 +24,7 @@ declare type DrawingContext = {
     zoom: number,
     position: Vector2,
     mapInfo: MapInfo,
+    selected?: ISelectableEntity|undefined,
 };
 
 declare type MapInfo = {
@@ -70,6 +71,7 @@ declare type LastDrawInfo = {
     renderScale: number,
     minZoom: number,
     maxZoom: number,
+    selectables: SelectableCanvasEntity[],
 };
 
 declare type ObjectMap<TKey, TValue> = {
@@ -114,9 +116,11 @@ declare type Zone = {
     bounds: Vector2[], // Custom
 };
 
+declare type PointOfInterestType = 'landmark'|'waypoint'|'vista'|'unlock';
+
 declare type PointOfInterest = {
     name: string,
-    type: 'landmark'|'waypoint'|'vista'|'unlock',
+    type: PointOfInterestType,
     floor: number,
     coord: WorldDataCoords,
     id: number,
@@ -184,9 +188,16 @@ declare type AdditionalZoneDataMap = {
     [key: number]: AdditionalZoneData,
 };
 
+declare type SelectableEntityType = 'zone'|'area'|'mastery'|'challenge'|'adventure'|'task'|PointOfInterestType;
+
 interface ISelectableEntity {
-    type: string,
+    type: SelectableEntityType,
+    worldPos: Vector2,
+    id: string,
+}
+
+declare type SelectableCanvasEntity = {
     position: Vector2,
     size: Vector2,
-    id: string,
+    entity: ISelectableEntity,
 }
