@@ -498,7 +498,11 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
                             }
                         }
                     });
-                    result.push(...perRegion(regionId, region, additionalRegionData));
+
+                    // TODO: Improve UX of hiding expansions.
+                    if (ctx.expansions.has(additionalRegionData.expansion)) {
+                        result.push(...perRegion(regionId, region, additionalRegionData));
+                    }
                 }
             });
 
