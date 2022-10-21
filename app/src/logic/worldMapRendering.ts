@@ -132,6 +132,17 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
     }
 
     function drawOverlay(): SelectableCanvasEntity[] {
+
+        const hidden = {
+            icons: ctx.zoom < ctx.settings.showIconDistanceMin || ctx.zoom >= ctx.settings.showIconDistanceMax,
+            regionBorder: ctx.zoom < ctx.settings.showRegionBorderDistanceMin || ctx.zoom >= ctx.settings.showRegionBorderDistanceMax,
+            regionText: ctx.zoom < ctx.settings.showRegionTextDistanceMin || ctx.zoom >= ctx.settings.showRegionTextDistanceMax,
+            zoneBorder: ctx.zoom < ctx.settings.showZoneBorderDistanceMin || ctx.zoom >= ctx.settings.showZoneBorderDistanceMax,
+            zoneText: ctx.zoom < ctx.settings.showZoneTextDistanceMin || ctx.zoom >= ctx.settings.showZoneTextDistanceMax,
+            areaBorder: ctx.zoom < ctx.settings.showAreaBorderDistanceMin || ctx.zoom >= ctx.settings.showAreaBorderDistanceMax,
+            areaText: ctx.zoom < ctx.settings.showAreaTextDistanceMin || ctx.zoom >= ctx.settings.showAreaTextDistanceMax,
+        };
+
         function drawIcon(imgPromise: TrackedPromise<HTMLImageElement>, worldPos: Vector2, w?: number, h?: number): DrawnIcon {
             const canvasPos = worldToCanvas(worldPos);
             const width = w ?? ctx.settings.iconSize;
@@ -162,7 +173,7 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
         }
 
         function drawRegionBorders(region: Region, additionalRegion: AdditionalRegionData): void {
-            if (ctx.zoom < ctx.settings.showRegionBorderDistanceMin || ctx.zoom >= ctx.settings.showRegionBorderDistanceMax) {
+            if (hidden.regionBorder) {
                 return;
             }
             overlayGraphics.save();
@@ -193,7 +204,7 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
         }
 
         function drawZoneBorders(zone: Zone, additionalZone: AdditionalZoneData): void {
-            if (ctx.zoom < ctx.settings.showZoneBorderDistanceMin || ctx.zoom >= ctx.settings.showZoneBorderDistanceMax) {
+            if (hidden.zoneBorder) {
                 return;
             }
             overlayGraphics.save();
@@ -224,7 +235,7 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
         }
 
         function drawAreaBorders(area: Area): void {
-            if (ctx.zoom < ctx.settings.showAreaBorderDistanceMin || ctx.zoom >= ctx.settings.showAreaBorderDistanceMax) {
+            if (hidden.areaBorder) {
                 return;
             }
             overlayGraphics.save();
@@ -249,7 +260,7 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
         }
 
         function drawRegionText(id: string, region: Region): SelectableCanvasEntity[] {
-            if (ctx.zoom < ctx.settings.showRegionTextDistanceMin || ctx.zoom >= ctx.settings.showRegionTextDistanceMax) {
+            if (hidden.regionText) {
                 return [];
             }
             overlayGraphics.save();
@@ -283,7 +294,7 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
         }
 
         function drawZoneText(id: string, zone: Zone): SelectableCanvasEntity[] {
-            if (ctx.zoom < ctx.settings.showZoneTextDistanceMin || ctx.zoom >= ctx.settings.showZoneTextDistanceMax) {
+            if (hidden.zoneText) {
                 return [];
             }
             overlayGraphics.save();
@@ -317,7 +328,7 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
         }
 
         function drawAreaText(id: string, area: Area): SelectableCanvasEntity[] {
-            if (ctx.zoom < ctx.settings.showAreaTextDistanceMin || ctx.zoom >= ctx.settings.showAreaTextDistanceMax) {
+            if (hidden.areaText) {
                 return [];
             }
             overlayGraphics.save();
@@ -351,7 +362,7 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
         }
 
         function drawIcons(zone: Zone): SelectableCanvasEntity[] {
-            if (ctx.zoom < ctx.settings.showIconDistanceMin || ctx.zoom >= ctx.settings.showIconDistanceMax) {
+            if (hidden.icons) {
                 return [];
             }
 
