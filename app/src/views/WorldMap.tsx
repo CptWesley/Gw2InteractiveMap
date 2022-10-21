@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { DrawingContext, LastDrawInfo, MapInfo, Vector2 } from '@/global';
 import { drawMap } from '@/logic/worldMapRendering';
 import { makeStyles, theme } from '@/theme';
-import { getTranslation, vector2 } from '@/logic/utility/vector2';
+import { getTranslation, v2equal, vector2 } from '@/logic/utility/vector2';
 import { useQuery } from '@/logic/utility/queryUtils';
 import { getMapInfo } from '@/logic/tileData/tileService';
 import { canvasToWorld as canvasToWorldInternal, getLocation } from '@/logic/worldMapUtils';
@@ -11,6 +11,7 @@ import { ChevronRight } from '@mui/icons-material';
 import React from 'react';
 import SettingsDrawer from '@/Components/SettingsDrawer';
 import { getEnabledExpansions, getSettings } from '@/logic/settingsStorage';
+import { debounce, throttle } from 'lodash-es';
 
 const defaultQueryParams = {
     map: 'tyria',
@@ -59,8 +60,11 @@ export default function WorldMap() {
     const [mousePositionText, setMousePositionText] = useState<string>('Unknown');
     const lastDrawInfoRef = useRef<LastDrawInfo>();
     const scrollingMap = useRef<{ pointerId: number, position: Vector2, threshold: boolean }>();
-
     const [settingsOpenState, setSettingsOpenState] = React.useState(false);
+
+    const updateLocationTextDebounced = useRef(debounce(updateLocationText, 150));
+    const updateLocationTextThrottled = useRef(throttle(updateLocationText, 100));
+    const lastMouseWorldPos = useRef(vector2(0, 0));
 
     const result = (
         <div
@@ -189,11 +193,20 @@ export default function WorldMap() {
             const canvasBoundaries = canvasRef.current.getBoundingClientRect();
             const mouseCanvasPos = vector2(e.clientX - canvasBoundaries.left, e.clientY - canvasBoundaries.top);
             const mouseWorldPos = canvasToWorld(mouseCanvasPos);
-            updateLocationText(mouseWorldPos);
+            updateLocationTextThrottled.current(mouseWorldPos);
+            updateLocationTextDebounced.current(mouseWorldPos);
         }
     }
 
     function updateLocationText(pos: Vector2): void {
+        if (v2equal(pos, lastMouseWorldPos.current)) {
+            return;
+        }
+
+        lastMouseWorldPos.current = pos;
+
+        console.log('Foo');
+
         const location = getLocation(queryRef.current.get('map'), pos);
         let locationString = location.map.name;
 

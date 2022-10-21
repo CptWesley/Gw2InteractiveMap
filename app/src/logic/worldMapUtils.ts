@@ -2,7 +2,7 @@ import { Vector2, MapInfo, Area, MapData, Zone } from '@/global';
 import { getTranslation, v2add, v2scale, vector2 } from '@/logic/utility/vector2';
 import worldData from './mapData/worldData';
 import { inHull } from './utility/hull';
-import { forEachEntry, forEachValue } from './utility/util';
+import { findValue, forEachEntry, forEachValue } from './utility/util';
 
 export function canvasToWorld(vector: Vector2, centerWorldPos: Vector2, canvasSize: Vector2, mapInfo: MapInfo, zoom: number): Vector2 {
     const tileScale = getTileScale(zoom, mapInfo.maxZoom);
@@ -52,6 +52,27 @@ export function getLocation(mapId: string, pos: Vector2): { map: MapData, zone?:
 
     let zone: Zone|undefined = undefined;
     let area: Area|undefined = undefined;
+
+    findValue(map.regions, region => {
+        return findValue(region.maps, curZone => {
+            if (inHull(pos, curZone.bounds)) {
+                zone = curZone;
+
+                findValue(curZone.sectors, curArea => {
+                    if (inHull(pos, curArea.bounds)) {
+                        area = curArea;
+                        return true;
+                    }
+
+                    return false;
+                });
+
+                return true;
+            }
+
+            return false;
+        }) !== undefined;
+    });
 
     forEachValue(map.regions, region => {
         forEachEntry(region.maps, (zoneId, curZone) => {

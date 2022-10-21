@@ -26,6 +26,42 @@ export function forEachValue<TKey, TValue>(obj: ObjectMap<TKey, TValue>, action:
     });
 }
 
+export function findEntry<TKey, TValue>(obj: ObjectMap<TKey, TValue>, action: (key: TKey, value: TValue) => boolean): { key: TKey, value: TValue }|undefined {
+    const entries = Object.entries(obj);
+    for (let i = 0; i < entries.length; i++) {
+        const entry = { key: entries[i][0] as TKey, value: entries[i][1] as TValue };
+        if (action(entry.key, entry.value)) {
+            return entry;
+        }
+    }
+
+    return undefined;
+}
+
+export function findKey<TKey, TValue>(obj: ObjectMap<TKey, TValue>, action: (key: TKey) => boolean): TKey|undefined {
+    const result = findEntry(obj, (k) => {
+        return action(k);
+    });
+
+    if (!result) {
+        return undefined;
+    }
+
+    return result.key;
+}
+
+export function findValue<TKey, TValue>(obj: ObjectMap<TKey, TValue>, action: (value: TValue) => boolean): TValue|undefined {
+    const result = findEntry(obj, (k, v) => {
+        return action(v);
+    });
+
+    if (!result) {
+        return undefined;
+    }
+
+    return result.value;
+}
+
 export function mapEntry<TKeyIn, TValueIn, TKeyOut, TValueOut>(obj: ObjectMap<TKeyIn, TValueIn>, action: (key: TKeyIn, value: TValueIn) => { key: TKeyOut, value: TValueOut }): ObjectMap<TKeyOut, TValueOut> {
     const result: any = {};
     Object.entries(obj).forEach((entry) => {
