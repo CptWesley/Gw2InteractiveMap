@@ -232,11 +232,15 @@ export default function WorldMap() {
         const location = getLocation(queryRef.current.get('map'), pos);
         let locationString = location.map.name;
 
-        if (location.zone) {
-            locationString += ` / ${location.zone.name}`;
+        if (location.region) {
+            locationString += ` / ${location.region.name}`;
 
-            if (location.area) {
-                locationString += ` / ${location.area.name}`;
+            if (location.zone) {
+                locationString += ` / ${location.zone.name}`;
+
+                if (location.area) {
+                    locationString += ` / ${location.area.name}`;
+                }
             }
         }
 
