@@ -71,7 +71,7 @@
         "eqeqeq": "error",
         "max-lines": [
             "warn",
-            500
+            1000
         ],
         "@typescript-eslint/naming-convention": [
             "error",

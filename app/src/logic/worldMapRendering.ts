@@ -1,4 +1,4 @@
-import { AdditionalZoneData, Area, DrawingContext, SelectableCanvasEntity, LastDrawInfo, TileSource, Vector2, Zone } from '@/global';
+import { AdditionalZoneData, Area, DrawingContext, SelectableCanvasEntity, LastDrawInfo, TileSource, Vector2, Zone, Region, AdditionalRegionData } from '@/global';
 import { downloadImage, imageIsCached } from '@/logic/imageCache';
 import { getTileSource, getTileSourceFromParent, getTileSourcesFromChildren } from '@/logic/tileData/tileService';
 import { getTranslation, v2scale, vector2 } from '@/logic/utility/vector2';
@@ -8,7 +8,7 @@ import { icons } from '@/logic/mapIcons';
 import { TrackedPromise } from '@/logic/TrackedPromise';
 import worldData from '@/logic/mapData/worldData';
 import { forEachValue, forEachEntry } from '@/logic/utility/util';
-import { zones } from './mapData/additionalData/additionalData';
+import { regions, zones } from './mapData/additionalData/additionalData';
 import { expansions } from './mapData/additionalData/expansions';
 
 type DrawnIcon = {
@@ -161,6 +161,37 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
             };
         }
 
+        function drawRegionBorders(region: Region, additionalRegion: AdditionalRegionData): void {
+            if (ctx.zoom < ctx.settings.showRegionBorderDistanceMin || ctx.zoom >= ctx.settings.showRegionBorderDistanceMax) {
+                return;
+            }
+            overlayGraphics.save();
+            overlayGraphics.lineWidth = 3;
+
+            const expansion = expansions[additionalRegion.expansion];
+            overlayGraphics.strokeStyle = expansion.color;
+            const rect = region.continent_rect;
+            const startWorld = vector2(rect[0][0], rect[0][1]);
+            const endWorld = vector2(rect[1][0], rect[1][1]);
+            const startCanvas = worldToCanvas(startWorld);
+            const endCanvas = worldToCanvas(endWorld);
+
+            if (endCanvas.x > 0 && endCanvas.y > 0 && startCanvas.x <= ctx.size.x && startCanvas.y <= ctx.size.y && region.bounds.length > 2) {
+                overlayGraphics.beginPath();
+                const startWorld = worldToCanvas(region.bounds[0]);
+                overlayGraphics.moveTo(startWorld.x, startWorld.y);
+                for (let i = 1; i < region.bounds.length; i++) {
+                    const pointWorld = region.bounds[i];
+                    const canvasPoint = worldToCanvas(pointWorld);
+                    overlayGraphics.lineTo(canvasPoint.x, canvasPoint.y);
+                }
+                overlayGraphics.closePath();
+                overlayGraphics.stroke();
+            }
+
+            overlayGraphics.restore();
+        }
+
         function drawZoneBorders(zone: Zone, additionalZone: AdditionalZoneData): void {
             if (ctx.zoom < ctx.settings.showZoneBorderDistanceMin || ctx.zoom >= ctx.settings.showZoneBorderDistanceMax) {
                 return;
@@ -215,6 +246,40 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
             }
 
             overlayGraphics.restore();
+        }
+
+        function drawRegionText(id: string, region: Region): SelectableCanvasEntity[] {
+            if (ctx.zoom < ctx.settings.showRegionTextDistanceMin || ctx.zoom >= ctx.settings.showRegionTextDistanceMax) {
+                return [];
+            }
+            overlayGraphics.save();
+            overlayGraphics.strokeStyle = 'black';
+            overlayGraphics.lineWidth = 5;
+            overlayGraphics.fillStyle = 'white';
+            overlayGraphics.textAlign = 'center';
+            const fontSize = Math.max(1, ctx.zoom * 10);
+            const quarterFontSize = fontSize / 4;
+            overlayGraphics.font = `${fontSize}px Lato, sans-serif`;
+
+            const worldPos = region.label_coord;
+            if (!worldPos) { return []; }
+            const canvasPos = worldToCanvas(vector2(worldPos[0], worldPos[1]));
+            overlayGraphics.strokeText(region.name, canvasPos.x, canvasPos.y + quarterFontSize);
+            overlayGraphics.fillText(region.name, canvasPos.x, canvasPos.y + quarterFontSize);
+
+            const textSize = overlayGraphics.measureText(region.name);
+
+            overlayGraphics.restore();
+
+            return [{
+                position: vector2(canvasPos.x - textSize.width / 2, canvasPos.y - quarterFontSize * 3),
+                size: vector2(textSize.width, fontSize),
+                entity: {
+                    type: 'region',
+                    id,
+                    worldPos: vector2(worldPos[0], worldPos[1]),
+                },
+            }];
         }
 
         function drawZoneText(id: string, zone: Zone): SelectableCanvasEntity[] {
@@ -393,10 +458,12 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
         function draw(
             perZone1: (id: string, zone: Zone, additionalZone: AdditionalZoneData) => SelectableCanvasEntity[],
             perArea: (id: string, area: Area) => SelectableCanvasEntity[],
-            perZone2: (id: string, zone: Zone, additionalZone: AdditionalZoneData) => SelectableCanvasEntity[]): SelectableCanvasEntity[] {
+            perZone2: (id: string, zone: Zone, additionalZone: AdditionalZoneData) => SelectableCanvasEntity[],
+            perRegion: (id: string, region: Region, additionalRegion: AdditionalRegionData) => SelectableCanvasEntity[]): SelectableCanvasEntity[] {
             const result: SelectableCanvasEntity[] = [];
-            forEachEntry(worldData[ctx.mapInfo.id].regions, (areaId, area) => {
-                forEachEntry(area.maps, (zoneId, zone) => {
+            forEachEntry(worldData[ctx.mapInfo.id].regions, (regionId, region) => {
+                const additionalRegionData = regions[parseInt(regionId)];
+                forEachEntry(region.maps, (zoneId, zone) => {
                     const zoneRect = zone.continent_rect;
                     const zoneStart = worldToCanvas(vector2(zoneRect[0][0], zoneRect[0][1]));
                     const zoneEnd = worldToCanvas(vector2(zoneRect[1][0], zoneRect[1][1]));
@@ -404,7 +471,7 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
                         const additionalZoneData = zones[parseInt(zoneId)];
                         if (ctx.expansions.has(additionalZoneData.expansion)) {
                             result.push(...perZone1(zoneId, zone, additionalZoneData));
-                            forEachValue(zone.sectors, area => {
+                            forEachEntry(zone.sectors, (areaId, area) => {
                                 const areaRect = area.rect;
                                 const areaStart = worldToCanvas(vector2(areaRect[0][0], areaRect[0][1]));
                                 const areaEnd = worldToCanvas(vector2(areaRect[1][0], areaRect[1][1]));
@@ -416,6 +483,7 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
                         }
                     }
                 });
+                result.push(...perRegion(regionId, region, additionalRegionData));
             });
 
             return result;
@@ -432,6 +500,10 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
             return drawnText;
         }, (id, zone) => {
             const drawnText = drawZoneText(id, zone);
+            return drawnText;
+        }, (id, region, additionalRegion) => {
+            drawRegionBorders(region, additionalRegion);
+            const drawnText = drawRegionText(id, region);
             return drawnText;
         });
     }

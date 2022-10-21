@@ -1,4 +1,4 @@
-import { Area, MapData, Vector2, WorldData, WorldDataCoords, Zone } from '@/global';
+import { Area, MapData, Region, Vector2, WorldData, WorldDataCoords, Zone } from '@/global';
 import { filterEntry, forEachValue, getValue } from '@/logic/utility/util';
 import { hull } from '@/logic/utility/hull';
 import { findCenter, nearestPointOnEdge, v2distanceSq, vector2 } from '../utility/vector2';
@@ -137,7 +137,7 @@ function prepareData(data: MapData): MapData {
         mergeVectorsWithEdges();
     }
 
-    function computeBounds(map: Zone): void {
+    function computeZoneBounds(map: Zone): void {
         const points: Vector2[] = [];
         forEachValue(map.sectors, sector => {
             sector.bounds.forEach(bound => {
@@ -224,6 +224,57 @@ function prepareData(data: MapData): MapData {
         area.label_coord = polylabel([area.bounds], 0.01) as WorldDataCoords;
     }
 
+    function computeRegionBounds(region: Region): void {
+        const points: Vector2[] = [];
+        forEachValue(region.maps, zone => {
+            zone.bounds.forEach(bound => {
+                points.push(bound);
+            });
+        });
+
+        region.bounds = hull(points);
+    }
+
+    function recomputeRegionRect(region: Region): void {
+        let minX = Number.POSITIVE_INFINITY;
+        let minY = Number.POSITIVE_INFINITY;
+        let maxX = Number.NEGATIVE_INFINITY;
+        let maxY = Number.NEGATIVE_INFINITY;
+
+        region.bounds.forEach(bound => {
+            const { x, y } = bound;
+
+            if (x < minX) {
+                minX = x;
+            }
+
+            if (x > maxX) {
+                maxX = x;
+            }
+
+            if (y < minY) {
+                minY = y;
+            }
+
+            if (y > maxY) {
+                maxY = y;
+            }
+        });
+
+        region.continent_rect = [
+            [minX, minY],
+            [maxX, maxY],
+        ];
+    }
+
+    function recomputeRegionLabelPosition(region: Region): void {
+        const xMin = region.continent_rect[0][0];
+        const yMin = region.continent_rect[0][1];
+        const xMax = region.continent_rect[1][0];
+        const yMax = region.continent_rect[1][1];
+        region.label_coord = [(xMin + xMax) / 2, (yMin + yMax) / 2];
+    }
+
     function recomputeAreaLabelText(zone: Zone, area: Area): void {
         if (!area.name) {
             area.name = zone.name;
@@ -234,19 +285,22 @@ function prepareData(data: MapData): MapData {
         region.maps = filterEntry(region.maps, (id, zone) => {
             const isVisible = zones[parseInt(id)] !== undefined;
             if (isVisible) {
-                recomputeSectors(zone);
-                computeBounds(zone);
-                recomputeZoneRect(zone);
-                recomputeZoneLabelPosition(zone);
-
                 forEachValue(zone.sectors, area => {
                     computeAreaRect(area);
                     computeAreaLabelPosition(area);
                     recomputeAreaLabelText(zone, area);
                 });
+
+                recomputeSectors(zone);
+                computeZoneBounds(zone);
+                recomputeZoneRect(zone);
+                recomputeZoneLabelPosition(zone);
             }
             return isVisible;
         });
+        computeRegionBounds(region);
+        recomputeRegionRect(region);
+        recomputeRegionLabelPosition(region);
     });
 
     return result;

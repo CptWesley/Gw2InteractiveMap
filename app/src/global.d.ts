@@ -96,6 +96,7 @@ declare type Region = {
     name: string,
     label_coord: WorldDataCoords,
     continent_rect: WorldDataCoords[],
+    bounds: Vector2[], // Custom
     maps: ObjectMap<string, Zone>,
 };
 
@@ -177,10 +178,25 @@ declare type ExpansionMap = {
     [key: string]: Expansion,
 }
 
+declare type ExpansionId = 'base'|'lw2'|'hot'|'lw3'|'pof'|'lw4'|'lw5'|'eod';
+
+declare type AdditionalRegionData = {
+    id: number,
+    expansion: ExpansionId,
+    wikiUrl: string,
+};
+
+declare type AdditionalRegionDataMap = {
+    [key: number]: AdditionalRegionData,
+};
+
+declare type ZoneType = 'zone'|'raid'|'guild'|'city';
+
 declare type AdditionalZoneData = {
     id: number,
-    expansion: string,
+    expansion: ExpansionId,
     episode: number,
+    type: ZoneType,
     wikiUrl: string,
 };
 
@@ -188,7 +204,7 @@ declare type AdditionalZoneDataMap = {
     [key: number]: AdditionalZoneData,
 };
 
-declare type SelectableEntityType = 'zone'|'area'|'mastery'|'challenge'|'adventure'|'task'|PointOfInterestType;
+declare type SelectableEntityType = 'region'|'zone'|'area'|'mastery'|'challenge'|'adventure'|'task'|PointOfInterestType;
 
 interface ISelectableEntity {
     type: SelectableEntityType,

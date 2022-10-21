@@ -4,10 +4,17 @@ export const defaultSettings = {
     showIconDistanceMin: 5.5,
     showIconDistanceMax: 10,
     iconSize: 24,
-    showZoneBorderDistanceMin: 0,
+
+    showRegionBorderDistanceMin: 0,
+    showRegionBorderDistanceMax: 3,
+    showRegionTextDistanceMin: 0,
+    showRegionTextDistanceMax: 3,
+
+    showZoneBorderDistanceMin: 3,
     showZoneBorderDistanceMax: 10,
-    showZoneTextDistanceMin: 0,
+    showZoneTextDistanceMin: 3,
     showZoneTextDistanceMax: 5,
+
     showAreaBorderDistanceMin: 5,
     showAreaBorderDistanceMax: 10,
     showAreaTextDistanceMin: 5,

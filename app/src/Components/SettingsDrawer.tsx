@@ -64,6 +64,8 @@ export default function SettingsDrawer(props: IProps) {
             </SettingsTab>
             <Divider />
             <SettingsTab text='Borders' tooltip='Show/Hide border settings.'>
+                <SettingsSlider text='Region Border zoom' tooltip='Sets the zoom distance where the region borders are shown.' setting={['showRegionBorderDistanceMin', 'showRegionBorderDistanceMax']} min={0} max={10} step={0.25} onSettingChanged={props.onSettingsChanged}/>
+                <SettingsSlider text='Region Text zoom' tooltip='Sets the zoom distance where the region texts are shown.' setting={['showRegionTextDistanceMin', 'showRegionTextDistanceMax']} min={0} max={10} step={0.25} onSettingChanged={props.onSettingsChanged}/>
                 <SettingsSlider text='Zone Border zoom' tooltip='Sets the zoom distance where the zone borders are shown.' setting={['showZoneBorderDistanceMin', 'showZoneBorderDistanceMax']} min={0} max={10} step={0.25} onSettingChanged={props.onSettingsChanged}/>
                 <SettingsSlider text='Zone Text zoom' tooltip='Sets the zoom distance where the zone texts are shown.' setting={['showZoneTextDistanceMin', 'showZoneTextDistanceMax']} min={0} max={10} step={0.25} onSettingChanged={props.onSettingsChanged}/>
                 <SettingsSlider text='Area Border zoom' tooltip='Sets the zoom distance where the area borders are shown.' setting={['showAreaBorderDistanceMin', 'showAreaBorderDistanceMax']} min={0} max={10} step={0.25} onSettingChanged={props.onSettingsChanged}/>
