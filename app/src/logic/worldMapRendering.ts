@@ -462,28 +462,33 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
             perRegion: (id: string, region: Region, additionalRegion: AdditionalRegionData) => SelectableCanvasEntity[]): SelectableCanvasEntity[] {
             const result: SelectableCanvasEntity[] = [];
             forEachEntry(worldData[ctx.mapInfo.id].regions, (regionId, region) => {
-                const additionalRegionData = regions[parseInt(regionId)];
-                forEachEntry(region.maps, (zoneId, zone) => {
-                    const zoneRect = zone.continent_rect;
-                    const zoneStart = worldToCanvas(vector2(zoneRect[0][0], zoneRect[0][1]));
-                    const zoneEnd = worldToCanvas(vector2(zoneRect[1][0], zoneRect[1][1]));
-                    if (zoneEnd.x > 0 && zoneEnd.y > 0 && zoneStart.x <= ctx.size.x && zoneStart.y <= ctx.size.y) {
-                        const additionalZoneData = zones[parseInt(zoneId)];
-                        if (ctx.expansions.has(additionalZoneData.expansion)) {
-                            result.push(...perZone1(zoneId, zone, additionalZoneData));
-                            forEachEntry(zone.sectors, (areaId, area) => {
-                                const areaRect = area.rect;
-                                const areaStart = worldToCanvas(vector2(areaRect[0][0], areaRect[0][1]));
-                                const areaEnd = worldToCanvas(vector2(areaRect[1][0], areaRect[1][1]));
-                                if (areaEnd.x > 0 && areaEnd.y > 0 && areaStart.x <= ctx.size.x && areaStart.y <= ctx.size.y) {
-                                    result.push(...perArea(areaId, area));
-                                }
-                            });
-                            result.push(...perZone2(zoneId, zone, additionalZoneData));
+                const regionRect = region.continent_rect;
+                const regionStart = worldToCanvas(vector2(regionRect[0][0], regionRect[0][1]));
+                const regionEnd = worldToCanvas(vector2(regionRect[1][0], regionRect[1][1]));
+                if (regionEnd.x > 0 && regionEnd.y > 0 && regionStart.x <= ctx.size.x && regionStart.y <= ctx.size.y) {
+                    const additionalRegionData = regions[parseInt(regionId)];
+                    forEachEntry(region.maps, (zoneId, zone) => {
+                        const zoneRect = zone.continent_rect;
+                        const zoneStart = worldToCanvas(vector2(zoneRect[0][0], zoneRect[0][1]));
+                        const zoneEnd = worldToCanvas(vector2(zoneRect[1][0], zoneRect[1][1]));
+                        if (zoneEnd.x > 0 && zoneEnd.y > 0 && zoneStart.x <= ctx.size.x && zoneStart.y <= ctx.size.y) {
+                            const additionalZoneData = zones[parseInt(zoneId)];
+                            if (ctx.expansions.has(additionalZoneData.expansion)) {
+                                result.push(...perZone1(zoneId, zone, additionalZoneData));
+                                forEachEntry(zone.sectors, (areaId, area) => {
+                                    const areaRect = area.rect;
+                                    const areaStart = worldToCanvas(vector2(areaRect[0][0], areaRect[0][1]));
+                                    const areaEnd = worldToCanvas(vector2(areaRect[1][0], areaRect[1][1]));
+                                    if (areaEnd.x > 0 && areaEnd.y > 0 && areaStart.x <= ctx.size.x && areaStart.y <= ctx.size.y) {
+                                        result.push(...perArea(areaId, area));
+                                    }
+                                });
+                                result.push(...perZone2(zoneId, zone, additionalZoneData));
+                            }
                         }
-                    }
-                });
-                result.push(...perRegion(regionId, region, additionalRegionData));
+                    });
+                    result.push(...perRegion(regionId, region, additionalRegionData));
+                }
             });
 
             return result;
