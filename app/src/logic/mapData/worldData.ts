@@ -1,6 +1,6 @@
 import { Area, MapData, Vector2, WorldData, Zone } from '@/global';
 import { filterEntry, forEachValue, getValue } from '@/logic/utility/util';
-import hull from '@/logic/utility/hull';
+import { hull } from '@/logic/utility/hull';
 import { findCenter, nearestPointOnEdge, v2distanceSq, vector2 } from '../utility/vector2';
 import { zones } from './additionalData/additionalData';
 

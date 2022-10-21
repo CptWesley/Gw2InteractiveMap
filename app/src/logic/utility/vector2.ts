@@ -62,3 +62,13 @@ export function nearestPointOnEdge(v: Vector2, e1: Vector2, e2: Vector2): Vector
     const y = (m2 * (x - a)) + b;
     return vector2(x, y);
 }
+
+export function v2equal(v1: Vector2, v2: Vector2, error?: number): boolean {
+    if (!error) {
+        error = 0.001;
+    }
+
+    const errorSq = error * error;
+    const dist = v2distanceSq(v1, v2);
+    return dist < errorSq;
+}

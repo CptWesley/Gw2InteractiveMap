@@ -1,6 +1,7 @@
 import { Vector2, MapInfo, Area, MapData, Zone } from '@/global';
 import { getTranslation, v2add, v2scale, vector2 } from '@/logic/utility/vector2';
 import worldData from './mapData/worldData';
+import { inHull } from './utility/hull';
 import { forEachEntry, forEachValue } from './utility/util';
 
 export function canvasToWorld(vector: Vector2, centerWorldPos: Vector2, canvasSize: Vector2, mapInfo: MapInfo, zoom: number): Vector2 {
@@ -58,7 +59,7 @@ export function getLocation(mapId: string, pos: Vector2): { map: MapData, zone?:
                 return;
             }
 
-            if (pos.x >= curZone.continent_rect[0][0] && pos.x < curZone.continent_rect[1][0] && pos.y >= curZone.continent_rect[0][1] && pos.y < curZone.continent_rect[1][1]) {
+            if (inHull(pos, curZone.bounds)) {
                 zone = curZone;
 
                 forEachEntry(zone.sectors, (areaId, curArea) => {
@@ -66,7 +67,7 @@ export function getLocation(mapId: string, pos: Vector2): { map: MapData, zone?:
                         return;
                     }
 
-                    if (pos.x >= curArea.rect[0][0] && pos.x < curArea.rect[1][0] && pos.y >= curArea.rect[0][1] && pos.y < curArea.rect[1][1]) {
+                    if (inHull(pos, curArea.bounds)) {
                         area = curArea;
                     }
                 });
