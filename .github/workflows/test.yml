@@ -30,7 +30,6 @@ jobs:
 
       - name: Install dependencies
         uses: ./.github/actions/yarn-nm-install
-        working-directory: ./app
 
       - name: Linter
         run: yarn lint

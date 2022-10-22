@@ -23,6 +23,7 @@ runs:
     - name: Expose yarn config as "$GITHUB_OUTPUT"
       id: yarn-config
       shell: bash
+      working-directory: ./app
       run: |
         echo "CACHE_FOLDER=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
 
@@ -42,11 +43,12 @@ runs:
       id: yarn-install-state-cache
       uses: actions/cache@v3
       with:
-        path: .yarn/ci-cache/
+        path: app/.yarn/ci-cache/
         key: ${{ runner.os }}-yarn-install-state-cache-${{ hashFiles('yarn.lock', '.yarnrc.yml') }}
 
     - name: Install dependencies
       shell: bash
+      working-directory: ./app
       run: |
         yarn install --immutable --inline-builds
       env:
