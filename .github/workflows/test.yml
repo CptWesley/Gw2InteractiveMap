@@ -41,6 +41,7 @@ jobs:
 
       - name: Prepare directory
         run: |
+          git rm -r ./.github/
           git rm ./.gitignore
           git rm -r *
           cp -a ./app/build/. ./
