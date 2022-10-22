@@ -19,17 +19,24 @@ const useStyles = makeStyles()(() => {
     };
 });
 
+let cached: string|undefined = undefined;
+
 export default function About() {
     const { classes } = useStyles();
 
     const [readmeText, setReadmeText] = useState<string>('');
 
     useEffect(() => {
-        fetch(readme)
-            .then(data => data.text())
-            .then(text => {
-                setReadmeText(text);
-            });
+        if (cached) {
+            setReadmeText(cached);
+        } else {
+            fetch(readme)
+                .then(data => data.text())
+                .then(text => {
+                    cached = text;
+                    setReadmeText(text);
+                });
+        }
     }, []);
 
     return (
