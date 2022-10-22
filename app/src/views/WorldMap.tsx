@@ -263,10 +263,15 @@ export default function WorldMap() {
                     && mouseCanvasPos.y < x.position.y + x.size.y;
                 });
 
+                const oldSelected = selectedRef.current;
                 if (!selected) {
                     selectedRef.current = undefined;
                 } else {
                     selectedRef.current = selected.entity;
+                }
+
+                if (oldSelected !== selectedRef.current) {
+                    redraw();
                 }
             }
 

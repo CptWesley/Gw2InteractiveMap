@@ -282,7 +282,7 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
             overlayGraphics.restore();
 
             return [{
-                position: vector2(canvasPos.x - textSize.width / 2, canvasPos.y - quarterFontSize * 3),
+                position: vector2(canvasPos.x - textSize.width / 2, canvasPos.y - quarterFontSize * 2.5),
                 size: vector2(textSize.width, fontSize),
                 entity: {
                     type: 'region',
@@ -316,7 +316,7 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
             overlayGraphics.restore();
 
             return [{
-                position: vector2(canvasPos.x - textSize.width / 2, canvasPos.y - quarterFontSize * 3),
+                position: vector2(canvasPos.x - textSize.width / 2, canvasPos.y - quarterFontSize * 2.5),
                 size: vector2(textSize.width, fontSize),
                 entity: {
                     type: 'zone',
@@ -350,7 +350,7 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
             overlayGraphics.restore();
 
             return [{
-                position: vector2(canvasPos.x - textSize.width / 2, canvasPos.y - quarterFontSize * 3),
+                position: vector2(canvasPos.x - textSize.width / 2, canvasPos.y - quarterFontSize * 2.5),
                 size: vector2(textSize.width, fontSize),
                 entity: {
                     type: 'area',
@@ -465,6 +465,45 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
             return selectables;
         }
 
+        function drawSelected(selected: ISelectableEntity|undefined, selectables: SelectableCanvasEntity[]): void {
+            if (!selected) {
+                return;
+            }
+
+            const drawnSelected = selectables.find(drawn => {
+                const entity = drawn.entity;
+                return entity.id === selected.id && entity.type === selected.type;
+            });
+
+            if (drawnSelected) {
+                overlayGraphics.save();
+
+                overlayGraphics.fillStyle = 'black';
+                overlayGraphics.fillRect(drawnSelected.position.x - 9, drawnSelected.position.y - 9, 5, 14);
+                overlayGraphics.fillRect(drawnSelected.position.x - 9, drawnSelected.position.y - 9, 14, 5);
+                overlayGraphics.fillRect(drawnSelected.position.x - 9, drawnSelected.position.y + drawnSelected.size.y + 9, 5, -14);
+                overlayGraphics.fillRect(drawnSelected.position.x - 9, drawnSelected.position.y + drawnSelected.size.y + 4, 14, 5);
+
+                overlayGraphics.fillRect(drawnSelected.position.x + drawnSelected.size.x + 9, drawnSelected.position.y - 9, -5, 14);
+                overlayGraphics.fillRect(drawnSelected.position.x + drawnSelected.size.x + 9, drawnSelected.position.y - 9, -14, 5);
+                overlayGraphics.fillRect(drawnSelected.position.x + drawnSelected.size.x + 9, drawnSelected.position.y + drawnSelected.size.y + 9, -5, -14);
+                overlayGraphics.fillRect(drawnSelected.position.x + drawnSelected.size.x + 9, drawnSelected.position.y + drawnSelected.size.y + 4, -14, 5);
+
+                overlayGraphics.fillStyle = '#ff8c00';
+                overlayGraphics.fillRect(drawnSelected.position.x - 8, drawnSelected.position.y - 8, 3, 12);
+                overlayGraphics.fillRect(drawnSelected.position.x - 8, drawnSelected.position.y - 8, 12, 3);
+                overlayGraphics.fillRect(drawnSelected.position.x - 8, drawnSelected.position.y + drawnSelected.size.y + 8, 3, -12);
+                overlayGraphics.fillRect(drawnSelected.position.x - 8, drawnSelected.position.y + drawnSelected.size.y + 5, 12, 3);
+
+                overlayGraphics.fillRect(drawnSelected.position.x + drawnSelected.size.x + 8, drawnSelected.position.y - 8, -3, 12);
+                overlayGraphics.fillRect(drawnSelected.position.x + drawnSelected.size.x + 8, drawnSelected.position.y - 8, -12, 3);
+                overlayGraphics.fillRect(drawnSelected.position.x + drawnSelected.size.x + 8, drawnSelected.position.y + drawnSelected.size.y + 8, -3, -12);
+                overlayGraphics.fillRect(drawnSelected.position.x + drawnSelected.size.x + 8, drawnSelected.position.y + drawnSelected.size.y + 5, -12, 3);
+
+                overlayGraphics.restore();
+            }
+        }
+
         function draw(
             perZone1: (id: string, zone: Zone, additionalZone: AdditionalZoneData) => SelectableCanvasEntity[],
             perArea: (id: string, area: Area) => SelectableCanvasEntity[],
@@ -505,6 +544,7 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
                 }
             });
 
+            drawSelected(ctx.selected, result);
             return result;
         }
 
