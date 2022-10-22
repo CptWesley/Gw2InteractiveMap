@@ -54,7 +54,7 @@ export default function App() {
                 }}
             />
             <Helmet>
-                <title>CptWesley's Guild Wars 2 Interactive Map</title>
+                <title>CptWesley's Unofficial Guild Wars 2 Interactive Map</title>
                 <meta name='viewport' content='initial-scale=1, width=device-width' />
             </Helmet>
             <div className={classes.app}>
