@@ -6,14 +6,15 @@ import { Link } from 'react-router-dom';
 const useStyles = makeStyles()(() => {
     return {
         toolbar: {
-            flex: 1,
+            flex: 0,
             fontStyle: 'normal',
-            maxHeight: '56px',
             width: '100%',
+            height: 'auto',
+            maxHeight: 'fit-content',
             background: theme.palette.primary.main,
             boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.2)',
             '& svg': {
-                height: '100%',
+                maxHeight: '56px',
             },
             '& *': {
                 marginRight: '5px',
@@ -31,7 +32,7 @@ export default function NavBar() {
 
     return (
         <div className={classes.toolbar}>
-            <SvgIcon component={Logo} />
+            <SvgIcon component={Logo} fontSize='small' />
             <Button component={Link} to='./' color='inherit'>Map</Button>
             <Button component={Link} to='./changelog' color='inherit'>What's New</Button>
             <Button component={Link} to='./about' color='inherit'>About</Button>
