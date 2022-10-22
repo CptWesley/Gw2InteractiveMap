@@ -499,7 +499,7 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
                         }
                     });
 
-                    // TODO: Improve UX of hiding expansions.
+                    // TODO: Improve UX of hiding expansion regions if certain zones are still enabled.
                     if (ctx.expansions.has(additionalRegionData.expansion)) {
                         result.push(...perRegion(regionId, region, additionalRegionData));
                     }
