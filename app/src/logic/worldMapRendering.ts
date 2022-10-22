@@ -285,6 +285,7 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
                 position: vector2(canvasPos.x - textSize.width / 2, canvasPos.y - quarterFontSize * 2.5),
                 size: vector2(textSize.width, fontSize),
                 entity: {
+                    map: mapInfo.id,
                     type: 'region',
                     id,
                     worldPos: vector2(worldPos[0], worldPos[1]),
@@ -319,6 +320,7 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
                 position: vector2(canvasPos.x - textSize.width / 2, canvasPos.y - quarterFontSize * 2.5),
                 size: vector2(textSize.width, fontSize),
                 entity: {
+                    map: mapInfo.id,
                     type: 'zone',
                     id,
                     worldPos: vector2(worldPos[0], worldPos[1]),
@@ -353,6 +355,7 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
                 position: vector2(canvasPos.x - textSize.width / 2, canvasPos.y - quarterFontSize * 2.5),
                 size: vector2(textSize.width, fontSize),
                 entity: {
+                    map: mapInfo.id,
                     type: 'area',
                     id,
                     worldPos: vector2(worldPos[0], worldPos[1]),
@@ -382,6 +385,7 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
                         position: drawn.canvasPos,
                         size: drawn.size,
                         entity: {
+                            map: mapInfo.id,
                             worldPos: drawn.worldPos,
                             type: poi.type,
                             id: poi.id.toString(),
@@ -397,6 +401,7 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
                         position: drawn.canvasPos,
                         size: drawn.size,
                         entity: {
+                            map: mapInfo.id,
                             worldPos: drawn.worldPos,
                             type: 'task',
                             id: task.id.toString(),
@@ -419,6 +424,7 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
                         position: drawn.canvasPos,
                         size: drawn.size,
                         entity: {
+                            map: mapInfo.id,
                             worldPos: drawn.worldPos,
                             type: 'challenge',
                             id: challenge.id ?? `challenge-${Math.floor(drawn.worldPos.x)}-${Math.floor(drawn.worldPos.y)}`,
@@ -434,6 +440,7 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
                         position: drawn.canvasPos,
                         size: drawn.size,
                         entity: {
+                            map: mapInfo.id,
                             worldPos: drawn.worldPos,
                             type: 'adventure',
                             id: adventure.id,
@@ -454,6 +461,7 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
                         position: drawn.canvasPos,
                         size: drawn.size,
                         entity: {
+                            map: mapInfo.id,
                             worldPos: drawn.worldPos,
                             type: 'mastery',
                             id: mp.id.toString(),

@@ -206,6 +206,7 @@ declare type AdditionalZoneDataMap = {
 declare type SelectableEntityType = 'region'|'zone'|'area'|'mastery'|'challenge'|'adventure'|'task'|PointOfInterestType;
 
 interface ISelectableEntity {
+    map: string,
     type: SelectableEntityType,
     worldPos: Vector2,
     id: string,

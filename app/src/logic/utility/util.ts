@@ -1,5 +1,5 @@
-export function getValue<TKey, TValue>(obj: ObjectMap<TKey, TValue>, key: TKey): TValue {
-    return (obj as any)[key] as TValue;
+export function getValue<TKey, TValue>(obj: ObjectMap<TKey, TValue>, key: TKey): TValue|undefined {
+    return (obj as any)[key] as TValue|undefined;
 }
 
 export function setValue<TKey, TValue>(obj: ObjectMap<TKey, TValue>, key: TKey, value: TValue): void {

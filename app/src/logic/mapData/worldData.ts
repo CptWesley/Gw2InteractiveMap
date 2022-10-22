@@ -79,7 +79,7 @@ function prepareData(data: MapData): MapData {
 
                 const center = findCenter(nearby.map(x => x.pos));
                 nearby.forEach(x => {
-                    getValue(map.sectors, x.sectorId).bounds[x.vectorIndex] = [center.x, center.y];
+                    getValue(map.sectors, x.sectorId)!.bounds[x.vectorIndex] = [center.x, center.y];
                     x.pos = center;
                 });
             }
@@ -126,7 +126,7 @@ function prepareData(data: MapData): MapData {
             vectors.forEach(v => {
                 const intersection = findNearestEdge(v.pos, edges);
                 if (intersection && intersection.distance < mergeEdgeDistance && !hasAnyNeighbors(v.index)) {
-                    getValue(map.sectors, v.sectorId).bounds[v.vectorIndex] = [intersection.pos.x, intersection.pos.y];
+                    getValue(map.sectors, v.sectorId)!.bounds[v.vectorIndex] = [intersection.pos.x, intersection.pos.y];
                     v.pos = intersection.pos;
                     edges = computeEdges();
                 }

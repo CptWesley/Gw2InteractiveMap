@@ -11,6 +11,7 @@ import React from 'react';
 import SettingsDrawer from '@/Components/SettingsDrawer';
 import { getEnabledExpansions, getSettings } from '@/logic/settingsStorage';
 import { debounce, findLast, throttle } from 'lodash-es';
+import MapInfoCard from '@/Components/MapInfoCard';
 
 const defaultQueryParams = {
     map: 'tyria',
@@ -60,6 +61,15 @@ const useStyles = makeStyles()(() => {
             textAlign: 'right',
             pointerEvents: 'none',
         },
+        infoCard: {
+            flex: 0,
+            position: 'absolute',
+            left: '12px',
+            bottom: '12px',
+            minWidth: '15vw',
+            width: '20vw',
+            maxWidth: '20vw',
+        },
     };
 });
 
@@ -78,7 +88,12 @@ export default function WorldMap() {
     const updateLocationTextThrottled = useRef(throttle(updateLocationText, 100));
     const lastMouseWorldPos = useRef(vector2(0, 0));
 
-    const selectedRef = useRef<ISelectableEntity|undefined>(undefined);
+    const selectionState = React.useState<ISelectableEntity|undefined>(undefined);
+    let selected = selectionState[0];
+    const setSelected = (newSelection: ISelectableEntity|undefined) => {
+        selected = newSelection;
+        selectionState[1](newSelection);
+    };
 
     const result = (
         <div
@@ -120,6 +135,7 @@ export default function WorldMap() {
                 NCSOFT, ArenaNet, Guild Wars, Guild Wars 2: Heart of Thorns, Guild Wars 2: Path of Fire, and Guild Wars 2: End of Dragons
                 and all associated logos, designs, and composite marks are trademarks or registered trademarks of NCSOFT Corporation.
             </Typography>
+            <MapInfoCard className={classes.infoCard} data={selected} />
         </div>
     );
 
@@ -156,7 +172,7 @@ export default function WorldMap() {
                 y: queryRef.current.get('y'),
             },
             mapInfo: getCurrentMapInfo(),
-            selected: selectedRef.current,
+            selected,
         };
 
         lastDrawInfoRef.current = drawMap(drawingContext);
@@ -256,21 +272,15 @@ export default function WorldMap() {
             } else {
                 const canvasBoundaries = canvasRef.current.getBoundingClientRect();
                 const mouseCanvasPos = vector2(e.clientX - canvasBoundaries.left, e.clientY - canvasBoundaries.top);
-                const selected = findLast(lastDrawInfoRef.current.selectables, x => {
+                const newSelected = findLast(lastDrawInfoRef.current.selectables, x => {
                     return mouseCanvasPos.x >= x.position.x
                     && mouseCanvasPos.x < x.position.x + x.size.x
                     && mouseCanvasPos.y >= x.position.y
                     && mouseCanvasPos.y < x.position.y + x.size.y;
                 });
 
-                const oldSelected = selectedRef.current;
-                if (!selected) {
-                    selectedRef.current = undefined;
-                } else {
-                    selectedRef.current = selected.entity;
-                }
-
-                if (oldSelected !== selectedRef.current) {
+                if (selected !== newSelected) {
+                    setSelected(newSelected ? newSelected.entity : undefined);
                     redraw();
                 }
             }

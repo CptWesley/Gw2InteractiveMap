@@ -1,4 +1,4 @@
-import { makeStyles, theme } from '@/theme';
+import { makeStyles } from '@/theme';
 import { ChevronLeft } from '@mui/icons-material';
 import { Divider, Drawer, List, ListItem, ListItemButton, ListItemIcon, Tooltip, Typography } from '@mui/material';
 import SettingsCheckbox from './SettingsCheckbox';
@@ -33,7 +33,6 @@ export default function SettingsDrawer(props: IProps) {
             PaperProps={{
                 style: {
                     position: 'absolute',
-                    backgroundColor: theme.palette.primary.light,
                 },
             }}
             BackdropProps={{

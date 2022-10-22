@@ -1,7 +1,6 @@
 import { createTheme } from '@mui/material';
 import { createMakeStyles } from 'tss-react';
 
-/*
 export const palette = {
     primary: '#31274c',
     primaryLight: '#5c4f78',
@@ -12,15 +11,17 @@ export const palette = {
     secondaryDark: '#2b2b2b',
     secondaryText: '#ffffff',
 };
-*/
 
 export const theme = createTheme({
     palette: {
         primary: {
-            main: '#31274c',
+            main: palette.primary,
         },
         secondary: {
-            main: '#545454',
+            main: palette.secondary,
+        },
+        background: {
+            paper: palette.primaryLight,
         },
     },
 });
