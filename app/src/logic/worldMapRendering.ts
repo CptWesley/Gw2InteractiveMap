@@ -489,7 +489,7 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
                 overlayGraphics.fillRect(drawnSelected.position.x + drawnSelected.size.x + 9, drawnSelected.position.y + drawnSelected.size.y + 9, -5, -14);
                 overlayGraphics.fillRect(drawnSelected.position.x + drawnSelected.size.x + 9, drawnSelected.position.y + drawnSelected.size.y + 4, -14, 5);
 
-                overlayGraphics.fillStyle = '#ff8c00';
+                overlayGraphics.fillStyle = 'hotpink';
                 overlayGraphics.fillRect(drawnSelected.position.x - 8, drawnSelected.position.y - 8, 3, 12);
                 overlayGraphics.fillRect(drawnSelected.position.x - 8, drawnSelected.position.y - 8, 12, 3);
                 overlayGraphics.fillRect(drawnSelected.position.x - 8, drawnSelected.position.y + drawnSelected.size.y + 8, 3, -12);
