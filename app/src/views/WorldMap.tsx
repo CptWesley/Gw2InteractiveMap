@@ -69,6 +69,11 @@ const useStyles = makeStyles()(() => {
             minWidth: '15vw',
             width: '20vw',
             maxWidth: '20vw',
+
+            '& a': {
+                color: '#ca61ed',
+                textDecoration: 'none',
+            },
         },
     };
 });

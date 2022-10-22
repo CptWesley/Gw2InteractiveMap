@@ -107,11 +107,11 @@ declare type Zone = {
     label_coord: WorldDataCoords,
     map_rect: WorldDataCoords[],
     continent_rect: WorldDataCoords[],
-    points_of_interest: ObjectMap<number, PointOfInterest>,
-    tasks: ObjectMap<number, Task>,
+    points_of_interest: ObjectMap<string, PointOfInterest>,
+    tasks: ObjectMap<string, Task>,
     skill_challenges: SkillChallenge[],
-    adventures: ObjectMap<number, Adventure>,
-    mastery_points: ObjectMap<number, MasteryPoint>,
+    adventures: ObjectMap<string, Adventure>,
+    mastery_points: MasteryPoint[],
     sectors: ObjectMap<string, Area>,
     bounds: Vector2[], // Custom
 };

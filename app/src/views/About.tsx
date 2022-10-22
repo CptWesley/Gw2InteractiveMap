@@ -11,10 +11,6 @@ const useStyles = makeStyles()(() => {
         text: {
             marginTop: '32px',
             width: '100%',
-            '& a': {
-                color: '#ca61ed',
-                textDecoration: 'none',
-            },
         },
     };
 });

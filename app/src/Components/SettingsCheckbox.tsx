@@ -3,10 +3,10 @@ import { Checkbox, FormControlLabel, FormGroup, ListItem, Tooltip } from '@mui/m
 import React from 'react';
 
 interface IProps {
-    setting: keyof Settings
-    onSettingChanged: () => void
-    text?: string
-    tooltip?: string
+    setting: keyof Settings,
+    onSettingChanged: () => void,
+    text?: string,
+    tooltip?: string,
 }
 
 export default function SettingsCheckbox(props: IProps) {

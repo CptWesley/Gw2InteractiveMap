@@ -51,6 +51,13 @@ export default function App() {
                         margin: 0,
                         height: '100vh',
                     },
+                    '& a': {
+                        color: style.linkColor,
+                        textDecoration: 'none',
+                        ':hover': {
+                            color: style.linkHoverColor,
+                        },
+                    },
                 }}
             />
             <Helmet>

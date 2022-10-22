@@ -449,7 +449,7 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
                 }
             });
 
-            forEachValue(zone.mastery_points, mp => {
+            zone.mastery_points.forEach(mp => {
                 const icon =
                     mp.region === 'Tyria' ? icons.mastery_tyria :
                         mp.region === 'Maguuma' ? icons.mastery_hot :

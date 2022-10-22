@@ -29,7 +29,8 @@ export const theme = createTheme({
 export const style = {
     background: theme.palette.secondary.dark,
     color: theme.palette.secondary.contrastText,
-    linkColor: '#a8ceff',
+    linkColor: '#ca61ed',
+    linkHoverColor: '#ff69b4',
 
     borderRadiusSmall: 3,
     borderRadiusMedium: 5,
