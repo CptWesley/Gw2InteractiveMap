@@ -1,4 +1,3 @@
-import { MapInfo, TileSource } from '@/global';
 import { knownTiles, tileIsKnown } from '@/logic/tileData/knownTiles';
 import { vector2 } from '@/logic/utility/vector2';
 

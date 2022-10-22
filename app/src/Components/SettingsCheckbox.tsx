@@ -1,4 +1,4 @@
-import { getSetting, setSetting, Settings } from '@/logic/settingsStorage';
+import { getSetting, setSetting } from '@/logic/settingsStorage';
 import { Checkbox, FormControlLabel, FormGroup, ListItem, Tooltip } from '@mui/material';
 import React from 'react';
 

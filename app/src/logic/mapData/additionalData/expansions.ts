@@ -1,4 +1,3 @@
-import { Expansion, ExpansionMap } from '@/global';
 import { toObjectMap } from '@/logic/utility/util';
 
 const expansionList: Expansion[] = [

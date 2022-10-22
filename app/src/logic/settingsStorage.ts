@@ -32,8 +32,6 @@ export const defaultSettings = {
     dummy: true,
 };
 
-export declare type Settings = typeof defaultSettings;
-
 export function getSettings(): Settings {
     const retrievedJson = localStorage.getItem(settingsKeyName);
     if (!retrievedJson) {

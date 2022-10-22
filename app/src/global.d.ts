@@ -1,6 +1,3 @@
-import 'react-scripts';
-import { Settings } from '@/logic/settingsStorage';
-
 declare type TileSource = {
     url: string,
     x: number,
@@ -15,6 +12,8 @@ declare type Vector2 = {
     x: number,
     y: number,
 };
+
+declare type Settings = typeof import('@/logic/settingsStorage').defaultSettings;
 
 declare type DrawingContext = {
     settings: Settings,
@@ -216,4 +215,14 @@ declare type SelectableCanvasEntity = {
     position: Vector2,
     size: Vector2,
     entity: ISelectableEntity,
+}
+
+declare module '*.md' {
+    const content: string;
+    export default content;
+}
+
+declare module '*!txt' {
+    const content: string;
+    export default content;
 }

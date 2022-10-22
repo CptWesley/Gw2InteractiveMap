@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import { DrawingContext, ISelectableEntity, LastDrawInfo, MapInfo, Vector2 } from '@/global';
 import { drawMap } from '@/logic/worldMapRendering';
 import { makeStyles, theme } from '@/theme';
 import { getTranslation, v2equal, vector2 } from '@/logic/utility/vector2';

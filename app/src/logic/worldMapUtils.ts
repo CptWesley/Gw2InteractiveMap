@@ -1,4 +1,3 @@
-import { Vector2, MapInfo, Area, MapData, Zone, Region } from '@/global';
 import { getTranslation, v2add, v2scale, vector2 } from '@/logic/utility/vector2';
 import worldData from './mapData/worldData';
 import { inHull } from './utility/hull';

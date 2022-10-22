@@ -1,4 +1,4 @@
-import { defaultSettings, getSetting, setSetting, Settings } from '@/logic/settingsStorage';
+import { defaultSettings, getSetting, setSetting } from '@/logic/settingsStorage';
 import { ListItem, ListItemText, Slider, Tooltip } from '@mui/material';
 import React from 'react';
 

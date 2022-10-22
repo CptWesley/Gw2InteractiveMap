@@ -1,10 +1,9 @@
-import { Area, MapData, Region, Vector2, WorldData, WorldDataCoords, Zone } from '@/global';
 import { filterEntry, forEachValue, getValue } from '@/logic/utility/util';
 import { hull } from '@/logic/utility/hull';
 import { findCenter, nearestPointOnEdge, v2distanceSq, vector2 } from '../utility/vector2';
 import { zones } from './additionalData/additionalData';
 import polylabel from 'polylabel';
-import tyriaContinentData from './tyriaContinentData';
+import tyriaContinentData from './tyriaContinentData.js';
 import allMapDataRaw from './allMapData.js';
 
 const allMapData: any = {};

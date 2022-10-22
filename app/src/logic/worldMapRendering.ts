@@ -1,4 +1,3 @@
-import { AdditionalZoneData, Area, DrawingContext, SelectableCanvasEntity, LastDrawInfo, TileSource, Vector2, Zone, Region, AdditionalRegionData } from '@/global';
 import { downloadImage, imageIsCached } from '@/logic/imageCache';
 import { getTileSource, getTileSourceFromParent, getTileSourcesFromChildren } from '@/logic/tileData/tileService';
 import { getTranslation, v2scale, vector2 } from '@/logic/utility/vector2';

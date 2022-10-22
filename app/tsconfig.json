@@ -31,7 +31,16 @@
       "@/*": [
         "./src/*"
       ]
-    }
+    },
+    "rootDirs": [
+      "./src"
+    ],
+    "types": [
+      "@types/node"
+    ],
+    "typeRoots": [
+      "./src"
+    ]
   },
   "include": [
     "src"

@@ -1,4 +1,3 @@
-import { RawMapInfo, RawWorldDatabaseInfo } from '@/global';
 import tyriaTiles from './tyriaTiles';
 
 /* eslint-disable */

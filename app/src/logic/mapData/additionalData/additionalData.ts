@@ -1,4 +1,3 @@
-import { AdditionalZoneDataMap, AdditionalZoneData, AdditionalRegionDataMap, AdditionalRegionData } from '@/global';
 import { toObjectMap } from '@/logic/utility/util';
 import additionalZoneData from './additionalZoneData';
 import additionalRegionData from './additionalRegionData';

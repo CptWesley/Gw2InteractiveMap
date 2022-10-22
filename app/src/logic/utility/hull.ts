@@ -1,4 +1,3 @@
-import { Vector2, WorldDataCoords } from '@/global';
 import monotoneChainConvexHull from 'monotone-chain-convex-hull';
 import { nearestPointOnEdge, v2distanceSq, vector2 } from './vector2';
 
