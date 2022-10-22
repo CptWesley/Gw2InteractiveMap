@@ -23,6 +23,8 @@ const useStyles = makeStyles()(() => {
                 fontWeight: 'bold',
             },
             zIndex: 3600,
+            position: 'sticky',
+            top: '0px',
         },
     };
 });
