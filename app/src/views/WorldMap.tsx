@@ -78,7 +78,7 @@ export default function WorldMap() {
     const updateLocationTextThrottled = useRef(throttle(updateLocationText, 100));
     const lastMouseWorldPos = useRef(vector2(0, 0));
 
-    const selectedRef = useRef<ISelectableEntity|null>(null);
+    const selectedRef = useRef<ISelectableEntity|undefined>(undefined);
 
     const result = (
         <div
@@ -156,6 +156,7 @@ export default function WorldMap() {
                 y: queryRef.current.get('y'),
             },
             mapInfo: getCurrentMapInfo(),
+            selected: selectedRef.current,
         };
 
         lastDrawInfoRef.current = drawMap(drawingContext);
@@ -182,27 +183,6 @@ export default function WorldMap() {
             threshold: false,
         };
         e.currentTarget.setPointerCapture(e.pointerId);
-        if (!canvasRef.current || !lastDrawInfoRef.current) {
-            return;
-        }
-
-        const canvasBoundaries = canvasRef.current.getBoundingClientRect();
-        const mouseCanvasPos = vector2(e.clientX - canvasBoundaries.left, e.clientY - canvasBoundaries.top);
-        const selected = findLast(lastDrawInfoRef.current.selectables, x => {
-            return mouseCanvasPos.x >= x.position.x
-            && mouseCanvasPos.x < x.position.x + x.size.x
-            && mouseCanvasPos.y >= x.position.y
-            && mouseCanvasPos.y < x.position.y + x.size.y;
-        });
-
-        if (!selected) {
-            return;
-        }
-
-        selectedRef.current = selected.entity;
-
-        console.log('Selected:');
-        console.log(selected);
     }
 
     function handlePointerMove(e: React.PointerEvent<HTMLCanvasElement>): void {
@@ -265,10 +245,32 @@ export default function WorldMap() {
     }
 
     function handlePointerUp(e: React.PointerEvent<HTMLCanvasElement>): void {
+        if (!canvasRef.current || !lastDrawInfoRef.current) {
+            return;
+        }
+
         if (scrollingMap.current && scrollingMap.current.pointerId === e.pointerId) {
             e.currentTarget.releasePointerCapture(e.pointerId);
+            if (scrollingMap.current.threshold) {
+                queryRef.current.replace();
+            } else {
+                const canvasBoundaries = canvasRef.current.getBoundingClientRect();
+                const mouseCanvasPos = vector2(e.clientX - canvasBoundaries.left, e.clientY - canvasBoundaries.top);
+                const selected = findLast(lastDrawInfoRef.current.selectables, x => {
+                    return mouseCanvasPos.x >= x.position.x
+                    && mouseCanvasPos.x < x.position.x + x.size.x
+                    && mouseCanvasPos.y >= x.position.y
+                    && mouseCanvasPos.y < x.position.y + x.size.y;
+                });
+
+                if (!selected) {
+                    selectedRef.current = undefined;
+                } else {
+                    selectedRef.current = selected.entity;
+                }
+            }
+
             scrollingMap.current = undefined;
-            queryRef.current.replace();
         }
     }
 
