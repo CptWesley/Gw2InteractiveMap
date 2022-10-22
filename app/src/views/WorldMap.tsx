@@ -47,6 +47,18 @@ const useStyles = makeStyles()(() => {
             fontSize: 20,
             textShadow: '1px 1px rgba(0, 0, 0, 0.8)',
             userSelect: 'none',
+            pointerEvents: 'none',
+        },
+        legalText: {
+            position: 'absolute',
+            bottom: '12px',
+            right: '12px',
+            fontSize: 7,
+            textShadow: '1px 1px rgba(0, 0, 0, 0.8)',
+            userSelect: 'none',
+            maxWidth: '25vw',
+            textAlign: 'right',
+            pointerEvents: 'none',
         },
     };
 });
@@ -101,6 +113,12 @@ export default function WorldMap() {
             <Typography
                 className={classes.mousePositionText}>
                 {mousePositionText}
+            </Typography>
+            <Typography
+                className={classes.legalText}>
+                © ArenaNet LLC. All rights reserved.
+                NCSOFT, ArenaNet, Guild Wars, Guild Wars 2: Heart of Thorns, Guild Wars 2: Path of Fire, and Guild Wars 2: End of Dragons
+                and all associated logos, designs, and composite marks are trademarks or registered trademarks of NCSOFT Corporation.
             </Typography>
         </div>
     );
