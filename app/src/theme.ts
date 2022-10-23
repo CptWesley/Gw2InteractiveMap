@@ -23,6 +23,10 @@ export const theme = createTheme({
         background: {
             paper: palette.primaryLight,
         },
+        text: {
+            primary: palette.primaryText,
+            secondary: palette.secondaryText,
+        },
     },
 });
 

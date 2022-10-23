@@ -201,7 +201,17 @@ export default function MapInfoCard(props: IProps) {
                 <CardActions>
                     { data.wikiUrl ?
                         <span hidden={!data.wikiUrl}>
-                            <Button href={data.wikiUrl} target='_blank' size='small'>Wiki</Button>
+                            <Button
+                                href={data.wikiUrl}
+                                target='_blank'
+                                size='small'
+                                sx={{
+                                    ':hover': {
+                                        color: style.linkHoverColor,
+                                    },
+                                }}>
+                                    Wiki
+                            </Button>
                         </span> : undefined }
                 </CardActions>
             </Card>

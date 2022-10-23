@@ -1,7 +1,7 @@
 import { makeStyles } from '@/theme';
 import { Container } from '@mui/material';
 import { useEffect, useState } from 'react';
-import readme from '@/../../README.md';
+import changelog from '@/../../CHANGELOG.md';
 import Markdown from '@/Components/Markdown';
 
 const useStyles = makeStyles()(() => {
@@ -17,7 +17,7 @@ const useStyles = makeStyles()(() => {
 
 let cached: string|undefined = undefined;
 
-export default function About() {
+export default function Changelog() {
     const { classes } = useStyles();
 
     const [readmeText, setReadmeText] = useState<string>('');
@@ -26,7 +26,7 @@ export default function About() {
         if (cached) {
             setReadmeText(cached);
         } else {
-            fetch(readme)
+            fetch(changelog)
                 .then(data => data.text())
                 .then(text => {
                     cached = text;
