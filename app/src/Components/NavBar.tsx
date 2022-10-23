@@ -15,6 +15,7 @@ const useStyles = makeStyles()(() => {
             boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.2)',
             '& svg': {
                 maxHeight: '56px',
+                padding: '6px',
             },
             '& *': {
                 marginRight: '5px',

@@ -1,7 +1,5 @@
-import React from 'react';
+import { ReactComponent as Component } from '@/../public/logo.svg';
 
 export default function Logo() {
-    return (
-        <svg xmlns='http://www.w3.org/2000/svg' fill='hotpink' viewBox='0 0 256 256' fill-rule='evenodd' clip-rule='evenodd' image-rendering='optimizeQuality' shape-rendering='geometricPrecision' text-rendering='geometricPrecision'><path d='M0 0h137c-3 9 3 11 9 16 12 4 24 1 35-1 10-7 22-7 31 1 7 6 27 8 15 24-4 11 1 24-7 35-2 16 20 5 19 23 2 9 3 19 12 27 8 6 2 35-9 25-7-11-25-7-22 9 4 10 11 28-4 30-9-2-28 12-25-8 5-8 4-24-3-27-8-6-2-21-14-21-9 1-18 2-27 1-8-11-23 1-13 17 5 11-10 33-25 33-13-2-31-5-36-17-11-15-36-38-21-47 10-6 1-18-8-9-9 6-20 13-28 3-7-4-10-19-12-27 2-11 9-17 16-20 6 0 20 18 20 3-3-8-9-7-14-10-1-15 15-14 16-1 13 6 18-25 3-24-10-8-31-2-32-21C10 11-3 9 0 0Zm105 87c7 0 29-3 20 10-12 5-30 10-22-7l1-1zm-45 86c13-11 22 25 5 17-6-3-4-12-5-17zm163 30c9 2 19 5 28-1 12 7 1 28-10 23-11-1-4 16-14 14-5 6-14 11-14-3-7-10-4-22 7-22 0 0-2-11 3-11zm-117 53H26c0-12 10-8 13-17 6-8 11-12 20-12 8 1 6-14 11-13 8 0 13 15 23 13 10 2 16 16 13 29z'/></svg>
-    );
+    return <Component />;
 }
