@@ -316,7 +316,7 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
         }
 
         function drawZoneText(id: string, zone: Zone): SelectableCanvasEntity[] {
-            if (hidden.zoneText && !isSelected('region', id)) {
+            if (hidden.zoneText && !isSelected('zone', id)) {
                 return [];
             }
             overlayGraphics.save();
@@ -351,7 +351,7 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
         }
 
         function drawAreaText(id: string, area: Area): SelectableCanvasEntity[] {
-            if (hidden.areaText && !isSelected('region', id)) {
+            if (hidden.areaText && !isSelected('area', id)) {
                 return [];
             }
             overlayGraphics.save();
@@ -603,16 +603,16 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
 
         overlayGraphics.clearRect(0, 0, ctx.size.x, ctx.size.y);
         return draw((id, zone, additionalZone) => {
-            const drawnIcons = drawIcons(zone);
             drawZoneBorders(zone, additionalZone);
-            return drawnIcons;
+            return [];
         }, (id, area) => {
             drawAreaBorders(area);
             const drawnText = drawAreaText(id, area);
             return drawnText;
         }, (id, zone) => {
             const drawnText = drawZoneText(id, zone);
-            return drawnText;
+            const drawnIcons = drawIcons(zone);
+            return drawnText.concat(drawnIcons);
         }, (id, region, additionalRegion) => {
             drawRegionBorders(region, additionalRegion);
             const drawnText = drawRegionText(id, region);
