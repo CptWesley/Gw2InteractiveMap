@@ -7,6 +7,7 @@ interface IProps {
     onSettingChanged: () => void,
     text?: string,
     tooltip?: string,
+    children?: JSX.Element|JSX.Element[]|string|number|boolean,
 }
 
 export default function SettingsCheckbox(props: IProps) {
@@ -34,6 +35,7 @@ export default function SettingsCheckbox(props: IProps) {
                             onChange={handleChange}/>}
                         label={props.text} />
                 </FormGroup>
+                {props.children}
             </ListItem>
         </Tooltip>
     );

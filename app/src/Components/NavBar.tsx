@@ -3,7 +3,6 @@ import { Button, SvgIcon, Tooltip } from '@mui/material';
 import Logo from '@/icons/Logo';
 import { Link } from 'react-router-dom';
 import GithubIcon from '@/icons/GithubIcon';
-import React from 'react';
 import DiscordIcon from '@/icons/DiscordIcon';
 
 const useStyles = makeStyles()(() => {
@@ -67,14 +66,20 @@ const useStyles = makeStyles()(() => {
                 height: '24px',
             },
         },
+        iconButton: {
+            fill: theme.palette.text.primary,
+            ':hover': {
+                fill: style.linkHoverColor,
+            },
+            ':active': {
+                fill: style.linkColor,
+            },
+        },
     };
 });
 
 export default function NavBar() {
     const { classes } = useStyles();
-
-    const [ghColor, setGhColor] = React.useState(theme.palette.text.primary);
-    const [discordColor, setDiscordColor] = React.useState(theme.palette.text.primary);
 
     return (
         <div className={classes.toolbar}>
@@ -96,23 +101,15 @@ export default function NavBar() {
                 <Tooltip title='Open Discord Server'>
                     <a
                         href='https://discord.gg/yhQ2Hnuc4f'
-                        target='_blank'
-                        onMouseEnter={() => setDiscordColor(style.linkHoverColor)}
-                        onMouseLeave={() => setDiscordColor(theme.palette.text.primary)}
-                        onMouseDown={() => setDiscordColor(style.linkColor)}
-                        onMouseUp={() => setDiscordColor(style.linkHoverColor)}>
-                        <DiscordIcon color={discordColor}/>
+                        target='_blank'>
+                        <DiscordIcon className={classes.iconButton}/>
                     </a>
                 </Tooltip>
                 <Tooltip title='Open GitHub Repository'>
                     <a
                         href='https://github.com/CptWesley/Gw2InteractiveMap'
-                        target='_blank'
-                        onMouseEnter={() => setGhColor(style.linkHoverColor)}
-                        onMouseLeave={() => setGhColor(theme.palette.text.primary)}
-                        onMouseDown={() => setGhColor(style.linkColor)}
-                        onMouseUp={() => setGhColor(style.linkHoverColor)}>
-                        <GithubIcon color={ghColor}/>
+                        target='_blank'>
+                        <GithubIcon className={classes.iconButton}/>
                     </a>
                 </Tooltip>
             </span>

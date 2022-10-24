@@ -1,7 +1,10 @@
+import { getCharacterOptions } from '@/logic/completedStorage';
+import { icons } from '@/logic/mapIcons';
 import { makeStyles } from '@/theme';
 import { ChevronLeft } from '@mui/icons-material';
 import { Divider, Drawer, List, ListItem, ListItemButton, ListItemIcon, Tooltip, Typography } from '@mui/material';
 import SettingsCheckbox from './SettingsCheckbox';
+import SettingsSelect from './SettingsSelect';
 import SettingsSlider from './SettingsSlider';
 import SettingsTab from './SettingsTab';
 
@@ -10,11 +13,17 @@ const useStyles = makeStyles()(() => {
         settingsDrawer: {
             minHeight: 0,
         },
+        iconPreview: {
+            block: 'inline',
+            float: 'right',
+            width: '32px',
+            height: '32px',
+        },
     };
 });
 
 interface IProps {
-    container: Element|null
+    container?: Element|undefined|null
     open: boolean
     onCloseButtonPressed: () => void
     onSettingsChanged: () => void
@@ -39,7 +48,7 @@ export default function SettingsDrawer(props: IProps) {
                 style: { position: 'absolute' },
             }}
             ModalProps={{
-                container: props.container,
+                container: props.container ?? null,
                 style: { position: 'absolute' },
                 keepMounted: true,
             }}
@@ -60,6 +69,45 @@ export default function SettingsDrawer(props: IProps) {
             <SettingsTab text='Icons' tooltip='Show/Hide icon settings.'>
                 <SettingsSlider text='Show zoom' tooltip='Sets the zoom distance where the icons are shown.' setting={['showIconDistanceMin', 'showIconDistanceMax']} min={0} max={10} step={0.25} onSettingChanged={props.onSettingsChanged}/>
                 <SettingsSlider text='Size' tooltip='Sets the size of the icons on the map.' setting='iconSize' min={12} max={64} onSettingChanged={props.onSettingsChanged}/>
+                <SettingsCheckbox text='Show Incomplete Point of Interest' tooltip='Indicates whether or not to show incomplete Point of Interest.' setting='showPoiIncomplete' onSettingChanged={props.onSettingsChanged}>
+                    <img className={classes.iconPreview} src={icons.poi.incompleteUrl} />
+                </SettingsCheckbox>
+                <SettingsCheckbox text='Show Complete Point of Interest' tooltip='Indicates whether or not to show complete Point of Interest.' setting='showPoiComplete' onSettingChanged={props.onSettingsChanged}>
+                    <img className={classes.iconPreview} src={icons.poi.completeUrl} />
+                </SettingsCheckbox>
+                <SettingsCheckbox text='Show Incomplete Vista' tooltip='Indicates whether or not to show incomplete Vista.' setting='showVistaIncomplete' onSettingChanged={props.onSettingsChanged}>
+                    <img className={classes.iconPreview} src={icons.vista.incompleteUrl} />
+                </SettingsCheckbox>
+                <SettingsCheckbox text='Show Complete Vista' tooltip='Indicates whether or not to show complete Vista.' setting='showVistaComplete' onSettingChanged={props.onSettingsChanged}>
+                    <img className={classes.iconPreview} src={icons.vista.completeUrl} />
+                </SettingsCheckbox>
+                <SettingsCheckbox text='Show Incomplete Waypoint' tooltip='Indicates whether or not to show incomplete Waypoint.' setting='showWaypointIncomplete' onSettingChanged={props.onSettingsChanged}>
+                    <img className={classes.iconPreview} src={icons.waypoint.incompleteUrl} />
+                </SettingsCheckbox>
+                <SettingsCheckbox text='Show Complete Waypoint' tooltip='Indicates whether or not to show complete Waypoint.' setting='showWaypointComplete' onSettingChanged={props.onSettingsChanged}>
+                    <img className={classes.iconPreview} src={icons.waypoint.completeUrl} />
+                </SettingsCheckbox>
+                <SettingsCheckbox text='Show Incomplete Task' tooltip='Indicates whether or not to show incomplete Task.' setting='showTaskIncomplete' onSettingChanged={props.onSettingsChanged}>
+                    <img className={classes.iconPreview} src={icons.heart.incompleteUrl} />
+                </SettingsCheckbox>
+                <SettingsCheckbox text='Show Complete Task' tooltip='Indicates whether or not to show complete Task.' setting='showTaskComplete' onSettingChanged={props.onSettingsChanged}>
+                    <img className={classes.iconPreview} src={icons.heart.completeUrl} />
+                </SettingsCheckbox>
+                <SettingsCheckbox text='Show Incomplete Hero Challenge' tooltip='Indicates whether or not to show incomplete Hero Challenge.' setting='showChallengeIncomplete' onSettingChanged={props.onSettingsChanged}>
+                    <img className={classes.iconPreview} src={icons.hero_challenge.incompleteUrl} />
+                </SettingsCheckbox>
+                <SettingsCheckbox text='Show Complete Hero Challenge' tooltip='Indicates whether or not to show complete Hero Challenge.' setting='showChallengeComplete' onSettingChanged={props.onSettingsChanged}>
+                    <img className={classes.iconPreview} src={icons.hero_challenge.completeUrl} />
+                </SettingsCheckbox>
+                <SettingsCheckbox text='Show Incomplete Mastery Insight' tooltip='Indicates whether or not to show incomplete Mastery Insight.' setting='showMasteryIncomplete' onSettingChanged={props.onSettingsChanged}>
+                    <img className={classes.iconPreview} src={icons.mastery_tyria.incompleteUrl} />
+                </SettingsCheckbox>
+                <SettingsCheckbox text='Show Complete Mastery Insight' tooltip='Indicates whether or not to show complete Mastery Insight.' setting='showMasteryComplete' onSettingChanged={props.onSettingsChanged}>
+                    <img className={classes.iconPreview} src={icons.mastery_tyria.completeUrl} />
+                </SettingsCheckbox>
+                <SettingsCheckbox text='Show Adventure' tooltip='Indicates whether or not to Adventure.' setting='showAdventure' onSettingChanged={props.onSettingsChanged}>
+                    <img className={classes.iconPreview} src={icons.adventure.completeUrl} />
+                </SettingsCheckbox>
             </SettingsTab>
             <Divider />
             <SettingsTab text='Borders' tooltip='Show/Hide border settings.'>
@@ -80,6 +128,9 @@ export default function SettingsDrawer(props: IProps) {
                 <SettingsCheckbox text='Living World Season 4' tooltip='Indicates whether or not to show Living World Season 4 content.' setting='showExpansionLw4' onSettingChanged={props.onSettingsChanged}/>
                 <SettingsCheckbox text='Icebrood Saga (LW 5)' tooltip='Indicates whether or not to show Living World Season 5 content.' setting='showExpansionLw5' onSettingChanged={props.onSettingsChanged}/>
                 <SettingsCheckbox text='End of Dragons' tooltip='Indicates whether or not to show End of Dragons content.' setting='showExpansionEod' onSettingChanged={props.onSettingsChanged}/>
+            </SettingsTab>
+            <SettingsTab text='Characters' tooltip='Show/Hide character settings.'>
+                <SettingsSelect text='Character' tooltip='Selects which character to use for data.' setting='characterId' options={getCharacterOptions()} onSettingChanged={props.onSettingsChanged}/>
             </SettingsTab>
             <Divider />
         </Drawer>

@@ -1,12 +1,16 @@
+import { getCharacterCompleted, setCharacterCompleted } from '@/logic/completedStorage';
 import { getArea, getMasteryPoint, getPointOfInterest, getRegion, getTask, getZone } from '@/logic/mapData/worldDataUtils';
+import { getSetting } from '@/logic/settingsStorage';
 import { style } from '@/theme';
 import { ContentCopy, CenterFocusWeak } from '@mui/icons-material';
-import { Button, Card, CardActions, CardContent, IconButton, Link, Tooltip, Typography } from '@mui/material';
+import { Button, Card, CardActions, CardContent, Checkbox, IconButton, Link, Tooltip, Typography } from '@mui/material';
+import { useLayoutEffect, useState } from 'react';
 
 interface IProps {
     className?: string|undefined,
     data?: ISelectableEntity|undefined,
     onGoto?: (worldPos: Vector2) => void|undefined,
+    onCompletedChanged?: (type: string, id: string) => void|undefined,
 }
 
 interface ICardData {
@@ -19,6 +23,7 @@ interface ICardData {
     minLevel?: number|undefined,
     maxLevel?: number|undefined,
     masteryTrack?: string|undefined,
+    completed?: boolean|undefined,
 }
 
 function getMasteryTrack(region: string|undefined): { name: string, url: string }|undefined {
@@ -76,8 +81,17 @@ function getCardTypeName(type: string) {
     }
 }
 
-function getCardData(entity: ISelectableEntity): ICardData {
-    if (entity.type === 'region') {
+function getCardCompleted(entity: ISelectableEntity): boolean {
+    const entityId = `${entity.type}#${entity.id}`;
+    const charId = getSetting('characterId');
+    const completed = getCharacterCompleted(charId, entityId);
+    return completed;
+}
+
+function getCardData(entity: ISelectableEntity|undefined): ICardData|undefined {
+    if (!entity) {
+        return undefined;
+    } else if (entity.type === 'region') {
         const { regionData, additionalRegionData } = getRegion(entity.map, entity.id);
         return {
             id: entity.id,
@@ -116,6 +130,7 @@ function getCardData(entity: ISelectableEntity): ICardData {
             position: entity.worldPos,
             name: poiData.name,
             chatLink: poiData.chat_link,
+            completed: getCardCompleted(entity),
         };
     } else if (entity.type === 'task') {
         const taskData = getTask(entity.map, entity.id);
@@ -127,6 +142,7 @@ function getCardData(entity: ISelectableEntity): ICardData {
             chatLink: taskData.chat_link,
             minLevel: taskData.level,
             maxLevel: taskData.level,
+            completed: getCardCompleted(entity),
         };
     } else if (entity.type === 'challenge') {
         return {
@@ -134,6 +150,7 @@ function getCardData(entity: ISelectableEntity): ICardData {
             type: entity.type,
             position: entity.worldPos,
             name: 'Hero Challenge',
+            completed: getCardCompleted(entity),
         };
     } else if (entity.type === 'mastery') {
         const masteryData = getMasteryPoint(entity.map, entity.id);
@@ -143,6 +160,7 @@ function getCardData(entity: ISelectableEntity): ICardData {
             position: entity.worldPos,
             name: 'Mastery Insight',
             masteryTrack: masteryData.region,
+            completed: getCardCompleted(entity),
         };
     }
 
@@ -155,11 +173,30 @@ function getCardData(entity: ISelectableEntity): ICardData {
 }
 
 export default function MapInfoCard(props: IProps) {
-    if (!props.data) {
+    const data = getCardData(props.data);
+    const [completed, setCompleted] = useState<boolean|undefined>(data ? data.completed : undefined);
+
+    // Flashes with useEffect
+    useLayoutEffect(() => {
+        if (data) {
+            setCompleted(data.completed);
+        }
+    }, [data?.completed]);
+
+    if (!data) {
         return <div className={props.className} hidden={true} />;
     }
 
-    const data = getCardData(props.data);
+    const handleCompletionChange = (event: any, newValue: boolean) => {
+        const entityId = `${data.type}#${data.id}`;
+        const charId = getSetting('characterId');
+        setCharacterCompleted(charId, entityId, newValue);
+        setCompleted(newValue);
+        if (props.onCompletedChanged) {
+            props.onCompletedChanged(data.type, data.id);
+        }
+    };
+
     const masteryTrackData = getMasteryTrack(data.masteryTrack);
 
     return (
@@ -211,6 +248,14 @@ export default function MapInfoCard(props: IProps) {
                                     },
                                 }} />
                             </IconButton>
+                        </Tooltip>
+                    </Typography>
+                    <Typography variant='body2' hidden={data.completed === undefined}>
+                        Completed:
+                        <Tooltip title='Mark as completed.'>
+                            <Checkbox
+                                checked={completed ?? false}
+                                onChange={handleCompletionChange}/>
                         </Tooltip>
                     </Typography>
                 </CardContent>

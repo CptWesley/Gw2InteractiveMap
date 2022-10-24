@@ -227,3 +227,12 @@ declare module '*!txt' {
     const content: string;
     export default content;
 }
+
+declare type CharacterCompletion = {
+    name: string,
+    completed: Set<string>,
+};
+
+declare type CompletionMap = {
+    [key: string]: CharacterCompletion|undefined,
+};

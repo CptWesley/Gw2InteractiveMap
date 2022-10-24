@@ -1,32 +1,25 @@
-import { useSearchParams } from 'react-router-dom';
-
 export class QueryParams<TStorage extends {}> {
     private defaultParams: TStorage;
-    private searchParams: URLSearchParams;
-    private setSearchParams: (searchParams: string, options?: {
-        replace?: boolean;
-        state?: any;
-    }) => void;
+    private url: URL;
 
-    constructor(defaultParams: TStorage, searchParams: URLSearchParams, setSearchParams: (searchParams: string) => void) {
+    constructor(defaultParams: TStorage, url: URL) {
         this.defaultParams = defaultParams;
-        this.searchParams = searchParams;
-        this.setSearchParams = setSearchParams;
+        this.url = url;
 
         Object.entries(defaultParams).forEach(([key, value]) => {
-            const curValue = this.searchParams.get(key.toString());
+            const curValue = this.url.searchParams.get(key.toString());
             if (!curValue) {
                 if (typeof value === 'string') {
-                    this.searchParams.set(key.toString(), encodeURIComponent(value));
+                    this.url.searchParams.set(key.toString(), encodeURIComponent(value));
                 } else {
-                    this.searchParams.set(key.toString(), encodeURIComponent(JSON.stringify(value)));
+                    this.url.searchParams.set(key.toString(), encodeURIComponent(JSON.stringify(value)));
                 }
             }
         });
     }
 
     get<TKey extends keyof TStorage>(key: TKey): TStorage[TKey] {
-        const valueEncoded = this.searchParams.get(key.toString());
+        const valueEncoded = this.url.searchParams.get(key.toString());
         if (!valueEncoded) {
             return this.defaultParams[key];
         }
@@ -42,9 +35,9 @@ export class QueryParams<TStorage extends {}> {
 
     set<TKey extends keyof TStorage>(key: TKey, value: TStorage[TKey]): void {
         if (typeof value === 'string') {
-            this.searchParams.set(key.toString(), encodeURIComponent(value));
+            this.url.searchParams.set(key.toString(), encodeURIComponent(value));
         } else {
-            this.searchParams.set(key.toString(), encodeURIComponent(JSON.stringify(value)));
+            this.url.searchParams.set(key.toString(), encodeURIComponent(JSON.stringify(value)));
         }
     }
 
@@ -55,16 +48,16 @@ export class QueryParams<TStorage extends {}> {
     }
 
     push(): void {
-        this.setSearchParams(this.searchParams.toString());
+        window.history.pushState({}, '', this.url);
     }
 
     replace(): void {
-        this.setSearchParams(this.searchParams.toString(), { replace: true });
+        window.history.replaceState({}, '', this.url);
     }
 }
 
 export function useQuery<TStorage extends {}>(defaultParams: TStorage): QueryParams<TStorage> {
-    const [searchParams, setSearchParams] = useSearchParams();
-    const params = new QueryParams(defaultParams, searchParams, setSearchParams);
+    const url = new URL(window.location.href);
+    const params = new QueryParams(defaultParams, url);
     return params;
 }

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { drawMap } from '@/logic/worldMapRendering';
 import { makeStyles, theme } from '@/theme';
 import { getTranslation, v2equal, vector2 } from '@/logic/utility/vector2';
@@ -84,7 +84,7 @@ export default function WorldMap() {
 
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
-    const [mousePositionText, setMousePositionText] = useState<string>('Unknown');
+    const mousePositionTextRef = useRef<HTMLSpanElement>(null);
     const lastDrawInfoRef = useRef<LastDrawInfo>();
     const scrollingMap = useRef<{ pointerId: number, position: Vector2, threshold: boolean }>();
     const [settingsOpenState, setSettingsOpenState] = React.useState(false);
@@ -135,11 +135,12 @@ export default function WorldMap() {
                 container={containerRef.current}
                 open={settingsOpenState}
                 onCloseButtonPressed={() => setSettingsOpenState(false)}
-                onSettingsChanged={handleSettingsChanged}
+                onSettingsChanged={redraw}
             />
             <Typography
+                ref={mousePositionTextRef}
                 className={classes.mousePositionText}>
-                {mousePositionText}
+                UNKNOWN
             </Typography>
             <Typography
                 className={classes.legalText}>
@@ -147,7 +148,12 @@ export default function WorldMap() {
                 NCSOFT, ArenaNet, Guild Wars, Guild Wars 2: Heart of Thorns, Guild Wars 2: Path of Fire, and Guild Wars 2: End of Dragons
                 and all associated logos, designs, and composite marks are trademarks or registered trademarks of NCSOFT Corporation.
             </Typography>
-            <MapInfoCard className={classes.infoCard} data={selected.current} onGoto={onGoto} />
+            <MapInfoCard
+                className={classes.infoCard}
+                data={selected.current}
+                onGoto={onGoto}
+                onCompletedChanged={redraw}
+            />
         </div>
     );
 
@@ -159,10 +165,6 @@ export default function WorldMap() {
 
     function getCurrentMapInfo(): MapInfo {
         return getMapInfo(queryRef.current.get('map'));
-    }
-
-    function handleSettingsChanged(): void {
-        redraw();
     }
 
     function redraw(): void {
@@ -259,7 +261,7 @@ export default function WorldMap() {
     }
 
     function updateLocationText(pos: Vector2): void {
-        if (v2equal(pos, lastMouseWorldPos.current)) {
+        if (!mousePositionTextRef.current || v2equal(pos, lastMouseWorldPos.current)) {
             return;
         }
 
@@ -280,7 +282,7 @@ export default function WorldMap() {
             }
         }
 
-        setMousePositionText(`${locationString} [${Math.floor(pos.x)}, ${Math.floor(pos.y)}]`);
+        mousePositionTextRef.current.innerText = `${locationString} [${Math.floor(pos.x)}, ${Math.floor(pos.y)}]`;
     }
 
     function handlePointerUp(e: React.PointerEvent<HTMLCanvasElement>): void {

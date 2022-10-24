@@ -9,6 +9,8 @@ import worldData from '@/logic/mapData/worldData';
 import { forEachValue, forEachEntry } from '@/logic/utility/util';
 import { regions, zones } from './mapData/additionalData/additionalData';
 import { expansions } from './mapData/additionalData/expansions';
+import { getCompletion } from './completedStorage';
+import { getSetting } from './settingsStorage';
 
 type DrawnIcon = {
     worldPos: Vector2,
@@ -390,19 +392,41 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
                 return [];
             }
 
+            const completed = getCompletion(getSetting('characterId'))?.completed ?? new Set<string>();
             const selectables: SelectableCanvasEntity[] = [];
 
+            function getPoiSettings(type: PointOfInterestType): { complete: boolean, incomplete: boolean } {
+                switch (type) {
+                    case 'landmark': return {
+                        complete: ctx.settings.showPoiComplete,
+                        incomplete: ctx.settings.showPoiIncomplete,
+                    };
+                    case 'vista': return {
+                        complete: ctx.settings.showVistaComplete,
+                        incomplete: ctx.settings.showVistaIncomplete,
+                    };
+                    case 'waypoint': return {
+                        complete: ctx.settings.showWaypointComplete,
+                        incomplete: ctx.settings.showWaypointIncomplete,
+                    };
+                }
+
+                return { complete: false, incomplete: false };
+            }
+
             function drawPointOfInterest(poi: PointOfInterest): void {
-                if (hidden.icons && !isSelected(poi.type, poi.id.toString())) {
+                const isCompleted = completed.has(`${poi.type}#${poi.id}`);
+                const showSettings = getPoiSettings(poi.type);
+                if (!isSelected(poi.type, poi.id.toString()) && (hidden.icons || !showSettings.complete && isCompleted || !showSettings.incomplete && !isCompleted)) {
                     return;
                 }
                 let drawn: DrawnIcon|undefined = undefined;
                 if (poi.type === 'waypoint') {
-                    drawn = drawIcon(icons.waypoint.incomplete, vector2(poi.coord[0], poi.coord[1]));
+                    drawn = drawIcon(isCompleted ? icons.waypoint.complete : icons.waypoint.incomplete, vector2(poi.coord[0], poi.coord[1]));
                 } else if (poi.type === 'landmark') {
-                    drawn = drawIcon(icons.poi.incomplete, vector2(poi.coord[0], poi.coord[1]));
+                    drawn = drawIcon(isCompleted ? icons.poi.complete : icons.poi.incomplete, vector2(poi.coord[0], poi.coord[1]));
                 } else if (poi.type === 'vista') {
-                    drawn = drawIcon(icons.vista.incomplete, vector2(poi.coord[0], poi.coord[1]));
+                    drawn = drawIcon(isCompleted ? icons.vista.complete : icons.vista.incomplete, vector2(poi.coord[0], poi.coord[1]));
                 }
 
                 if (drawn) {
@@ -420,10 +444,12 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
             }
 
             function drawTask(task: Task): void {
-                if (hidden.icons && !isSelected('task', task.id.toString())) {
+                const isCompleted = completed.has(`task#${task.id}`);
+                if (!isSelected('task', task.id.toString()) && (hidden.icons || !ctx.settings.showTaskComplete && isCompleted || !ctx.settings.showTaskIncomplete && !isCompleted)) {
                     return;
                 }
-                const drawn = drawIcon(icons.heart.incomplete, vector2(task.coord[0], task.coord[1]));
+
+                const drawn = drawIcon(isCompleted ? icons.heart.complete : icons.heart.incomplete, vector2(task.coord[0], task.coord[1]));
                 if (drawn) {
                     selectables.push({
                         position: drawn.canvasPos,
@@ -440,17 +466,14 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
 
             function drawChallenge(challenge: SkillChallenge): void {
                 const id = challenge.id ?? `challenge-${Math.floor(challenge.coord[0])}-${Math.floor(challenge.coord[1])}`;
-                if (hidden.icons && !isSelected('challenge', id)) {
+                const isCompleted = completed.has(`challenge#${id}`);
+                if (!isSelected('challenge', id.toString()) && (hidden.icons || !ctx.settings.showChallengeComplete && isCompleted || !ctx.settings.showChallengeIncomplete && !isCompleted)) {
                     return;
                 }
 
                 let drawn: DrawnIcon|undefined = undefined;
-                if (challenge.id) {
-                    const icon = challenge.id.charAt(0) === '0' ? icons.hero_challenge : icons.hero_challenge_expansion;
-                    drawn = drawIcon(icon.incomplete, vector2(challenge.coord[0], challenge.coord[1]));
-                } else {
-                    drawn = drawIcon(icons.hero_challenge_expansion.incomplete, vector2(challenge.coord[0], challenge.coord[1]));
-                }
+                const icon = id.charAt(0) === '0' ? icons.hero_challenge : icons.hero_challenge_expansion;
+                drawn = drawIcon(isCompleted ? icon.complete : icon.incomplete, vector2(challenge.coord[0], challenge.coord[1]));
 
                 if (drawn) {
                     selectables.push({
@@ -467,9 +490,10 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
             }
 
             function drawAdventure(adventure: Adventure): void {
-                if (hidden.icons && !isSelected('adventure', adventure.id.toString())) {
+                if (!isSelected('adventure', adventure.id.toString()) && (hidden.icons || !ctx.settings.showAdventure)) {
                     return;
                 }
+
                 const drawn = drawIcon(icons.adventure.incomplete, vector2(adventure.coord[0], adventure.coord[1]));
                 if (drawn) {
                     selectables.push({
@@ -486,15 +510,17 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
             }
 
             function drawMastery(mp: MasteryPoint): void {
-                if (hidden.icons && !isSelected('mastery', mp.id.toString())) {
+                const isCompleted = completed.has(`mastery#${mp.id}`);
+                if (!isSelected('mastery', mp.id.toString()) && (hidden.icons || !ctx.settings.showMasteryComplete && isCompleted || !ctx.settings.showMasteryIncomplete && !isCompleted)) {
                     return;
                 }
+
                 const icon =
                     mp.region === 'Tyria' ? icons.mastery_tyria :
                         mp.region === 'Maguuma' ? icons.mastery_hot :
                             mp.region === 'Desert' ? icons.mastery_pof :
                                 mp.region === 'Tundra' ? icons.mastery_is : icons.mastery_eod;
-                const drawn = drawIcon(icon.incomplete, vector2(mp.coord[0], mp.coord[1]));
+                const drawn = drawIcon(isCompleted ? icon.complete : icon.incomplete, vector2(mp.coord[0], mp.coord[1]));
                 if (drawn) {
                     selectables.push({
                         position: drawn.canvasPos,

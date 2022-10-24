@@ -29,7 +29,21 @@ export const defaultSettings = {
     showExpansionLw5: true,
     showExpansionEod: true,
 
-    dummy: true,
+    showVistaComplete: true,
+    showVistaIncomplete: true,
+    showPoiComplete: true,
+    showPoiIncomplete: true,
+    showWaypointComplete: true,
+    showWaypointIncomplete: true,
+    showTaskComplete: true,
+    showTaskIncomplete: true,
+    showChallengeComplete: true,
+    showChallengeIncomplete: true,
+    showAdventure: true,
+    showMasteryComplete: true,
+    showMasteryIncomplete: true,
+
+    characterId: '',
 };
 
 export function getSettings(): Settings {
