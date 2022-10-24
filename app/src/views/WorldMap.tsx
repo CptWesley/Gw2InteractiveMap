@@ -166,7 +166,6 @@ export default function WorldMap() {
     }
 
     function redrawInternal(): void {
-        console.log('redrawing');
         if (!canvasRef.current) {
             return;
         }
