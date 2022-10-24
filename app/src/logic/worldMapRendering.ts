@@ -142,6 +142,28 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
             areaText: ctx.zoom < ctx.settings.showAreaTextDistanceMin || ctx.zoom >= ctx.settings.showAreaTextDistanceMax,
         };
 
+        const selectedIsIcon = selectedIsIconInternal();
+
+        function isSelected(type: SelectableEntityType, id: string): boolean {
+            const selected = ctx.selected;
+            if (!selected) {
+                return false;
+            }
+
+            return selected.id === id && selected.type === type;
+        }
+
+        function selectedIsIconInternal(): boolean {
+            const selected = ctx.selected;
+            if (!selected) {
+                return false;
+            }
+
+            return selected.type !== 'region'
+                && selected.type !== 'zone'
+                && selected.type !== 'area';
+        }
+
         function drawIcon(imgPromise: TrackedPromise<HTMLImageElement>, worldPos: Vector2, w?: number, h?: number): DrawnIcon {
             const canvasPos = worldToCanvas(worldPos);
             const width = w ?? ctx.settings.iconSize;
@@ -259,7 +281,7 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
         }
 
         function drawRegionText(id: string, region: Region): SelectableCanvasEntity[] {
-            if (hidden.regionText) {
+            if (hidden.regionText && !isSelected('region', id)) {
                 return [];
             }
             overlayGraphics.save();
@@ -294,7 +316,7 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
         }
 
         function drawZoneText(id: string, zone: Zone): SelectableCanvasEntity[] {
-            if (hidden.zoneText) {
+            if (hidden.zoneText && !isSelected('region', id)) {
                 return [];
             }
             overlayGraphics.save();
@@ -329,7 +351,7 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
         }
 
         function drawAreaText(id: string, area: Area): SelectableCanvasEntity[] {
-            if (hidden.areaText) {
+            if (hidden.areaText && !isSelected('region', id)) {
                 return [];
             }
             overlayGraphics.save();
@@ -364,13 +386,16 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
         }
 
         function drawIcons(zone: Zone): SelectableCanvasEntity[] {
-            if (hidden.icons) {
+            if (hidden.icons && !selectedIsIcon) {
                 return [];
             }
 
             const selectables: SelectableCanvasEntity[] = [];
 
-            forEachValue(zone.points_of_interest, poi => {
+            function drawPointOfInterest(poi: PointOfInterest): void {
+                if (hidden.icons && !isSelected(poi.type, poi.id.toString())) {
+                    return;
+                }
                 let drawn: DrawnIcon|undefined = undefined;
                 if (poi.type === 'waypoint') {
                     drawn = drawIcon(icons.waypoint.incomplete, vector2(poi.coord[0], poi.coord[1]));
@@ -392,9 +417,12 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
                         },
                     });
                 }
-            });
+            }
 
-            forEachValue(zone.tasks, task => {
+            function drawTask(task: Task): void {
+                if (hidden.icons && !isSelected('task', task.id.toString())) {
+                    return;
+                }
                 const drawn = drawIcon(icons.heart.incomplete, vector2(task.coord[0], task.coord[1]));
                 if (drawn) {
                     selectables.push({
@@ -408,9 +436,14 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
                         },
                     });
                 }
-            });
+            }
 
-            zone.skill_challenges.forEach(challenge => {
+            function drawChallenge(challenge: SkillChallenge): void {
+                const id = challenge.id ?? `challenge-${Math.floor(challenge.coord[0])}-${Math.floor(challenge.coord[1])}`;
+                if (hidden.icons && !isSelected('challenge', id)) {
+                    return;
+                }
+
                 let drawn: DrawnIcon|undefined = undefined;
                 if (challenge.id) {
                     const icon = challenge.id.charAt(0) === '0' ? icons.hero_challenge : icons.hero_challenge_expansion;
@@ -427,13 +460,16 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
                             map: mapInfo.id,
                             worldPos: drawn.worldPos,
                             type: 'challenge',
-                            id: challenge.id ?? `challenge-${Math.floor(drawn.worldPos.x)}-${Math.floor(drawn.worldPos.y)}`,
+                            id,
                         },
                     });
                 }
-            });
+            }
 
-            forEachValue(zone.adventures, adventure => {
+            function drawAdventure(adventure: Adventure): void {
+                if (hidden.icons && !isSelected('adventure', adventure.id.toString())) {
+                    return;
+                }
                 const drawn = drawIcon(icons.adventure.incomplete, vector2(adventure.coord[0], adventure.coord[1]));
                 if (drawn) {
                     selectables.push({
@@ -447,9 +483,12 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
                         },
                     });
                 }
-            });
+            }
 
-            zone.mastery_points.forEach(mp => {
+            function drawMastery(mp: MasteryPoint): void {
+                if (hidden.icons && !isSelected('mastery', mp.id.toString())) {
+                    return;
+                }
                 const icon =
                     mp.region === 'Tyria' ? icons.mastery_tyria :
                         mp.region === 'Maguuma' ? icons.mastery_hot :
@@ -468,7 +507,13 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
                         },
                     });
                 }
-            });
+            }
+
+            forEachValue(zone.points_of_interest, drawPointOfInterest);
+            forEachValue(zone.tasks, drawTask);
+            zone.skill_challenges.forEach(drawChallenge);
+            forEachValue(zone.adventures, drawAdventure);
+            zone.mastery_points.forEach(drawMastery);
 
             return selectables;
         }
