@@ -147,9 +147,15 @@ export default function WorldMap() {
                 NCSOFT, ArenaNet, Guild Wars, Guild Wars 2: Heart of Thorns, Guild Wars 2: Path of Fire, and Guild Wars 2: End of Dragons
                 and all associated logos, designs, and composite marks are trademarks or registered trademarks of NCSOFT Corporation.
             </Typography>
-            <MapInfoCard className={classes.infoCard} data={selected.current} />
+            <MapInfoCard className={classes.infoCard} data={selected.current} onGoto={onGoto} />
         </div>
     );
+
+    function onGoto(worldPosition: Vector2): void {
+        queryRef.current.set('x', worldPosition.x);
+        queryRef.current.set('y', worldPosition.y);
+        redraw();
+    }
 
     function getCurrentMapInfo(): MapInfo {
         return getMapInfo(queryRef.current.get('map'));

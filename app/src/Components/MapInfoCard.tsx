@@ -1,11 +1,12 @@
 import { getArea, getMasteryPoint, getPointOfInterest, getRegion, getTask, getZone } from '@/logic/mapData/worldDataUtils';
 import { style } from '@/theme';
-import { ContentCopy } from '@mui/icons-material';
+import { ContentCopy, CenterFocusWeak } from '@mui/icons-material';
 import { Button, Card, CardActions, CardContent, IconButton, Link, Tooltip, Typography } from '@mui/material';
 
 interface IProps {
     className?: string|undefined,
     data?: ISelectableEntity|undefined,
+    onGoto?: (worldPos: Vector2) => void|undefined,
 }
 
 interface ICardData {
@@ -182,6 +183,21 @@ export default function MapInfoCard(props: IProps) {
                     </Typography>
                     <Typography variant='body2'>
                         Coordinates: [{Math.floor(data.position.x)}, {Math.floor(data.position.y)}]
+                        <Tooltip title='Go to.'>
+                            <IconButton color='primary' component='label' onClick={() => {
+                                if (props.onGoto) {
+                                    props.onGoto(data.position);
+                                }
+                            }}>
+                                <CenterFocusWeak sx={{
+                                    fontSize: 16,
+                                    color: style.linkColor,
+                                    ':hover': {
+                                        color: style.linkHoverColor,
+                                    },
+                                }} />
+                            </IconButton>
+                        </Tooltip>
                     </Typography>
                     <Typography variant='body2' hidden={!data.chatLink}>
                         Chat Link: {data.chatLink}
