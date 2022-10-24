@@ -10,7 +10,7 @@ import { ChevronRight } from '@mui/icons-material';
 import React from 'react';
 import SettingsDrawer from '@/Components/SettingsDrawer';
 import { getEnabledExpansions, getSettings } from '@/logic/settingsStorage';
-import { debounce, findLast, throttle } from 'lodash-es';
+import { findLast, throttle } from 'lodash-es';
 import MapInfoCard from '@/Components/MapInfoCard';
 
 const defaultQueryParams = {
@@ -89,14 +89,21 @@ export default function WorldMap() {
     const scrollingMap = useRef<{ pointerId: number, position: Vector2, threshold: boolean }>();
     const [settingsOpenState, setSettingsOpenState] = React.useState(false);
 
-    const updateLocationTextDebounced = useRef(debounce(updateLocationText, 150));
-    const updateLocationTextThrottled = useRef(throttle(updateLocationText, 100));
+    const updateLocationTextThrottled = useRef(throttle(updateLocationText, 50, {
+        leading: true,
+        trailing: true,
+    }));
     const lastMouseWorldPos = useRef(vector2(0, 0));
 
+    const redrawThrottled = useRef(throttle(() => redrawInternal(), 16, {
+        leading: true,
+        trailing: true,
+    }));
+
     const selectionState = React.useState<ISelectableEntity|undefined>(undefined);
-    let selected = selectionState[0];
+    const selected = useRef(selectionState[0]);
     const setSelected = (newSelection: ISelectableEntity|undefined) => {
-        selected = newSelection;
+        selected.current = newSelection;
         selectionState[1](newSelection);
     };
 
@@ -140,7 +147,7 @@ export default function WorldMap() {
                 NCSOFT, ArenaNet, Guild Wars, Guild Wars 2: Heart of Thorns, Guild Wars 2: Path of Fire, and Guild Wars 2: End of Dragons
                 and all associated logos, designs, and composite marks are trademarks or registered trademarks of NCSOFT Corporation.
             </Typography>
-            <MapInfoCard className={classes.infoCard} data={selected} />
+            <MapInfoCard className={classes.infoCard} data={selected.current} />
         </div>
     );
 
@@ -153,6 +160,13 @@ export default function WorldMap() {
     }
 
     function redraw(): void {
+        if (redrawThrottled.current) {
+            redrawThrottled.current();
+        }
+    }
+
+    function redrawInternal(): void {
+        console.log('redrawing');
         if (!canvasRef.current) {
             return;
         }
@@ -177,7 +191,7 @@ export default function WorldMap() {
                 y: queryRef.current.get('y'),
             },
             mapInfo: getCurrentMapInfo(),
-            selected,
+            selected: selected.current,
         };
 
         lastDrawInfoRef.current = drawMap(drawingContext);
@@ -236,7 +250,6 @@ export default function WorldMap() {
             const mouseCanvasPos = vector2(e.clientX - canvasBoundaries.left, e.clientY - canvasBoundaries.top);
             const mouseWorldPos = canvasToWorld(mouseCanvasPos);
             updateLocationTextThrottled.current(mouseWorldPos);
-            updateLocationTextDebounced.current(mouseWorldPos);
         }
     }
 
@@ -284,7 +297,7 @@ export default function WorldMap() {
                     && mouseCanvasPos.y < x.position.y + x.size.y;
                 });
 
-                if (selected !== newSelected) {
+                if (selected.current !== newSelected) {
                     setSelected(newSelected ? newSelected.entity : undefined);
                     redraw();
                 }
