@@ -1,6 +1,7 @@
-import { getCharacterCompleted, setCharacterCompleted } from '@/logic/completedStorage';
+import { getCharacterCompleted, getCompletion, setCharacterCompleted } from '@/logic/completedStorage';
 import { getArea, getMasteryPoint, getPointOfInterest, getRegion, getTask, getZone } from '@/logic/mapData/worldDataUtils';
 import { getSetting } from '@/logic/settingsStorage';
+import { forEachEntry, forEachKey } from '@/logic/utility/util';
 import { style } from '@/theme';
 import { ContentCopy, CenterFocusWeak } from '@mui/icons-material';
 import { Button, Card, CardActions, CardContent, Checkbox, IconButton, Link, Tooltip, Typography } from '@mui/material';
@@ -10,7 +11,7 @@ interface IProps {
     className?: string|undefined,
     data?: ISelectableEntity|undefined,
     onGoto?: (worldPos: Vector2) => void|undefined,
-    onCompletedChanged?: (type: string, id: string) => void|undefined,
+    onCompletedChanged?: (type?: string|undefined, id?: string|undefined) => void|undefined,
 }
 
 interface ICardData {
@@ -24,6 +25,7 @@ interface ICardData {
     maxLevel?: number|undefined,
     masteryTrack?: string|undefined,
     completed?: boolean|undefined,
+    markAs100Percent?: string[]|undefined,
 }
 
 function getMasteryTrack(region: string|undefined): { name: string, url: string }|undefined {
@@ -88,6 +90,21 @@ function getCardCompleted(entity: ISelectableEntity): boolean {
     return completed;
 }
 
+function getMarkablesFromZone(zone: Zone): string[] {
+    const result: string[] = [];
+    forEachEntry(zone.points_of_interest, (id, poi) => {
+        result.push(`${poi.type}#${id}`);
+    });
+    forEachKey(zone.tasks, (id) => {
+        result.push(`task#${id}`);
+    });
+    zone.skill_challenges.forEach(challenge => {
+        const id = challenge.id ?? `challenge-${Math.floor(challenge.coord[0])}-${Math.floor(challenge.coord[1])}`;
+        result.push(`challenge#${id}`);
+    });
+    return result;
+}
+
 function getCardData(entity: ISelectableEntity|undefined): ICardData|undefined {
     if (!entity) {
         return undefined;
@@ -110,6 +127,7 @@ function getCardData(entity: ISelectableEntity|undefined): ICardData|undefined {
             wikiUrl: additionalZoneData.wikiUrl,
             minLevel: zoneData.min_level,
             maxLevel: zoneData.max_level,
+            markAs100Percent: getMarkablesFromZone(zoneData),
         };
     } else if (entity.type === 'area') {
         const areaData = getArea(entity.map, entity.id);
@@ -172,16 +190,41 @@ function getCardData(entity: ISelectableEntity|undefined): ICardData|undefined {
     };
 }
 
+function getCompletionPercentage(completables: string[]) {
+    const charId = getSetting('characterId');
+    const completion = getCompletion(charId);
+    let completed = 0;
+    completables.forEach(x => {
+        if (completion?.completed?.has(x)) {
+            completed++;
+        }
+    });
+
+    if (completables.length === 0) {
+        return 1;
+    }
+    return completed / completables.length;
+}
+
 export default function MapInfoCard(props: IProps) {
     const data = getCardData(props.data);
     const [completed, setCompleted] = useState<boolean|undefined>(data ? data.completed : undefined);
+    const [completionPercentage, setCompletionPercentage] = useState<number|undefined>(0);
 
     // Flashes with useEffect
     useLayoutEffect(() => {
-        if (data) {
-            setCompleted(data.completed);
+        if (!data) {
+            return;
         }
-    }, [data?.completed]);
+
+        setCompleted(data.completed);
+
+        if (!data.markAs100Percent) {
+            setCompletionPercentage(undefined);
+        } else {
+            setCompletionPercentage(getCompletionPercentage(data.markAs100Percent));
+        }
+    }, [data?.markAs100Percent, data?.completed]);
 
     if (!data) {
         return <div className={props.className} hidden={true} />;
@@ -196,6 +239,14 @@ export default function MapInfoCard(props: IProps) {
             props.onCompletedChanged(data.type, data.id);
         }
     };
+
+    function markAllAsCompleted(completed: string[]) {
+        const charId = getSetting('characterId');
+        completed.forEach(entityId => setCharacterCompleted(charId, entityId, true));
+        if (props.onCompletedChanged) {
+            props.onCompletedChanged();
+        }
+    }
 
     const masteryTrackData = getMasteryTrack(data.masteryTrack);
 
@@ -217,6 +268,9 @@ export default function MapInfoCard(props: IProps) {
                     </Typography>
                     <Typography variant='body2' hidden={!data.minLevel && !data.maxLevel}>
                         Level: {getLevelString(data.minLevel, data.maxLevel)}
+                    </Typography>
+                    <Typography variant='body2' hidden={completionPercentage === undefined}>
+                        Completion: {Math.floor((completionPercentage ?? 0) * 100)}%
                     </Typography>
                     <Typography variant='body2'>
                         Coordinates: [{Math.floor(data.position.x)}, {Math.floor(data.position.y)}]
@@ -272,6 +326,20 @@ export default function MapInfoCard(props: IProps) {
                                     },
                                 }}>
                                     Wiki
+                            </Button>
+                        </span> : undefined }
+                    { data.markAs100Percent ?
+                        <span hidden={!data.markAs100Percent}>
+                            <Button
+                                size='small'
+                                sx={{
+                                    color: style.linkColor,
+                                    ':hover': {
+                                        color: style.linkHoverColor,
+                                    },
+                                }}
+                                onClick={() => markAllAsCompleted(data.markAs100Percent!)}>
+                                    Complete All
                             </Button>
                         </span> : undefined }
                 </CardActions>

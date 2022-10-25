@@ -520,7 +520,7 @@ export function drawMap(ctx: DrawingContext): LastDrawInfo {
                         mp.region === 'Maguuma' ? icons.mastery_hot :
                             mp.region === 'Desert' ? icons.mastery_pof :
                                 mp.region === 'Tundra' ? icons.mastery_is : icons.mastery_eod;
-                const drawn = drawIcon(isCompleted ? icon.complete : icon.incomplete, vector2(mp.coord[0], mp.coord[1]));
+                const drawn = drawIcon(isCompleted ? icon.complete : icon.incomplete, vector2(mp.coord[0], mp.coord[1]), ctx.settings.iconSize * 1.5, ctx.settings.iconSize * 1.5);
                 if (drawn) {
                     selectables.push({
                         position: drawn.canvasPos,
