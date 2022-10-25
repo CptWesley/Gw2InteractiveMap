@@ -1,0 +1,19 @@
+{
+  "files": {
+    "main.css": "/Gw2InteractiveMap/static/css/main.6abb5001.css",
+    "main.js": "/Gw2InteractiveMap/static/js/main.9a696fe6.js",
+    "static/js/496.db0ca9a0.chunk.js": "/Gw2InteractiveMap/static/js/496.db0ca9a0.chunk.js",
+    "static/media/lato-normal.woff2": "/Gw2InteractiveMap/static/media/lato-normal.75614cfcfedd509b1f7a.woff2",
+    "static/media/logo.svg": "/Gw2InteractiveMap/static/media/logo.f16a21d956e27f75f3620358223adb3d.svg",
+    "static/media/README.md": "/Gw2InteractiveMap/static/media/README.8a2d4fcb8ffe49ea2479.md",
+    "index.html": "/Gw2InteractiveMap/index.html",
+    "static/media/CHANGELOG.md": "/Gw2InteractiveMap/static/media/CHANGELOG.29c62ef27e45af144194.md",
+    "main.6abb5001.css.map": "/Gw2InteractiveMap/static/css/main.6abb5001.css.map",
+    "main.9a696fe6.js.map": "/Gw2InteractiveMap/static/js/main.9a696fe6.js.map",
+    "496.db0ca9a0.chunk.js.map": "/Gw2InteractiveMap/static/js/496.db0ca9a0.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.6abb5001.css",
+    "static/js/main.9a696fe6.js"
+  ]
+}
